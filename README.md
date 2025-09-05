@@ -11,6 +11,59 @@ A modern, responsive website built with Node.js and Express.js, inspired by the 
 - **Bootstrap Integration**: Bootstrap 5 for responsive grid and components
 - **Font Awesome Icons**: Professional iconography throughout the site
 - **SEO Friendly**: Proper meta tags and semantic HTML structure
+- **Iframe Embedding**: Embeddable widgets for integration into other websites
+
+## Embedding 42Web.io
+
+The website includes powerful embedding capabilities that allow you to integrate 42Web.io content into other websites using iframes.
+
+### Embed URLs
+
+- **Home Widget**: `/embed` or `/embed?page=home`
+- **Services Widget**: `/embed?page=services`
+- **About Widget**: `/embed?page=about`
+- **Contact Widget**: `/embed?page=contact`
+
+### Embedding Options
+
+You can customize the embedded content using URL parameters:
+
+- `page`: Specify which page to embed (`home`, `services`, `about`, `contact`)
+- `theme`: Choose visual theme (`default`, `minimal`, `dark`, `compact`)
+
+### Example Usage
+
+```html
+<!-- Basic embed -->
+<iframe src="http://localhost:3000/embed" width="100%" height="400"></iframe>
+
+<!-- Services with minimal theme -->
+<iframe src="http://localhost:3000/embed?page=services&theme=minimal" width="100%" height="500"></iframe>
+
+<!-- Contact form in compact mode -->
+<iframe src="http://localhost:3000/embed?page=contact&theme=compact" width="100%" height="350"></iframe>
+```
+
+### Responsive Embedding
+
+For responsive embedding, use CSS:
+
+```css
+.embed-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.embed-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+```
 
 ## Tech Stack
 

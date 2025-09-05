@@ -1,0 +1,81 @@
+/* Minimal Font Awesome Fallback CSS */
+/* Using Unicode characters as fallbacks for common icons */
+
+.fas, .fab, .far {
+    font-family: monospace;
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    text-align: center;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1em;
+}
+
+/* Common icon mappings using Unicode */
+.fa-code::before,
+.fas.fa-code::before { content: "</>" ; }
+
+.fa-laptop-code::before,
+.fas.fa-laptop-code::before { content: "💻"; }
+
+.fa-rocket::before,
+.fas.fa-rocket::before { content: "🚀"; }
+
+.fa-shield-alt::before,
+.fas.fa-shield-alt::before { content: "🛡️"; }
+
+.fa-expand-arrows-alt::before,
+.fas.fa-expand-arrows-alt::before { content: "⚡"; }
+
+.fa-js-square::before,
+.fab.fa-js-square::before { content: "JS"; }
+
+.fa-react::before,
+.fab.fa-react::before { content: "⚛️"; }
+
+.fa-node-js::before,
+.fab.fa-node-js::before { content: "Node"; }
+
+.fa-python::before,
+.fab.fa-python::before { content: "🐍"; }
+
+.fa-aws::before,
+.fab.fa-aws::before { content: "AWS"; }
+
+.fa-docker::before,
+.fab.fa-docker::before { content: "🐳"; }
+
+.fa-twitter::before,
+.fab.fa-twitter::before { content: "🐦"; }
+
+.fa-linkedin::before,
+.fab.fa-linkedin::before { content: "💼"; }
+
+.fa-github::before,
+.fab.fa-github::before { content: "🐙"; }
+
+/* Size classes */
+.fa-3x {
+    font-size: 3em;
+}
+
+.fa-2x {
+    font-size: 2em;
+}
+
+.fa-lg {
+    font-size: 1.33333em;
+    line-height: 0.75em;
+    vertical-align: -15%;
+}
+
+/* Display utilities */
+.display-1 .fas,
+.display-1 .fab,
+.display-1 .far {
+    font-size: 1em;
+}

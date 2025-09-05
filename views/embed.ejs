@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <meta name="description" content="<%= (meta && meta.description) || '' %>">
+    <!-- Bootstrap CSS -->
+    <link href="https://unpkg.com/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" onerror="this.href='/css/bootstrap-fallback.css'">
+    <!-- Font Awesome CSS -->
+    <link href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" rel="stylesheet" onerror="this.href='/css/fontawesome-fallback.css'">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        /* Embed-specific styles */
+        body {
+            padding-top: 0 !important;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .embed-container {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .embed-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #4c6ef5 100%);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .embed-content {
+            padding: 0 1rem 1rem;
+        }
+        
+        /* Theme variations */
+        .theme-minimal .embed-header {
+            background: #f8f9fa;
+            color: #212529;
+            border-bottom: 2px solid #0d6efd;
+        }
+        
+        .theme-dark {
+            background: #212529;
+            color: white;
+        }
+        
+        .theme-dark .embed-header {
+            background: #495057;
+        }
+        
+        .theme-compact .embed-header {
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .theme-compact .embed-content {
+            padding: 0.5rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 576px) {
+            .embed-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .embed-content {
+                padding: 0 0.5rem 0.5rem;
+            }
+        }
+        
+        /* Remove margins for embedded content */
+        .embed-content .card {
+            margin-bottom: 1rem;
+        }
+        
+        .embed-content .btn {
+            margin: 0.25rem;
+        }
+    </style>
+</head>
+<body class="theme-<%= theme %>">
+    <div class="embed-container">
+        <div class="embed-header">
+            <h1><i class="fas fa-code text-warning"></i> 42Web.io</h1>
+            <p class="mb-0">Professional Tech Solutions</p>
+        </div>
+        
+        <div class="embed-content">
+            <%- include(embedContent) %>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function loadScript(src) {
+            var script = document.createElement('script');
+            script.src = src;
+            document.head.appendChild(script);
+        }
+    </script>
+    <script src="https://unpkg.com/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" onerror="loadScript('/js/bootstrap-fallback.js')"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

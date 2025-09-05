@@ -1,0 +1,196 @@
+<%- include('layout', { body: `
+<!-- Demo Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h1 class="display-5 fw-bold">Embedding Demo</h1>
+                <p class="lead text-muted">See how to integrate 42Web.io content into your website</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Embed Examples -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-12 mb-4">
+                <h2 class="text-center">Live Embed Examples</h2>
+                <p class="text-center text-muted">These are actual embedded widgets running in iframes</p>
+            </div>
+            
+            <!-- Home Embed -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Home Widget (Default Theme)</h5>
+                        <small class="text-muted">URL: /embed?page=home</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <iframe src="/embed?page=home" width="100%" height="400" style="border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Services Embed -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Services Widget (Minimal Theme)</h5>
+                        <small class="text-muted">URL: /embed?page=services&theme=minimal</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <iframe src="/embed?page=services&theme=minimal" width="100%" height="400" style="border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About Embed -->
+            <div class="col-lg-6 mt-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">About Widget (Default Theme)</h5>
+                        <small class="text-muted">URL: /embed?page=about</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <iframe src="/embed?page=about" width="100%" height="400" style="border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Embed -->
+            <div class="col-lg-6 mt-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Contact Widget (Compact Theme)</h5>
+                        <small class="text-muted">URL: /embed?page=contact&theme=compact</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <iframe src="/embed?page=contact&theme=compact" width="100%" height="400" style="border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Code Examples -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-center">How to Embed</h2>
+                <p class="text-center text-muted">Copy and paste these code snippets into your website</p>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Basic Embed</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded"><code>&lt;iframe 
+  src="http://localhost:3000/embed" 
+  width="100%" 
+  height="400"
+  style="border: none;"&gt;
+&lt;/iframe&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Services with Minimal Theme</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded"><code>&lt;iframe 
+  src="http://localhost:3000/embed?page=services&amp;theme=minimal" 
+  width="100%" 
+  height="500"
+  style="border: none;"&gt;
+&lt;/iframe&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Responsive Embed Container (CSS)</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded"><code>.embed-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+}
+
+.embed-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Available Options -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-center">Customization Options</h2>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Available Pages</h5>
+                        <ul class="list-unstyled">
+                            <li><code>page=home</code> - Homepage content</li>
+                            <li><code>page=services</code> - Services overview</li>
+                            <li><code>page=about</code> - About us information</li>
+                            <li><code>page=contact</code> - Contact form and info</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Available Themes</h5>
+                        <ul class="list-unstyled">
+                            <li><code>theme=default</code> - Standard blue theme</li>
+                            <li><code>theme=minimal</code> - Clean minimal design</li>
+                            <li><code>theme=dark</code> - Dark mode variant</li>
+                            <li><code>theme=compact</code> - Space-efficient layout</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-dark text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-3">Ready to Integrate?</h2>
+        <p class="lead mb-4">Start embedding 42Web.io content in your website today!</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="/contact" class="btn btn-warning btn-lg">Get Support</a>
+            <a href="/" class="btn btn-outline-light btn-lg">View Full Site</a>
+        </div>
+    </div>
+</section>
+` }) %>

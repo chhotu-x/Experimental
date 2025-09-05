@@ -123,6 +123,58 @@ app.post('/contact', (req, res) => {
     });
 });
 
+// Demo page for embedding functionality
+app.get('/demo', (req, res) => {
+    res.render('demo', {
+        title: 'Embedding Demo - 42Web.io',
+        currentPage: 'demo',
+        ...withMeta({
+            description: 'See how to embed 42Web.io content into other websites using iframes.',
+            canonical: req.protocol + '://' + req.get('host') + '/demo'
+        })
+    });
+});
+
+// Embed route for iframe embedding
+app.get('/embed', (req, res) => {
+    const allowedParams = ['page', 'theme', 'height', 'width'];
+    const page = req.query.page || 'home';
+    const theme = req.query.theme || 'default';
+    
+    // Determine which page to embed
+    let embedContent = '';
+    let pageTitle = '';
+    
+    switch(page) {
+        case 'services':
+            embedContent = 'services-embed';
+            pageTitle = 'Services - 42Web.io';
+            break;
+        case 'about':
+            embedContent = 'about-embed';
+            pageTitle = 'About - 42Web.io';
+            break;
+        case 'contact':
+            embedContent = 'contact-embed';
+            pageTitle = 'Contact - 42Web.io';
+            break;
+        default:
+            embedContent = 'home-embed';
+            pageTitle = '42Web.io - Tech Solutions';
+    }
+    
+    res.render('embed', {
+        title: pageTitle,
+        currentPage: page,
+        embedContent: embedContent,
+        theme: theme,
+        ...withMeta({
+            description: 'Embeddable 42Web.io content for integration into other websites.',
+            canonical: req.protocol + '://' + req.get('host') + '/embed'
+        })
+    });
+});
+
 // Blog routes
 app.get('/blog', (req, res) => {
     res.render('blog', {
@@ -158,7 +210,11 @@ app.get('/blog/:slug', (req, res) => {
 // 404 handler
 app.use((req, res) => {
     res.status(404).render('404', {
-        title: '404 - Page Not Found'
+        title: '404 - Page Not Found',
+        currentPage: '',
+        ...withMeta({
+            description: 'Page not found on 42Web.io'
+        })
     });
 });
 
@@ -166,7 +222,11 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).render('error', {
-        title: 'Error - Something went wrong'
+        title: 'Error - Something went wrong',
+        currentPage: '',
+        ...withMeta({
+            description: 'An error occurred on 42Web.io'
+        })
     });
 });
 
