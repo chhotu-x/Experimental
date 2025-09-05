@@ -1,0 +1,42 @@
+<%- include('layout', { body: `
+<section class="py-5 bg-primary text-white">
+  <div class="container">
+    <div class="row align-items-center min-vh-50">
+      <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold mb-3">Blog</h1>
+        <p class="lead">Insights, tutorials, and updates from the 42Web.io team</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <% if (posts && posts.length) { %>
+        <% posts.forEach(function(post){ %>
+          <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+              <% if (post.image) { %>
+                <img src="<%= post.image %>" class="card-img-top" alt="<%= post.title %>">
+              <% } %>
+              <div class="card-body">
+                <div class="small text-muted mb-2">
+                  <%= new Date(post.date).toLocaleDateString() %> · <%= post.author %>
+                </div>
+                <h5 class="card-title"><a class="text-decoration-none" href="/blog/<%= post.slug %>"><%= post.title %></a></h5>
+                <p class="card-text text-muted"><%= post.excerpt %></p>
+              </div>
+              <div class="card-footer bg-white border-0 pt-0 pb-4 px-4">
+                <a href="/blog/<%= post.slug %>" class="btn btn-primary btn-sm">Read More</a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12 text-center text-muted">No posts yet. Check back soon.</div>
+      <% } %>
+    </div>
+  </div>
+</section>
+` }) %>

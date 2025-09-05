@@ -1,0 +1,22 @@
+[
+  {
+    "slug": "introducing-42web-io",
+    "title": "Introducing 42Web.io: Building Modern Tech Solutions",
+    "date": "2025-08-20",
+    "author": "Team 42Web",
+    "tags": ["announcement", "web", "cloud"],
+    "excerpt": "We’re excited to introduce 42Web.io — a team focused on modern web, mobile, and cloud solutions.",
+    "image": "/images/blog/launch.jpg",
+    "content": "<p>We’re thrilled to launch 42Web.io! Our mission is to build modern, scalable, and user-centric solutions across web, mobile, and cloud. Stay tuned for tutorials, insights, and case studies.</p><p>Follow us for updates and reach out if you'd like to collaborate.</p>"
+  },
+  {
+    "slug": "performance-optimizations-express",
+    "title": "Performance Tips for Express.js Apps",
+    "date": "2025-09-01",
+    "author": "John Smith",
+    "tags": ["node", "express", "performance"],
+    "excerpt": "Quick wins to make your Express.js apps faster: compression, caching, and efficient static delivery.",
+    "image": "/images/blog/perf.jpg",
+    "content": "<p>Performance matters. Start with <strong>compression()</strong> to gzip responses, set proper <em>Cache-Control</em> headers for static files, and enable <em>ETag</em>/<em>Last-Modified</em> for validation.</p><ul><li>Use compression middleware</li><li>Cache static assets aggressively</li><li>Profile and monitor</li></ul>"
+  }
+]

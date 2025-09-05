@@ -1,0 +1,217 @@
+<%- include('layout', { body: `
+<!-- Contact Hero -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold mb-4">Contact Us</h1>
+                <p class="lead">Let's start a conversation about your next project</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Success Message -->
+<% if (typeof success !== 'undefined' && success) { %>
+<section class="py-3">
+    <div class="container">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+</section>
+<% } %>
+
+<!-- Contact Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="mb-4">Send us a Message</h3>
+                        <form method="POST" action="/contact">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <select class="form-select" id="subject" name="subject">
+                                        <option value="general">General Inquiry</option>
+                                        <option value="web-development">Web Development</option>
+                                        <option value="mobile-development">Mobile Development</option>
+                                        <option value="cloud-solutions">Cloud Solutions</option>
+                                        <option value="uiux-design">UI/UX Design</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message *</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" 
+                                              placeholder="Tell us about your project..." required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row g-4">
+                    <!-- Contact Info -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
+                                <h5 class="mb-3">Get in Touch</h5>
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-envelope text-primary me-3"></i>
+                                    <div>
+                                        <small class="text-muted">Email</small>
+                                        <div>hello@42web.io</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-phone text-primary me-3"></i>
+                                    <div>
+                                        <small class="text-muted">Phone</small>
+                                        <div>+1 (555) 123-4567</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-map-marker-alt text-primary me-3"></i>
+                                    <div>
+                                        <small class="text-muted">Address</small>
+                                        <div>123 Tech Street<br>San Francisco, CA 94105</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock text-primary me-3"></i>
+                                    <div>
+                                        <small class="text-muted">Business Hours</small>
+                                        <div>Mon - Fri: 9:00 AM - 6:00 PM</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 text-center">
+                                <h5 class="mb-3">Follow Us</h5>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <a href="#" class="btn btn-outline-primary btn-sm">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-primary btn-sm">
+                                        <i class="fab fa-linkedin"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-primary btn-sm">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-primary btn-sm">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Response -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm bg-primary text-white">
+                            <div class="card-body p-4 text-center">
+                                <i class="fas fa-rocket fa-2x mb-3"></i>
+                                <h6>Quick Response Guarantee</h6>
+                                <p class="mb-0 small">We respond to all inquiries within 24 hours during business days.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold text-center mb-5">Frequently Asked Questions</h2>
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse1">
+                                How long does a typical project take?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Project timelines vary depending on complexity and scope. Simple websites typically take 2-4 weeks, 
+                                while complex web applications can take 2-6 months. We provide detailed timelines during the planning phase.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse2">
+                                What technologies do you specialize in?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We specialize in modern JavaScript frameworks (React, Vue.js, Angular), Node.js, Python, 
+                                cloud platforms (AWS, Google Cloud), and mobile development (React Native, Flutter).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse3">
+                                Do you provide ongoing support?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes! We offer various support packages including maintenance, updates, monitoring, 
+                                and feature enhancements to ensure your application continues to perform optimally.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse4">
+                                What's your pricing structure?
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We offer flexible pricing models including fixed-price projects, hourly rates, and retainer agreements. 
+                                Pricing depends on project scope, complexity, and timeline. Contact us for a personalized quote.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+` }) %>

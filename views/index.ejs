@@ -1,0 +1,139 @@
+<%- include('layout', { body: `
+<!-- Hero Section -->
+<section class="hero-section bg-primary text-white">
+    <div class="container">
+        <div class="row min-vh-100 align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Welcome to <span class="text-warning">42Web.io</span>
+                </h1>
+                <p class="lead mb-4">
+                    We create cutting-edge web solutions that drive innovation and transform businesses. 
+                    From modern web applications to scalable cloud infrastructure.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="/services" class="btn btn-warning btn-lg">Our Services</a>
+                    <a href="/contact" class="btn btn-outline-light btn-lg">Get Started</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-animation">
+                    <i class="fas fa-laptop-code display-1 text-warning mb-3"></i>
+                    <div class="floating-icons">
+                        <i class="fab fa-js-square text-warning"></i>
+                        <i class="fab fa-react text-info"></i>
+                        <i class="fab fa-node-js text-success"></i>
+                        <i class="fab fa-python text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-3">Why Choose 42Web.io?</h2>
+                <p class="lead text-muted">We deliver exceptional results through innovation and expertise</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-rocket fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Fast & Efficient</h5>
+                        <p class="card-text text-muted">
+                            Lightning-fast development with modern tools and best practices.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Secure & Reliable</h5>
+                        <p class="card-text text-muted">
+                            Enterprise-grade security and 99.9% uptime guarantee.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-expand-arrows-alt fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Scalable Solutions</h5>
+                        <p class="card-text text-muted">
+                            Built to grow with your business, from startup to enterprise.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technologies Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-3">Our Tech Stack</h2>
+                <p class="lead text-muted">Cutting-edge technologies for modern solutions</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-2 col-sm-4 col-6 text-center">
+                <div class="tech-icon">
+                    <i class="fab fa-js-square fa-3x text-warning mb-2"></i>
+                    <p class="small fw-bold">JavaScript</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-6 text-center">
+                <div class="tech-icon">
+                    <i class="fab fa-react fa-3x text-info mb-2"></i>
+                    <p class="small fw-bold">React</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-6 text-center">
+                <div class="tech-icon">
+                    <i class="fab fa-node-js fa-3x text-success mb-2"></i>
+                    <p class="small fw-bold">Node.js</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-6 text-center">
+                <div class="tech-icon">
+                    <i class="fab fa-python fa-3x text-primary mb-2"></i>
+                    <p class="small fw-bold">Python</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-6 text-center">
+                <div class="tech-icon">
+                    <i class="fab fa-aws fa-3x text-orange mb-2"></i>
+                    <p class="small fw-bold">AWS</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-6 text-center">
+                <div class="tech-icon">
+                    <i class="fab fa-docker fa-3x text-primary mb-2"></i>
+                    <p class="small fw-bold">Docker</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-dark text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-3">Ready to Get Started?</h2>
+        <p class="lead mb-4">Let's build something amazing together!</p>
+        <a href="/contact" class="btn btn-warning btn-lg">Contact Us Today</a>
+    </div>
+</section>
+` }) %>
