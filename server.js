@@ -135,11 +135,23 @@ app.get('/demo', (req, res) => {
     });
 });
 
-// Embed route for iframe embedding
+// Embed route for iframe embedding with Privacy Sandbox support
 app.get('/embed', (req, res) => {
     const allowedParams = ['page', 'theme', 'height', 'width'];
     const page = req.query.page || 'home';
     const theme = req.query.theme || 'default';
+    
+    // Set Privacy Sandbox headers
+    res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+    res.setHeader('Permissions-Policy', 'storage-access=*, identity-credentials-get=*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    
+    // Enable partitioned cookies (CHIPS) for supporting browsers
+    res.setHeader('Set-Cookie', [
+        `embed_session=${generateEmbedSessionId()}; Path=/; Secure; SameSite=None; Partitioned; Max-Age=3600`,
+        `embed_theme=${theme}; Path=/; Secure; SameSite=None; Partitioned; Max-Age=86400`
+    ]);
     
     // Determine which page to embed
     let embedContent = '';
@@ -169,11 +181,16 @@ app.get('/embed', (req, res) => {
         embedContent: embedContent,
         theme: theme,
         ...withMeta({
-            description: 'Embeddable 42Web.io content for integration into other websites.',
+            description: 'Privacy-preserving embeddable 42Web.io content for integration into other websites.',
             canonical: req.protocol + '://' + req.get('host') + '/embed'
         })
     });
 });
+
+// Helper function to generate embed session ID
+function generateEmbedSessionId() {
+    return 'embed_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+}
 
 // Blog routes
 app.get('/blog', (req, res) => {
@@ -205,6 +222,95 @@ app.get('/blog/:slug', (req, res) => {
             type: 'article'
         })
     });
+});
+
+// FedCM configuration endpoint for Federated Credential Management
+app.get('/.well-known/web-identity', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    const fedCMConfig = {
+        "provider_urls": [`${req.protocol}://${req.get('host')}/fedcm`],
+        "accounts_endpoint": "/fedcm/accounts",
+        "client_metadata_endpoint": "/fedcm/client-metadata",
+        "id_assertion_endpoint": "/fedcm/assertion",
+        "disconnect_endpoint": "/fedcm/disconnect",
+        "login_url": `${req.protocol}://${req.get('host')}/login`,
+        "branding": {
+            "background_color": "#0d6efd",
+            "color": "#ffffff",
+            "icons": [
+                {
+                    "url": `${req.protocol}://${req.get('host')}/images/logo-192.png`,
+                    "size": 192
+                }
+            ]
+        }
+    };
+    
+    res.json(fedCMConfig);
+});
+
+// FedCM endpoints for credential management
+app.get('/fedcm/accounts', (req, res) => {
+    // Return available accounts (in a real app, this would check authentication)
+    res.json({
+        "accounts": [
+            {
+                "id": "42web_user",
+                "name": "42Web.io User",
+                "email": "user@42web.io",
+                "given_name": "User",
+                "picture": `${req.protocol}://${req.get('host')}/images/default-avatar.png`,
+                "approved_clients": ["42web-embed-client"]
+            }
+        ]
+    });
+});
+
+app.get('/fedcm/client-metadata', (req, res) => {
+    const clientId = req.query.client_id;
+    
+    if (clientId === '42web-embed-client') {
+        res.json({
+            "privacy_policy_url": `${req.protocol}://${req.get('host')}/privacy`,
+            "terms_of_service_url": `${req.protocol}://${req.get('host')}/terms`
+        });
+    } else {
+        res.status(404).json({ error: "Client not found" });
+    }
+});
+
+app.post('/fedcm/assertion', express.json(), (req, res) => {
+    const { client_id, account_id, disclosure_text_shown } = req.body;
+    
+    if (client_id === '42web-embed-client' && account_id === '42web_user') {
+        // Generate a mock JWT token (in production, use proper JWT library)
+        const token = Buffer.from(JSON.stringify({
+            iss: req.protocol + '://' + req.get('host'),
+            aud: client_id,
+            sub: account_id,
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000)
+        })).toString('base64');
+        
+        res.json({
+            "token": `header.${token}.signature`
+        });
+    } else {
+        res.status(400).json({ error: "Invalid request" });
+    }
+});
+
+app.post('/fedcm/disconnect', express.json(), (req, res) => {
+    const { client_id, account_id } = req.body;
+    
+    // Handle disconnection (in production, revoke tokens, update database)
+    console.log(`FedCM: Disconnecting client ${client_id} for account ${account_id}`);
+    
+    res.status(200).send();
 });
 
 // 404 handler

@@ -33,16 +33,43 @@ You can customize the embedded content using URL parameters:
 
 ### Example Usage
 
+### Privacy-Preserving Embedding
+
+The embedded widgets include modern Privacy Sandbox features for enhanced privacy:
+
 ```html
-<!-- Basic embed -->
-<iframe src="http://localhost:3000/embed" width="100%" height="400"></iframe>
+<!-- Basic embed with privacy features -->
+<iframe 
+  src="http://localhost:3000/embed" 
+  width="100%" 
+  height="400"
+  allow="storage-access; identity-credentials-get">
+</iframe>
 
 <!-- Services with minimal theme -->
-<iframe src="http://localhost:3000/embed?page=services&theme=minimal" width="100%" height="500"></iframe>
+<iframe 
+  src="http://localhost:3000/embed?page=services&theme=minimal" 
+  width="100%" 
+  height="500"
+  allow="storage-access; identity-credentials-get">
+</iframe>
 
 <!-- Contact form in compact mode -->
-<iframe src="http://localhost:3000/embed?page=contact&theme=compact" width="100%" height="350"></iframe>
+<iframe 
+  src="http://localhost:3000/embed?page=contact&theme=compact" 
+  width="100%" 
+  height="350"
+  allow="storage-access; identity-credentials-get">
+</iframe>
 ```
+
+**Privacy Features:**
+- 🔒 **CHIPS (Cookie Partitioning)**: Partitioned cookies prevent cross-site tracking
+- 🔓 **Storage Access API**: Request storage access when needed for user preferences
+- 🆔 **FedCM Support**: Federated Credential Management for secure authentication
+- 🛡️ **Privacy Headers**: Proper CORS and permissions policies
+
+For detailed privacy documentation, see [PRIVACY_SANDBOX.md](./PRIVACY_SANDBOX.md).
 
 ### Responsive Embedding
 
@@ -72,25 +99,34 @@ For responsive embedding, use CSS:
 - **Styling**: Bootstrap 5 + Custom CSS
 - **Icons**: Font Awesome 6
 - **JavaScript**: Vanilla JS for interactive features
+- **Privacy**: Privacy Sandbox APIs (CHIPS, Storage Access API, FedCM)
 
 ## Project Structure
 
 ```
 ├── server.js              # Main server file
 ├── package.json           # Dependencies and scripts
+├── PRIVACY_SANDBOX.md     # Privacy Sandbox documentation
 ├── views/                 # EJS templates
 │   ├── layout.ejs        # Main layout template
 │   ├── index.ejs         # Home page
 │   ├── about.ejs         # About page
 │   ├── services.ejs      # Services page
 │   ├── contact.ejs       # Contact page
+│   ├── demo.ejs          # Embedding demo page
+│   ├── embed.ejs         # Main embed template
+│   ├── *-embed.ejs       # Individual embed content
 │   ├── 404.ejs           # 404 error page
 │   └── error.ejs         # General error page
 ├── public/               # Static assets
 │   ├── css/
-│   │   └── style.css     # Custom styles
+│   │   ├── style.css     # Custom styles
+│   │   ├── bootstrap-fallback.css  # Bootstrap fallback
+│   │   └── fontawesome-fallback.css # Font Awesome fallback
 │   ├── js/
-│   │   └── main.js       # Custom JavaScript
+│   │   ├── main.js       # Custom JavaScript
+│   │   ├── privacy-sandbox.js  # Privacy Sandbox implementation
+│   │   └── bootstrap-fallback.js # Bootstrap fallback
 │   └── images/           # Image assets
 └── README.md             # Project documentation
 ```
@@ -122,6 +158,38 @@ For responsive embedding, use CSS:
    ```
    http://localhost:3000
    ```
+
+## Privacy Sandbox Features
+
+This website implements cutting-edge Privacy Sandbox and new browser APIs for privacy-preserving embedding:
+
+### 🍪 CHIPS (Cookie Partitioning)
+- Partitioned cookies isolate embedded content
+- Prevents cross-site tracking while maintaining functionality
+- Automatic implementation for all embedded widgets
+
+### 🔓 Storage Access API
+- Requests storage access when embedding content needs localStorage
+- Graceful fallback to partitioned cookies
+- User-consent driven access model
+
+### 🆔 FedCM (Federated Credential Management)
+- Privacy-preserving authentication for embedded content
+- Reduces reliance on third-party cookies
+- Ready-to-use identity provider configuration
+
+### 🛡️ Privacy Headers
+- Cross-Origin-Embedder-Policy for secure embedding
+- Permissions-Policy for storage and credential access
+- Proper CORS configuration for cross-origin embedding
+
+**Browser Support:**
+- Chrome 100+: Full support for CHIPS, Storage Access API, FedCM
+- Firefox 65+: Storage Access API support
+- Safari 11.1+: Storage Access API support
+- Edge 100+: Full support for CHIPS, Storage Access API, FedCM
+
+For complete documentation, see [PRIVACY_SANDBOX.md](./PRIVACY_SANDBOX.md)
 
 ## Available Scripts
 

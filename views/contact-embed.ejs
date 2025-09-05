@@ -8,7 +8,7 @@
                     Ready to start your next project? We'd love to hear from you!
                 </p>
                 
-                <form action="/contact" method="POST" target="_blank">
+                <form action="/contact" method="POST" target="_blank" onsubmit="handlePrivateFormSubmit(this)">
                     <div class="row g-2">
                         <div class="col-md-6">
                             <input type="text" class="form-control form-control-sm" name="name" placeholder="Your Name" required>
@@ -22,6 +22,12 @@
                         <div class="col-12 text-center">
                             <button type="submit" class="btn btn-primary btn-sm">Send Message</button>
                         </div>
+                    </div>
+                    
+                    <!-- Privacy Notice for Embedded Form -->
+                    <div class="alert alert-light mt-2 py-2" style="font-size: 0.75rem;">
+                        <i class="fas fa-shield-alt text-success"></i>
+                        <strong>Privacy Protected:</strong> This form uses partitioned cookies and privacy-preserving storage to protect your data in embedded contexts.
                     </div>
                 </form>
             </div>

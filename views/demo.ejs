@@ -5,7 +5,43 @@
         <div class="row">
             <div class="col-12 text-center mb-5">
                 <h1 class="display-5 fw-bold">Embedding Demo</h1>
-                <p class="lead text-muted">See how to integrate 42Web.io content into your website</p>
+                <p class="lead text-muted">See how to integrate 42Web.io content into your website with Privacy Sandbox support</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Privacy Sandbox Features -->
+<section class="py-5 bg-info text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h2><i class="fas fa-shield-alt"></i> Privacy Sandbox & New Browser APIs</h2>
+                <p class="lead">Modern privacy-preserving embedding with reduced cross-site tracking</p>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <i class="fas fa-cookie-bite fa-3x mb-2"></i>
+                    <h5>CHIPS Cookie Partitioning</h5>
+                    <p>Secure cookie management in embedded content with reduced tracking</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <i class="fas fa-database fa-3x mb-2"></i>
+                    <h5>Storage Access API</h5>
+                    <p>Request storage access for embedded content when needed</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <i class="fas fa-id-card fa-3x mb-2"></i>
+                    <h5>FedCM Integration</h5>
+                    <p>Federated Credential Management for secure authentication</p>
+                </div>
             </div>
         </div>
     </div>
@@ -17,7 +53,7 @@
         <div class="row g-4">
             <div class="col-12 mb-4">
                 <h2 class="text-center">Live Embed Examples</h2>
-                <p class="text-center text-muted">These are actual embedded widgets running in iframes</p>
+                <p class="text-center text-muted">These are actual embedded widgets running in iframes with Privacy Sandbox features</p>
             </div>
             
             <!-- Home Embed -->
@@ -26,6 +62,7 @@
                     <div class="card-header">
                         <h5 class="mb-0">Home Widget (Default Theme)</h5>
                         <small class="text-muted">URL: /embed?page=home</small>
+                        <div class="badge bg-success ms-2">Privacy Sandbox Enabled</div>
                     </div>
                     <div class="card-body p-0">
                         <iframe src="/embed?page=home" width="100%" height="400" style="border: none;"></iframe>
@@ -39,6 +76,7 @@
                     <div class="card-header">
                         <h5 class="mb-0">Services Widget (Minimal Theme)</h5>
                         <small class="text-muted">URL: /embed?page=services&theme=minimal</small>
+                        <div class="badge bg-success ms-2">Privacy Sandbox Enabled</div>
                     </div>
                     <div class="card-body p-0">
                         <iframe src="/embed?page=services&theme=minimal" width="100%" height="400" style="border: none;"></iframe>
@@ -52,6 +90,7 @@
                     <div class="card-header">
                         <h5 class="mb-0">About Widget (Default Theme)</h5>
                         <small class="text-muted">URL: /embed?page=about</small>
+                        <div class="badge bg-success ms-2">Privacy Sandbox Enabled</div>
                     </div>
                     <div class="card-body p-0">
                         <iframe src="/embed?page=about" width="100%" height="400" style="border: none;"></iframe>
@@ -65,6 +104,7 @@
                     <div class="card-header">
                         <h5 class="mb-0">Contact Widget (Compact Theme)</h5>
                         <small class="text-muted">URL: /embed?page=contact&theme=compact</small>
+                        <div class="badge bg-success ms-2">Privacy Sandbox Enabled</div>
                     </div>
                     <div class="card-body p-0">
                         <iframe src="/embed?page=contact&theme=compact" width="100%" height="400" style="border: none;"></iframe>
@@ -75,8 +115,68 @@
     </div>
 </section>
 
-<!-- Code Examples -->
+<!-- Privacy Features Documentation -->
 <section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-center">Privacy-Preserving Features</h2>
+                <p class="text-center text-muted">How our embedded content handles modern privacy requirements</p>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-cookie-bite text-primary"></i> CHIPS Support</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Cookie partitioning isolates embedded content cookies, preventing cross-site tracking while maintaining functionality.</p>
+                        <ul class="small">
+                            <li>Partitioned session cookies</li>
+                            <li>Theme preferences storage</li>
+                            <li>Form state management</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-database text-primary"></i> Storage Access API</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Requests storage access when needed, allowing embedded content to use localStorage and sessionStorage responsibly.</p>
+                        <ul class="small">
+                            <li>User preference storage</li>
+                            <li>Session management</li>
+                            <li>Graceful fallbacks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-id-card text-primary"></i> FedCM Ready</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Federated Credential Management support for secure authentication without third-party cookies.</p>
+                        <ul class="small">
+                            <li>Secure credential exchange</li>
+                            <li>Privacy-preserving authentication</li>
+                            <li>Cross-site identity management</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Code Examples -->
+<section class="py-5 bg-light">
     <div class="container">
         <div class="row">
             <div class="col-12 mb-4">
@@ -87,14 +187,15 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Basic Embed</h5>
+                        <h5 class="mb-0">Basic Embed with Privacy Sandbox</h5>
                     </div>
                     <div class="card-body">
                         <pre class="bg-light p-3 rounded"><code>&lt;iframe 
   src="http://localhost:3000/embed" 
   width="100%" 
   height="400"
-  style="border: none;"&gt;
+  style="border: none;"
+  allow="storage-access; identity-credentials-get"&gt;
 &lt;/iframe&gt;</code></pre>
                     </div>
                 </div>
@@ -103,14 +204,15 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Services with Minimal Theme</h5>
+                        <h5 class="mb-0">Services with Privacy Features</h5>
                     </div>
                     <div class="card-body">
                         <pre class="bg-light p-3 rounded"><code>&lt;iframe 
   src="http://localhost:3000/embed?page=services&amp;theme=minimal" 
   width="100%" 
   height="500"
-  style="border: none;"&gt;
+  style="border: none;"
+  allow="storage-access; identity-credentials-get"&gt;
 &lt;/iframe&gt;</code></pre>
                     </div>
                 </div>
@@ -119,22 +221,24 @@
             <div class="col-12 mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Responsive Embed Container (CSS)</h5>
+                        <h5 class="mb-0">JavaScript Privacy Sandbox Integration</h5>
                     </div>
                     <div class="card-body">
-                        <pre class="bg-light p-3 rounded"><code>.embed-container {
-  position: relative;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
-  height: 0;
-  overflow: hidden;
-}
+                        <pre class="bg-light p-3 rounded"><code>// Listen for privacy sandbox events
+window.addEventListener('message', (event) => {
+  if (event.data.type === 'privacy-sandbox-ready') {
+    console.log('Privacy Sandbox features available');
+  }
+});
 
-.embed-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+// Request storage access for embedded content
+async function requestEmbedStorageAccess() {
+  try {
+    await document.requestStorageAccess();
+    console.log('Storage access granted');
+  } catch (error) {
+    console.log('Storage access denied');
+  }
 }</code></pre>
                     </div>
                 </div>
@@ -144,7 +248,7 @@
 </section>
 
 <!-- Available Options -->
-<section class="py-5 bg-light">
+<section class="py-5">
     <div class="container">
         <div class="row">
             <div class="col-12 mb-4">
@@ -186,7 +290,7 @@
 <section class="py-5 bg-dark text-white">
     <div class="container text-center">
         <h2 class="display-5 fw-bold mb-3">Ready to Integrate?</h2>
-        <p class="lead mb-4">Start embedding 42Web.io content in your website today!</p>
+        <p class="lead mb-4">Start embedding 42Web.io content with modern privacy features today!</p>
         <div class="d-flex gap-3 justify-content-center">
             <a href="/contact" class="btn btn-warning btn-lg">Get Support</a>
             <a href="/" class="btn btn-outline-light btn-lg">View Full Site</a>
