@@ -3,13 +3,19 @@ const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
 const cheerio = require('cheerio');
-let compression;
-try {
-    compression = require('compression');
-} catch (e) {
-    console.warn('compression not installed, continuing without it');
-    compression = () => (req, res, next) => next();
-}
+const helmet = require('helmet');
+
+// Import performance middleware
+const {
+    pageCache,
+    proxyCache,
+    compressionMiddleware,
+    cacheMiddleware,
+    proxyRateLimit,
+    contactRateLimit,
+    securityHeaders,
+    responseTimeMiddleware
+} = require('./middleware/performance');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,21 +24,32 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Compression for better performance
-app.use(compression());
+// Trust proxy for rate limiting behind reverse proxies
+app.set('trust proxy', 1);
 
-// Serve static files with cache control
+// Performance and security middleware
+app.use(responseTimeMiddleware);
+app.use(compressionMiddleware);
+app.use(helmet({
+    contentSecurityPolicy: false, // We'll handle CSP manually for proxy routes
+    crossOriginEmbedderPolicy: false // Allow embedding
+}));
+app.use(securityHeaders);
+
+// Serve static files with enhanced cache control
 app.use(
     express.static(path.join(__dirname, 'public'), {
         etag: true,
         lastModified: true,
-        maxAge: '7d',
+        maxAge: '30d', // Increased cache duration
         setHeaders: (res, filePath) => {
-            // Long cache for images; moderate for CSS/JS
-            if (/(\.png|\.jpg|\.jpeg|\.gif|\.svg|\.webp)$/i.test(filePath)) {
+            // Aggressive caching for images and fonts
+            if (/(\.png|\.jpg|\.jpeg|\.gif|\.svg|\.webp|\.ico|\.woff|\.woff2|\.ttf|\.eot)$/i.test(filePath)) {
                 res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
             } else if (/(\.css|\.js)$/i.test(filePath)) {
-                res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
+                res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day for CSS/JS
+            } else if (/(\.html|\.htm)$/i.test(filePath)) {
+                res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour for HTML
             }
         }
     })
@@ -64,8 +81,8 @@ const withMeta = (overrides = {}) => ({
     }
 });
 
-// Routes
-app.get('/', (req, res) => {
+// Routes with caching
+app.get('/', cacheMiddleware(600), (req, res) => {
     res.render('index', {
         title: '42Web.io - Tech Solutions',
         currentPage: 'home',
@@ -78,7 +95,7 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/about', (req, res) => {
+app.get('/about', cacheMiddleware(1800), (req, res) => {
     res.render('about', {
         title: 'About - 42Web.io',
         currentPage: 'about',
@@ -89,7 +106,7 @@ app.get('/about', (req, res) => {
     });
 });
 
-app.get('/services', (req, res) => {
+app.get('/services', cacheMiddleware(1800), (req, res) => {
     res.render('services', {
         title: 'Services - 42Web.io',
         currentPage: 'services',
@@ -99,8 +116,7 @@ app.get('/services', (req, res) => {
         })
     });
 });
-
-app.get('/contact', (req, res) => {
+app.get('/contact', cacheMiddleware(900), (req, res) => {
     res.render('contact', {
         title: 'Contact - 42Web.io',
         currentPage: 'contact',
@@ -111,23 +127,32 @@ app.get('/contact', (req, res) => {
     });
 });
 
-app.get('/embed', (req, res) => {
+app.get('/embed', cacheMiddleware(600), (req, res) => {
     res.render('embed', {
         title: 'Website Embedder - 42Web.io',
         currentPage: 'embed',
         ...withMeta({
-            description: 'Embed any website with full navigation capabilities.',
+            description: 'Embed any website with full navigation capabilities and enhanced features.',
             canonical: req.protocol + '://' + req.get('host') + '/embed'
         })
     });
 });
 
-// Proxy route for website embedding
-app.get('/proxy', async (req, res) => {
+// Enhanced proxy route for website embedding with caching and rate limiting
+app.get('/proxy', proxyRateLimit, async (req, res) => {
     const targetUrl = req.query.url;
     
     if (!targetUrl) {
         return res.status(400).json({ error: 'URL parameter is required' });
+    }
+    
+    // Check cache first
+    const cacheKey = `proxy:${targetUrl}`;
+    const cached = proxyCache.get(cacheKey);
+    if (cached) {
+        res.setHeader('X-Cache', 'HIT');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.send(cached);
     }
     
     // Validate URL
@@ -137,154 +162,389 @@ app.get('/proxy', async (req, res) => {
         return res.status(400).json({ error: 'Invalid URL provided' });
     }
     
-    // Security check - prevent access to internal networks (allow localhost for testing)
+    // Enhanced security check
     const url = new URL(targetUrl);
     const isTestingMode = process.env.NODE_ENV !== 'production';
-    if (!isTestingMode && (url.hostname === 'localhost' || 
+    
+    // Block dangerous protocols
+    if (!['http:', 'https:'].includes(url.protocol)) {
+        return res.status(403).json({ error: 'Only HTTP and HTTPS URLs are allowed' });
+    }
+    
+    // Block internal networks (allow localhost for testing)
+    if (!isTestingMode && (
+        url.hostname === 'localhost' || 
         url.hostname === '127.0.0.1' || 
         url.hostname.startsWith('192.168.') ||
         url.hostname.startsWith('10.') ||
-        url.hostname.startsWith('172.'))) {
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(url.hostname) ||
+        url.hostname.endsWith('.local')
+    )) {
         return res.status(403).json({ error: 'Access to internal networks is not allowed' });
     }
     
     try {
-        // Set headers to mimic a real browser
+        // Enhanced headers to mimic a real browser
         const response = await axios.get(targetUrl, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Accept-Encoding': 'gzip, deflate',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
                 'DNT': '1',
                 'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1'
+                'Upgrade-Insecure-Requests': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1'
             },
-            timeout: 10000,
-            maxRedirects: 5
+            timeout: 15000, // Increased timeout
+            maxRedirects: 10,
+            maxContentLength: 50 * 1024 * 1024, // 50MB limit
         });
         
         // Get the base URL for relative links
         const baseUrl = new URL(targetUrl);
         const baseHref = `${baseUrl.protocol}//${baseUrl.host}`;
         
-        // Parse and modify HTML
+        // Parse and enhance HTML
         const $ = cheerio.load(response.data);
         
-        // Remove potentially problematic elements
+        // Remove potentially problematic elements and scripts
         $('script').each(function() {
             const src = $(this).attr('src');
-            // Only remove scripts that might interfere with embedding
-            if (!src || src.includes('analytics') || src.includes('gtag') || src.includes('facebook') || src.includes('twitter')) {
+            const content = $(this).html();
+            
+            // Remove tracking, analytics, and potentially harmful scripts
+            if (src && (
+                src.includes('analytics') || 
+                src.includes('gtag') || 
+                src.includes('facebook') || 
+                src.includes('twitter') ||
+                src.includes('googletagmanager') ||
+                src.includes('doubleclick') ||
+                src.includes('googlesyndication')
+            )) {
+                $(this).remove();
+            } else if (content && (
+                content.includes('gtag') ||
+                content.includes('ga(') ||
+                content.includes('_gaq') ||
+                content.includes('fbq(')
+            )) {
                 $(this).remove();
             }
         });
         
-        // Fix relative URLs
+        // Remove tracking iframes and objects
+        $('iframe, object, embed').each(function() {
+            const src = $(this).attr('src');
+            if (src && (
+                src.includes('google') ||
+                src.includes('facebook') ||
+                src.includes('twitter') ||
+                src.includes('analytics')
+            )) {
+                $(this).remove();
+            }
+        });
+        
+        // Enhanced URL fixing
         $('a').each(function() {
             const href = $(this).attr('href');
-            if (href && href.startsWith('/')) {
-                $(this).attr('href', baseHref + href);
-            } else if (href && !href.startsWith('http') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
-                $(this).attr('href', baseHref + '/' + href);
+            if (href) {
+                if (href.startsWith('/')) {
+                    $(this).attr('href', baseHref + href);
+                } else if (href.startsWith('./')) {
+                    $(this).attr('href', baseHref + '/' + href.substring(2));
+                } else if (!href.startsWith('http') && !href.startsWith('mailto:') && !href.startsWith('tel:') && !href.startsWith('#')) {
+                    $(this).attr('href', baseHref + '/' + href);
+                }
+                
+                // Add target="_blank" for external links
+                if (href.startsWith('http') && !href.includes(baseUrl.host)) {
+                    $(this).attr('target', '_blank');
+                    $(this).attr('rel', 'noopener noreferrer');
+                }
             }
         });
         
+        // Enhanced image URL fixing
         $('img').each(function() {
             const src = $(this).attr('src');
-            if (src && src.startsWith('/')) {
-                $(this).attr('src', baseHref + src);
-            } else if (src && !src.startsWith('http') && !src.startsWith('data:')) {
-                $(this).attr('src', baseHref + '/' + src);
+            if (src) {
+                if (src.startsWith('/')) {
+                    $(this).attr('src', baseHref + src);
+                } else if (src.startsWith('./')) {
+                    $(this).attr('src', baseHref + '/' + src.substring(2));
+                } else if (!src.startsWith('http') && !src.startsWith('data:')) {
+                    $(this).attr('src', baseHref + '/' + src);
+                }
+                
+                // Add loading="lazy" for better performance
+                $(this).attr('loading', 'lazy');
             }
         });
         
+        // Fix CSS and other resource URLs
         $('link').each(function() {
             const href = $(this).attr('href');
-            if (href && href.startsWith('/')) {
-                $(this).attr('href', baseHref + href);
-            } else if (href && !href.startsWith('http')) {
-                $(this).attr('href', baseHref + '/' + href);
+            if (href) {
+                if (href.startsWith('/')) {
+                    $(this).attr('href', baseHref + href);
+                } else if (href.startsWith('./')) {
+                    $(this).attr('href', baseHref + '/' + href.substring(2));
+                } else if (!href.startsWith('http')) {
+                    $(this).attr('href', baseHref + '/' + href);
+                }
             }
         });
         
         // Add base tag to help with relative URLs
         $('head').prepend(`<base href="${baseHref}/">`);
         
-        // Add some basic styling to make it look embedded
+        // Enhanced styling and features
         $('head').append(`
             <style>
+                /* Enhanced embedded styling */
                 body { 
                     margin: 0 !important; 
                     padding: 20px !important;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
                 }
+                
                 .embedded-notice {
                     position: fixed;
                     top: 0;
                     left: 0;
                     right: 0;
-                    background: #007bff;
+                    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
                     color: white;
-                    padding: 5px 10px;
-                    font-size: 12px;
+                    padding: 8px 15px;
+                    font-size: 13px;
                     z-index: 9999;
                     text-align: center;
+                    box-shadow: 0 2px 10px rgba(0,123,255,0.3);
+                    backdrop-filter: blur(10px);
                 }
-                body { padding-top: 35px !important; }
+                
+                .embedded-notice a {
+                    color: #ffc107 !important;
+                    text-decoration: none !important;
+                    font-weight: 600;
+                }
+                
+                .embedded-notice a:hover {
+                    color: #fff3cd !important;
+                }
+                
+                body { 
+                    padding-top: 45px !important; 
+                }
+                
+                /* Smooth scrolling */
+                html {
+                    scroll-behavior: smooth;
+                }
+                
+                /* Enhanced readability */
+                body {
+                    line-height: 1.6 !important;
+                }
+                
+                /* Loading indicator for images */
+                img {
+                    transition: opacity 0.3s ease;
+                }
+                
+                img[loading="lazy"] {
+                    opacity: 0;
+                }
+                
+                img[loading="lazy"].loaded {
+                    opacity: 1;
+                }
             </style>
+            
+            <script>
+                // Enhanced functionality for embedded content
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Handle lazy loaded images
+                    const images = document.querySelectorAll('img[loading="lazy"]');
+                    images.forEach(img => {
+                        if (img.complete) {
+                            img.classList.add('loaded');
+                        } else {
+                            img.addEventListener('load', () => {
+                                img.classList.add('loaded');
+                            });
+                        }
+                    });
+                    
+                    // Smooth scrolling for anchors
+                    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+                    anchorLinks.forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            const target = document.querySelector(this.getAttribute('href'));
+                            if (target) {
+                                e.preventDefault();
+                                target.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        });
+                    });
+                    
+                    // Print function
+                    window.printEmbedded = function() {
+                        window.print();
+                    };
+                    
+                    // Copy URL function
+                    window.copyEmbeddedUrl = function() {
+                        navigator.clipboard.writeText('${targetUrl}').then(() => {
+                            alert('URL copied to clipboard!');
+                        });
+                    };
+                });
+            </script>
         `);
         
-        // Add embedded notice
-        $('body').prepend('<div class="embedded-notice">📎 This website is being displayed through 42Web.io proxy</div>');
+        // Enhanced embedded notice with more features
+        $('body').prepend(`
+            <div class="embedded-notice">
+                🌐 Embedded via <a href="/" target="_blank">42Web.io</a> 
+                | <a href="${targetUrl}" target="_blank">Original Site</a>
+                | <a href="javascript:copyEmbeddedUrl()">Copy URL</a>
+                | <a href="javascript:printEmbedded()">Print</a>
+            </div>
+        `);
         
-        // Set appropriate content type
+        const processedHtml = $.html();
+        
+        // Cache the processed content
+        proxyCache.set(cacheKey, processedHtml);
+        
+        // Set appropriate headers
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('X-Cache', 'MISS');
+        res.setHeader('X-Content-Source', 'proxy');
         
-        // Send the modified HTML
-        res.send($.html());
+        // Send the enhanced HTML
+        res.send(processedHtml);
         
     } catch (error) {
-        console.error('Proxy error:', error.message);
+        console.error('Enhanced proxy error:', error.message);
         
         let errorMessage = 'Failed to load the website';
+        let statusCode = 500;
+        
         if (error.code === 'ENOTFOUND') {
             errorMessage = 'Website not found or unreachable';
+            statusCode = 404;
         } else if (error.code === 'ECONNREFUSED') {
             errorMessage = 'Connection refused by the website';
+            statusCode = 502;
         } else if (error.response) {
+            statusCode = error.response.status;
             errorMessage = `Website returned ${error.response.status} error`;
-        } else if (error.code === 'ECONNABORTED') {
+            if (error.response.status === 403) {
+                errorMessage = 'Access denied by the website';
+            } else if (error.response.status === 404) {
+                errorMessage = 'Page not found on the website';
+            }
+        } else if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
             errorMessage = 'Request timeout - website took too long to respond';
+            statusCode = 504;
+        } else if (error.code === 'EMSGSIZE') {
+            errorMessage = 'Website content is too large to embed';
+            statusCode = 413;
         }
         
-        res.status(500).json({ 
+        res.status(statusCode).json({ 
             error: errorMessage,
-            details: error.message 
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            code: error.code,
+            url: targetUrl
         });
     }
 });
 
-// Handle contact form submission
-app.post('/contact', (req, res) => {
+// Enhanced contact form submission with rate limiting and validation
+app.post('/contact', contactRateLimit, (req, res) => {
     const { name, email, message } = req.body;
     
+    // Server-side validation
+    const errors = [];
+    
+    if (!name || name.trim().length < 2) {
+        errors.push('Name must be at least 2 characters long');
+    }
+    
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push('Please provide a valid email address');
+    }
+    
+    if (!message || message.trim().length < 10) {
+        errors.push('Message must be at least 10 characters long');
+    }
+    
+    if (errors.length > 0) {
+        return res.render('contact', {
+            title: 'Contact - 42Web.io',
+            currentPage: 'contact',
+            errors,
+            formData: { name, email, message },
+            ...withMeta({
+                description: 'Contact 42Web.io to discuss your project. We respond within 24 hours on business days.',
+                canonical: req.protocol + '://' + req.get('host') + '/contact'
+            })
+        });
+    }
+    
     // In a real app, you'd save this to a database or send an email
-    console.log('Contact form submission:', { name, email, message });
+    console.log('Contact form submission:', { 
+        name: name.trim(), 
+        email: email.trim(), 
+        message: message.trim(),
+        timestamp: new Date().toISOString(),
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+    });
     
     res.render('contact', {
         title: 'Contact - 42Web.io',
         currentPage: 'contact',
-        success: 'Thank you for your message! We\'ll get back to you soon.'
+        success: 'Thank you for your message! We\'ll get back to you within 24 hours.',
+        ...withMeta({
+            description: 'Contact 42Web.io to discuss your project. We respond within 24 hours on business days.',
+            canonical: req.protocol + '://' + req.get('host') + '/contact'
+        })
     });
 });
 
-// Blog routes
-app.get('/blog', (req, res) => {
+// Blog routes with caching
+app.get('/blog', cacheMiddleware(900), (req, res) => {
+    // Pagination support
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    
+    const paginatedPosts = posts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(posts.length / limit);
+    
     res.render('blog', {
         title: 'Blog - 42Web.io',
         currentPage: 'blog',
-        posts,
+        posts: paginatedPosts,
+        pagination: {
+            current: page,
+            total: totalPages,
+            hasNext: endIndex < posts.length,
+            hasPrev: startIndex > 0,
+            nextPage: page + 1,
+            prevPage: page - 1
+        },
         ...withMeta({
             description: 'Insights, tutorials, and updates from the 42Web.io team.',
             canonical: req.protocol + '://' + req.get('host') + '/blog'
@@ -292,20 +552,31 @@ app.get('/blog', (req, res) => {
     });
 });
 
-app.get('/blog/:slug', (req, res) => {
+app.get('/blog/:slug', cacheMiddleware(3600), (req, res) => {
     const post = posts.find(p => p.slug === req.params.slug);
     if (!post) {
-        return res.status(404).render('404', { title: '404 - Page Not Found' });
+        return res.status(404).render('404', { 
+            title: '404 - Blog Post Not Found',
+            currentPage: 'blog'
+        });
     }
+    
+    // Get related posts (same tags)
+    const relatedPosts = posts
+        .filter(p => p.slug !== post.slug && p.tags.some(tag => post.tags.includes(tag)))
+        .slice(0, 3);
+    
     res.render('blog-post', {
         title: `${post.title} - 42Web.io`,
         currentPage: 'blog',
         post,
+        relatedPosts,
         ...withMeta({
             description: post.excerpt || post.title,
             canonical: req.protocol + '://' + req.get('host') + '/blog/' + post.slug,
             ogTitle: post.title,
             ogDescription: post.excerpt || post.title,
+            ogImage: post.image ? req.protocol + '://' + req.get('host') + post.image : undefined,
             type: 'article'
         })
     });
