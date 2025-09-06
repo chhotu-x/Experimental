@@ -6,7 +6,7 @@
             <div class="col-lg-8 text-center">
                 <h1 class="display-5 fw-bold mb-3">Website Embedder</h1>
                 <p class="lead text-muted mb-4">
-                    Embed any website with full navigation capabilities. Simply enter a URL and explore the site within our interface.
+                    Embed any website with our advanced proxy technology. No more iframe limitations!
                 </p>
             </div>
         </div>
@@ -29,17 +29,17 @@
                                     <input type="url" 
                                            class="form-control" 
                                            id="urlInput" 
-                                           placeholder="Enter website URL (e.g., https://jsonplaceholder.typicode.com)"
+                                           placeholder="Enter any website URL (e.g., https://example.com, https://github.com)"
                                            value="">
                                 </div>
                                 <div class="form-text mt-2">
-                                    <i class="fas fa-info-circle text-info me-1"></i>
-                                    Enter a complete URL - Not all sites allow embedding (try the suggestions below)
+                                    <i class="fas fa-magic text-success me-1"></i>
+                                    <strong>No iframe limitations!</strong> Our proxy technology can embed most websites successfully.
                                 </div>
                             </div>
                             <div class="col-md-4 mt-3 mt-md-0">
                                 <button class="btn btn-primary btn-lg w-100" id="loadWebsite">
-                                    <i class="fas fa-arrow-right me-2"></i>Load Website
+                                    <i class="fas fa-rocket me-2"></i>Load Website
                                 </button>
                             </div>
                         </div>
@@ -94,7 +94,7 @@
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="mt-3 text-muted">Loading website...</p>
+                <p class="mt-3 text-muted">Loading website through proxy...</p>
             </div>
             
             <!-- Error Message -->
@@ -106,32 +106,22 @@
                         <span id="errorText"></span>
                         <div class="mt-2">
                             <small class="text-muted">
-                                <strong>Common reasons:</strong>
+                                <strong>Possible reasons:</strong>
                                 <ul class="mb-2">
-                                    <li><strong>X-Frame-Options header:</strong> Website explicitly blocks iframe embedding</li>
-                                    <li><strong>Content Security Policy:</strong> Site's security settings prevent embedding</li>
-                                    <li><strong>HTTPS requirements:</strong> Mixed content restrictions</li>
-                                    <li><strong>Geo-blocking:</strong> Site may be restricted in your region</li>
+                                    <li><strong>Network issues:</strong> Website may be temporarily unavailable</li>
+                                    <li><strong>HTTPS/SSL errors:</strong> Certificate or security issues</li>
+                                    <li><strong>Blocked content:</strong> Website may block proxy requests</li>
+                                    <li><strong>Timeout:</strong> Website took too long to respond</li>
                                 </ul>
-                                <div id="errorSuggestions" style="display: none;" class="alert alert-info py-2 mt-2">
-                                    <i class="fas fa-lightbulb me-1"></i>
-                                    <span></span>
-                                </div>
                             </small>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Website Frame -->
-            <div id="iframeContainer" class="position-relative">
-                <iframe id="websiteFrame" 
-                        width="100%" 
-                        height="800px" 
-                        frameborder="0" 
-                        sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation"
-                        style="min-height: 80vh;">
-                </iframe>
+            <!-- Website Content -->
+            <div id="websiteContent" class="position-relative" style="min-height: 80vh;">
+                <!-- Content will be loaded here -->
             </div>
         </div>
         
@@ -139,31 +129,34 @@
         <div id="quickLinksSection" class="container mt-4">
             <div class="row">
                 <div class="col-12">
-                    <h5 class="text-center mb-3">🚀 Try These Embed-Friendly Sites</h5>
+                    <h5 class="text-center mb-3">🚀 Try These Popular Sites</h5>
                     <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
-                        <button class="btn btn-success btn-sm quick-link" data-url="/demo-page.html">
-                            <i class="fas fa-check-circle me-1"></i>Demo Page (Always Works)
+                        <button class="btn btn-outline-primary btn-sm quick-link" data-url="https://example.com">
+                            <i class="fas fa-globe me-1"></i>Example.com
                         </button>
                         <button class="btn btn-outline-info btn-sm quick-link" data-url="https://httpbin.org/html">
                             <i class="fas fa-code me-1"></i>HTTPBin HTML
                         </button>
-                        <button class="btn btn-outline-primary btn-sm quick-link" data-url="https://postman-echo.com">
+                        <button class="btn btn-outline-success btn-sm quick-link" data-url="https://postman-echo.com">
                             <i class="fas fa-server me-1"></i>Postman Echo
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm quick-link" data-url="data:text/html,<h1>Hello%20World</h1><p>This%20is%20a%20data%20URL%20that%20should%20work!</p>">
-                            <i class="fas fa-file-code me-1"></i>Data URL Demo
+                        <button class="btn btn-outline-warning btn-sm quick-link" data-url="https://github.com">
+                            <i class="fab fa-github me-1"></i>GitHub
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm quick-link" data-url="https://news.ycombinator.com">
+                            <i class="fas fa-newspaper me-1"></i>Hacker News
                         </button>
                     </div>
                     
-                    <div class="alert alert-info py-2 px-3 mb-3">
+                    <div class="alert alert-success py-2 px-3 mb-3">
                         <div class="row">
                             <div class="col-md-8">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <strong>Embedding Reality:</strong> Most modern websites (Google, Facebook, YouTube, banks, social media) block iframe embedding for security. The green "Demo Page" above always works - try it first!
+                                <i class="fas fa-check-circle me-1"></i>
+                                <strong>Enhanced Embedding:</strong> Our proxy technology bypasses iframe limitations and can successfully embed most websites!
                             </div>
                             <div class="col-md-4 text-md-end">
                                 <small class="text-muted">
-                                    <i class="fas fa-shield-alt me-1"></i>This is standard web security
+                                    <i class="fas fa-shield-alt me-1"></i>Secure & reliable
                                 </small>
                             </div>
                         </div>
@@ -171,26 +164,25 @@
                     
                     <details class="mb-3">
                         <summary class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-question-circle me-1"></i>Why Can't I Embed Some Sites?
+                            <i class="fas fa-info-circle me-1"></i>How Does This Work?
                         </summary>
                         <div class="mt-2 p-3 bg-light rounded">
-                            <h6>Common Blocking Methods:</h6>
+                            <h6>Proxy-Based Embedding:</h6>
                             <ul class="small">
-                                <li><strong>X-Frame-Options:</strong> HTTP header that prevents page from being displayed in iframe</li>
-                                <li><strong>Content Security Policy (CSP):</strong> Modern security standard that controls resource loading</li>
-                                <li><strong>JavaScript Frame Busting:</strong> Code that detects iframe embedding and redirects</li>
-                                <li><strong>HTTPS Mixed Content:</strong> Secure sites can't embed insecure content</li>
+                                <li><strong>Server-side fetching:</strong> We fetch the website content on our server</li>
+                                <li><strong>URL rewriting:</strong> All links and resources are properly modified</li>
+                                <li><strong>Security filtering:</strong> Potentially harmful scripts are filtered out</li>
+                                <li><strong>No iframe restrictions:</strong> Bypasses X-Frame-Options and CSP limitations</li>
                             </ul>
-                            <h6>Sites That Typically Allow Embedding:</h6>
+                            <h6>Advantages over iframes:</h6>
                             <ul class="small text-success">
-                                <li>API documentation sites (JSON Placeholder, HTTPBin)</li>
-                                <li>Developer tools and testing services</li>
-                                <li>Some news and blog sites</li>
-                                <li>Educational content platforms</li>
-                                <li>Simple static websites</li>
+                                <li>Works with sites that block iframe embedding</li>
+                                <li>Better control over content display</li>
+                                <li>Improved security through content filtering</li>
+                                <li>Better mobile responsiveness</li>
                             </ul>
                             <p class="small text-muted mb-0">
-                                <strong>Pro Tip:</strong> If you need to embed blocked content, consider using the "Open in New Tab" button or implementing server-side proxying (advanced).
+                                <strong>Note:</strong> Some dynamic functionality may be limited due to security filtering, but basic website content and navigation work perfectly.
                             </p>
                         </div>
                     </details>
@@ -205,17 +197,17 @@
     <div class="container">
         <div class="row text-center">
             <div class="col-12 mb-4">
-                <h3>Embedding Features</h3>
+                <h3>Advanced Embedding Features</h3>
             </div>
         </div>
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-mouse-pointer fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Full Navigation</h5>
+                        <i class="fas fa-server fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Server-Side Proxy</h5>
                         <p class="card-text text-muted">
-                            Click links, navigate pages, and interact with websites naturally.
+                            Fetches content server-side to bypass iframe limitations and restrictions.
                         </p>
                     </div>
                 </div>
@@ -223,10 +215,10 @@
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
-                        <h5 class="card-title">Secure Sandboxing</h5>
+                        <i class="fas fa-link fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Smart URL Rewriting</h5>
                         <p class="card-text text-muted">
-                            Websites are loaded in a secure sandbox environment for safety.
+                            Automatically fixes relative URLs and links for proper display.
                         </p>
                     </div>
                 </div>
@@ -234,10 +226,10 @@
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-mobile-alt fa-3x text-warning mb-3"></i>
-                        <h5 class="card-title">Responsive</h5>
+                        <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Security Filtering</h5>
                         <p class="card-text text-muted">
-                            Embedded websites adapt to different screen sizes and devices.
+                            Filters potentially harmful content while preserving functionality.
                         </p>
                     </div>
                 </div>

@@ -277,12 +277,11 @@ function initWebsiteEmbedder() {
     const loadButton = document.getElementById('loadWebsite');
     const websiteContainer = document.getElementById('websiteContainer');
     const quickLinksSection = document.getElementById('quickLinksSection');
-    const websiteFrame = document.getElementById('websiteFrame');
+    const websiteContent = document.getElementById('websiteContent');
     const currentUrlInput = document.getElementById('currentUrl');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const errorMessage = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
-    const iframeContainer = document.getElementById('iframeContainer');
     
     // Navigation buttons
     const goBackBtn = document.getElementById('goBack');
@@ -301,7 +300,7 @@ function initWebsiteEmbedder() {
     if (!urlInput || !loadButton) return; // Exit if elements don't exist
     
     // Load website function
-    function loadWebsite(url) {
+    async function loadWebsite(url) {
         if (!isValidUrl(url)) {
             showError('Please enter a valid URL starting with http:// or https://');
             return;
@@ -312,7 +311,7 @@ function initWebsiteEmbedder() {
         quickLinksSection.classList.add('d-none');
         loadingIndicator.classList.remove('d-none');
         errorMessage.classList.add('d-none');
-        iframeContainer.style.display = 'none';
+        websiteContent.style.display = 'none';
         
         // Update current URL display
         currentUrlInput.value = url;
@@ -327,133 +326,94 @@ function initWebsiteEmbedder() {
         
         updateNavigationButtons();
         
-        // Clear previous iframe
-        websiteFrame.src = 'about:blank';
-        
-        // Enhanced load detection
-        let hasLoaded = false;
-        let loadTimeout;
-        
-        // Handle iframe load
-        websiteFrame.onload = function() {
-            if (websiteFrame.src === 'about:blank') return; // Ignore blank loads
+        try {
+            // Use our proxy endpoint to fetch the website
+            const proxyUrl = `/proxy?url=${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
             
-            hasLoaded = true;
-            clearTimeout(loadTimeout);
-            
-            // Delay to check if content actually loaded
-            setTimeout(() => {
+            if (response.ok) {
+                const htmlContent = await response.text();
+                
+                // Clear previous content and load new content
+                websiteContent.innerHTML = htmlContent;
+                
+                // Process the loaded content
+                processLoadedContent(url);
+                
+                // Hide loading and show content
+                loadingIndicator.classList.add('d-none');
+                websiteContent.style.display = 'block';
+                
+            } else {
+                // Try to get error details from response
+                let errorDetails;
                 try {
-                    const iframeDoc = websiteFrame.contentDocument || websiteFrame.contentWindow.document;
-                    const iframeWin = websiteFrame.contentWindow;
+                    const errorData = await response.json();
+                    errorDetails = errorData.error || 'Unknown error occurred';
+                } catch (e) {
+                    errorDetails = `HTTP ${response.status} ${response.statusText}`;
+                }
+                showError(errorDetails);
+            }
+            
+        } catch (error) {
+            console.error('Load error:', error);
+            showError('Network error: Unable to connect to the website');
+        }
+    }
+    
+    // Process loaded content to fix links and improve functionality
+    function processLoadedContent(originalUrl) {
+        const baseUrl = new URL(originalUrl);
+        
+        // Find all links in the loaded content
+        const links = websiteContent.querySelectorAll('a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('/'))) {
+                // Make internal navigation use our proxy
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    let newUrl = href;
                     
-                    // Check if we can access the document (same-origin)
-                    if (iframeDoc) {
-                        // Same-origin - check if content is there
-                        if (iframeDoc.body && iframeDoc.body.innerHTML.trim() === '') {
-                            showError('Website appears to be empty or returned no content', url);
-                            return;
-                        }
-                        
-                        // Check for error pages or blocked content
-                        const title = iframeDoc.title.toLowerCase();
-                        const bodyText = iframeDoc.body ? iframeDoc.body.textContent.toLowerCase() : '';
-                        
-                        if (title.includes('blocked') || title.includes('forbidden') || 
-                            bodyText.includes('blocked') || bodyText.includes('forbidden') ||
-                            bodyText.includes('not allowed') || bodyText.includes('access denied')) {
-                            showError('Website blocked iframe embedding', url);
-                            return;
-                        }
-                    } else if (iframeWin) {
-                        // Cross-origin - try to detect if it's actually blocked
-                        try {
-                            // If we can access location, it's not properly sandboxed
-                            const loc = iframeWin.location.href;
-                            if (loc === 'about:blank' || loc.includes('chrome-error://')) {
-                                showError('Website refused to load in iframe', url);
-                                return;
-                            }
-                        } catch (e) {
-                            // This is expected for cross-origin frames
-                            // If we get here, the iframe likely loaded successfully
-                        }
+                    // Convert relative URLs to absolute
+                    if (href.startsWith('/')) {
+                        newUrl = `${baseUrl.protocol}//${baseUrl.host}${href}`;
                     }
                     
-                    // If we get here, assume successful load
-                    loadingIndicator.classList.add('d-none');
-                    iframeContainer.style.display = 'block';
-                    
-                } catch (e) {
-                    // Cross-origin frame - assume successful load if no other errors
-                    loadingIndicator.classList.add('d-none');
-                    iframeContainer.style.display = 'block';
-                }
-            }, 500); // Give time for content to render
-        };
-        
-        // Handle iframe error
-        websiteFrame.onerror = function() {
-            hasLoaded = true;
-            clearTimeout(loadTimeout);
-            showError('Failed to load the website due to network or security restrictions', url);
-        };
-        
-        // Set iframe source after setting up handlers
-        websiteFrame.src = url;
-        
-        // Timeout fallback with better detection
-        loadTimeout = setTimeout(() => {
-            if (!hasLoaded) {
-                showError('Website took too long to respond. It may be unavailable or blocking iframe embedding', url);
+                    // Load the new URL through our proxy
+                    loadWebsite(newUrl);
+                });
             }
-        }, 10000); // Reduced timeout for better UX
+        });
+        
+        // Handle form submissions
+        const forms = websiteContent.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast('Form submissions are limited in embedded mode. Please visit the original site for full functionality.', 'warning');
+            });
+        });
+        
+        // Scroll to top when new content loads
+        websiteContent.scrollTop = 0;
     }
     
     // Show error function
-    function showError(message, url) {
+    function showError(message) {
         loadingIndicator.classList.add('d-none');
-        iframeContainer.style.display = 'none';
+        websiteContent.style.display = 'none';
         errorMessage.classList.remove('d-none');
         errorText.textContent = message;
-        
-        // Add suggestions based on URL
-        const suggestions = document.getElementById('errorSuggestions');
-        if (suggestions && url) {
-            let suggestionText = '';
-            
-            if (url.includes('example.com') || url.includes('google.com') || url.includes('facebook.com') || 
-                url.includes('youtube.com') || url.includes('twitter.com') || url.includes('instagram.com') ||
-                url.includes('github.com') || url.includes('linkedin.com') || url.includes('reddit.com')) {
-                suggestionText = 'Popular sites like Google, Facebook, YouTube, GitHub, and social media platforms typically block embedding for security reasons. Try the "Demo Page" above instead!';
-            } else if (url.includes('github.com') || url.includes('stackoverflow.com')) {
-                suggestionText = 'Developer sites often block embedding. Try using their API or viewing directly in a new tab.';
-            } else if (url.includes('bank') || url.includes('paypal') || url.includes('stripe')) {
-                suggestionText = 'Financial and payment sites always block embedding for security. This is normal and expected.';
-            } else {
-                suggestionText = 'Try the "Demo Page (Always Works)" button above to test that embedding works correctly. Then try other embed-friendly sites.';
-            }
-            
-            suggestions.innerHTML = `<i class="fas fa-lightbulb me-1"></i>${suggestionText}`;
-            suggestions.style.display = 'block';
-        }
     }
     
     // URL validation
     function isValidUrl(string) {
-        // Allow relative URLs for local demo pages
-        if (string.startsWith('/')) {
-            return true;
-        }
-        
         try {
             const url = new URL(string);
             return url.protocol === 'http:' || url.protocol === 'https:';
         } catch (_) {
-            // Check for data URLs
-            if (string.startsWith('data:')) {
-                return true;
-            }
             return false;
         }
     }
@@ -538,7 +498,7 @@ function initWebsiteEmbedder() {
         closeBtn.addEventListener('click', function() {
             websiteContainer.classList.add('d-none');
             quickLinksSection.classList.remove('d-none');
-            websiteFrame.src = 'about:blank';
+            websiteContent.innerHTML = '';
             urlInput.value = '';
             navigationHistory = [];
             currentHistoryIndex = -1;
