@@ -704,24 +704,53 @@ function initWebsiteEmbedder() {
                     let errorDetails;
                     try {
                         const errorData = await response.json();
-                        errorDetails = errorData.error || 'Unknown error occurred';
+                        errorDetails = errorData; // Pass the full error object
                     } catch (e) {
-                        errorDetails = `HTTP ${response.status} ${response.statusText}`;
+                        errorDetails = {
+                            error: `HTTP ${response.status} ${response.statusText}`,
+                            code: `HTTP_${response.status}`,
+                            suggestions: [
+                                'The server encountered an error',
+                                'Try a different website',
+                                'Check if the URL is correct'
+                            ]
+                        };
                     }
                     showError(errorDetails);
                 }
                 
             } catch (error) {
                 console.error('Enhanced load error:', error);
-                let errorMessage = 'Network error: Unable to connect to the website';
+                let errorData = {
+                    error: 'Network error: Unable to connect to the website',
+                    code: 'NETWORK_ERROR',
+                    suggestions: [
+                        'Check your internet connection',
+                        'Try a different website',
+                        'The website might be temporarily unavailable',
+                        'Refresh the page and try again'
+                    ]
+                };
                 
                 if (error.name === 'TypeError') {
-                    errorMessage = 'Network connection failed. Please check your internet connection.';
+                    errorData.error = 'Network connection failed';
+                    errorData.code = 'CONNECTION_FAILED';
+                    errorData.suggestions = [
+                        'Check your internet connection',
+                        'The website might be blocking requests',
+                        'Try again in a few moments'
+                    ];
                 } else if (error.name === 'AbortError') {
-                    errorMessage = 'Request was cancelled or timed out.';
+                    errorData.error = 'Request was cancelled or timed out';
+                    errorData.code = 'REQUEST_ABORTED';
+                    errorData.suggestions = [
+                        'The request took too long to complete',
+                        'Try a faster loading website',
+                        'Check your network speed'
+                    ];
                 }
                 
-                showError(errorMessage);
+                showError(errorData);
             }
         }
         
@@ -786,13 +815,50 @@ function initWebsiteEmbedder() {
             elements.websiteContent.scrollTop = 0;
         }
         
-        // Enhanced error display
-        function showError(message) {
+        // Enhanced error display with detailed feedback
+        function showError(errorData) {
             elements.loadingIndicator.classList.add('d-none');
             elements.websiteContent.style.display = 'none';
             elements.websiteContent.classList.remove('loading');
             elements.errorMessage.classList.remove('d-none');
-            elements.errorText.textContent = message;
+            
+            // Handle both string messages and detailed error objects
+            let message, suggestions = [], code = 'UNKNOWN';
+            
+            if (typeof errorData === 'string') {
+                message = errorData;
+            } else if (typeof errorData === 'object' && errorData.error) {
+                message = errorData.error;
+                suggestions = errorData.suggestions || [];
+                code = errorData.code || 'UNKNOWN';
+            } else {
+                message = 'An unexpected error occurred';
+            }
+            
+            elements.errorText.innerHTML = `
+                <div class="error-details">
+                    <div class="error-message mb-3">
+                        <strong>${message}</strong>
+                        ${code !== 'UNKNOWN' ? `<small class="text-muted d-block mt-1">Error Code: ${code}</small>` : ''}
+                    </div>
+                    ${suggestions.length > 0 ? `
+                        <div class="error-suggestions">
+                            <h6 class="text-muted mb-2">Suggestions:</h6>
+                            <ul class="list-unstyled mb-3">
+                                ${suggestions.map(suggestion => `<li class="mb-1"><i class="fas fa-lightbulb text-warning me-2"></i>${suggestion}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div class="error-actions mt-3">
+                        <button class="btn btn-primary btn-sm me-2" onclick="document.getElementById('urlInput').focus()">
+                            <i class="fas fa-edit me-1"></i>Try Different URL
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+                            <i class="fas fa-refresh me-1"></i>Refresh Page
+                        </button>
+                    </div>
+                </div>
+            `;
             
             updateStatsDisplay('Error', 'ERROR');
         }

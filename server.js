@@ -437,34 +437,107 @@ app.get('/proxy', proxyRateLimit, async (req, res) => {
         
         let errorMessage = 'Failed to load the website';
         let statusCode = 500;
+        let suggestions = [];
+        let userFriendlyCode = 'UNKNOWN_ERROR';
         
         if (error.code === 'ENOTFOUND') {
-            errorMessage = 'Website not found or unreachable';
+            errorMessage = 'Website not found or DNS resolution failed';
             statusCode = 404;
+            userFriendlyCode = 'DNS_ERROR';
+            suggestions = [
+                'Check if the URL is spelled correctly',
+                'Try a different website to test the embedder',
+                'The website might be temporarily unavailable',
+                'DNS resolution may be restricted in this demo environment'
+            ];
         } else if (error.code === 'ECONNREFUSED') {
             errorMessage = 'Connection refused by the website';
             statusCode = 502;
+            userFriendlyCode = 'CONNECTION_REFUSED';
+            suggestions = [
+                'The website might be blocking proxy requests',
+                'Server might be down or overloaded',
+                'Try again in a few minutes',
+                'Visit the original website to check if it\'s accessible'
+            ];
         } else if (error.response) {
             statusCode = error.response.status;
             errorMessage = `Website returned ${error.response.status} error`;
+            userFriendlyCode = `HTTP_${error.response.status}`;
+            
             if (error.response.status === 403) {
                 errorMessage = 'Access denied by the website';
+                suggestions = [
+                    'The website is blocking proxy access',
+                    'Try a different website',
+                    'Some sites block automated requests for security'
+                ];
             } else if (error.response.status === 404) {
                 errorMessage = 'Page not found on the website';
+                suggestions = [
+                    'Check if the URL path is correct',
+                    'The page might have been moved or deleted',
+                    'Try the website\'s homepage instead'
+                ];
+            } else if (error.response.status >= 500) {
+                suggestions = [
+                    'The website is experiencing server issues',
+                    'Try again in a few minutes',
+                    'Contact the website administrator if the issue persists'
+                ];
             }
         } else if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
             errorMessage = 'Request timeout - website took too long to respond';
             statusCode = 504;
+            userFriendlyCode = 'TIMEOUT';
+            suggestions = [
+                'The website is responding slowly',
+                'Try again in a few moments',
+                'Try a faster loading website',
+                'Check your network connection'
+            ];
         } else if (error.code === 'EMSGSIZE') {
             errorMessage = 'Website content is too large to embed';
             statusCode = 413;
+            userFriendlyCode = 'CONTENT_TOO_LARGE';
+            suggestions = [
+                'The website has too much content to display',
+                'Try a simpler website',
+                'Visit the original site for full content'
+            ];
+        } else if (error.code === 'ECONNRESET') {
+            errorMessage = 'Connection was reset by the website';
+            statusCode = 502;
+            userFriendlyCode = 'CONNECTION_RESET';
+            suggestions = [
+                'The website terminated the connection',
+                'The site might have anti-bot protection',
+                'Try a different URL or website'
+            ];
+        }
+        
+        // Add general suggestions if none were provided
+        if (suggestions.length === 0) {
+            suggestions = [
+                'Try a different website',
+                'Check if the URL is correct',
+                'Refresh the page and try again'
+            ];
+        }
+        
+        // Add environment-specific notice for demo/development
+        if (process.env.NODE_ENV !== 'production') {
+            suggestions.push('Note: This demo environment has network restrictions that may prevent loading some websites');
         }
         
         res.status(statusCode).json({ 
             error: errorMessage,
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-            code: error.code,
-            url: targetUrl
+            code: userFriendlyCode,
+            originalCode: error.code,
+            suggestions: suggestions,
+            url: targetUrl,
+            timestamp: new Date().toISOString(),
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });

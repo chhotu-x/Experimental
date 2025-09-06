@@ -355,18 +355,8 @@
                 <div class="d-flex align-items-start">
                     <i class="fas fa-exclamation-triangle me-2 mt-1 text-warning"></i>
                     <div class="flex-grow-1">
-                        <strong>Unable to load website:</strong>
-                        <span id="errorText"></span>
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                <strong>Possible reasons:</strong>
-                                <ul class="mb-2">
-                                    <li><strong>Network issues:</strong> Website may be temporarily unavailable</li>
-                                    <li><strong>HTTPS/SSL errors:</strong> Certificate or security issues</li>
-                                    <li><strong>Blocked content:</strong> Website may block proxy requests</li>
-                                    <li><strong>Timeout:</strong> Website took too long to respond</li>
-                                </ul>
-                            </small>
+                        <div id="errorText">
+                            <!-- Enhanced error content will be inserted here by JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -384,32 +374,32 @@
                 <div class="col-12">
                     <h5 class="text-center mb-3">🚀 Try These Popular Sites</h5>
                     <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
-                        <button class="btn btn-outline-primary btn-sm quick-link" data-url="https://example.com">
-                            <i class="fas fa-globe me-1"></i>Example.com
+                        <button class="btn btn-outline-primary btn-sm quick-link" data-url="http://localhost:3000/">
+                            <i class="fas fa-home me-1"></i>Local Homepage
                         </button>
-                        <button class="btn btn-outline-info btn-sm quick-link" data-url="https://httpbin.org/html">
-                            <i class="fas fa-code me-1"></i>HTTPBin HTML
+                        <button class="btn btn-outline-info btn-sm quick-link" data-url="http://localhost:3000/about">
+                            <i class="fas fa-info-circle me-1"></i>About Page
                         </button>
-                        <button class="btn btn-outline-success btn-sm quick-link" data-url="https://postman-echo.com">
-                            <i class="fas fa-server me-1"></i>Postman Echo
+                        <button class="btn btn-outline-success btn-sm quick-link" data-url="http://localhost:3000/services">
+                            <i class="fas fa-cogs me-1"></i>Services Page
                         </button>
-                        <button class="btn btn-outline-warning btn-sm quick-link" data-url="https://github.com">
-                            <i class="fab fa-github me-1"></i>GitHub
+                        <button class="btn btn-outline-warning btn-sm quick-link demo-external" data-url="https://example.com">
+                            <i class="fas fa-globe me-1"></i>Example.com (Demo)
                         </button>
-                        <button class="btn btn-outline-danger btn-sm quick-link" data-url="https://news.ycombinator.com">
-                            <i class="fas fa-newspaper me-1"></i>Hacker News
+                        <button class="btn btn-outline-danger btn-sm quick-link demo-external" data-url="https://httpbin.org/html">
+                            <i class="fas fa-code me-1"></i>HTTPBin (Demo)
                         </button>
                     </div>
                     
-                    <div class="alert alert-success py-2 px-3 mb-3">
+                    <div class="alert alert-info py-2 px-3 mb-3">
                         <div class="row">
                             <div class="col-md-8">
-                                <i class="fas fa-check-circle me-1"></i>
-                                <strong>Enhanced Embedding:</strong> Our proxy technology bypasses iframe limitations and can successfully embed most websites!
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Demo Environment:</strong> This demo has network restrictions. Try local pages or expect DNS errors for external sites.
                             </div>
                             <div class="col-md-4 text-md-end">
                                 <small class="text-muted">
-                                    <i class="fas fa-shield-alt me-1"></i>Secure & reliable
+                                    <i class="fas fa-shield-alt me-1"></i>Enhanced error handling
                                 </small>
                             </div>
                         </div>
