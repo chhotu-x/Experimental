@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
+const cheerio = require('cheerio');
 let compression;
 try {
     compression = require('compression');
@@ -107,6 +109,160 @@ app.get('/contact', (req, res) => {
             canonical: req.protocol + '://' + req.get('host') + '/contact'
         })
     });
+});
+
+app.get('/embed', (req, res) => {
+    res.render('embed', {
+        title: 'Website Embedder - 42Web.io',
+        currentPage: 'embed',
+        ...withMeta({
+            description: 'Embed any website with full navigation capabilities.',
+            canonical: req.protocol + '://' + req.get('host') + '/embed'
+        })
+    });
+});
+
+// Proxy route for website embedding
+app.get('/proxy', async (req, res) => {
+    const targetUrl = req.query.url;
+    
+    if (!targetUrl) {
+        return res.status(400).json({ error: 'URL parameter is required' });
+    }
+    
+    // Validate URL
+    try {
+        new URL(targetUrl);
+    } catch (e) {
+        return res.status(400).json({ error: 'Invalid URL provided' });
+    }
+    
+    // Security check - prevent access to internal networks (allow localhost for testing)
+    const url = new URL(targetUrl);
+    const isTestingMode = process.env.NODE_ENV !== 'production';
+    if (!isTestingMode && (url.hostname === 'localhost' || 
+        url.hostname === '127.0.0.1' || 
+        url.hostname.startsWith('192.168.') ||
+        url.hostname.startsWith('10.') ||
+        url.hostname.startsWith('172.'))) {
+        return res.status(403).json({ error: 'Access to internal networks is not allowed' });
+    }
+    
+    try {
+        // Set headers to mimic a real browser
+        const response = await axios.get(targetUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
+            },
+            timeout: 10000,
+            maxRedirects: 5
+        });
+        
+        // Get the base URL for relative links
+        const baseUrl = new URL(targetUrl);
+        const baseHref = `${baseUrl.protocol}//${baseUrl.host}`;
+        
+        // Parse and modify HTML
+        const $ = cheerio.load(response.data);
+        
+        // Remove potentially problematic elements
+        $('script').each(function() {
+            const src = $(this).attr('src');
+            // Only remove scripts that might interfere with embedding
+            if (!src || src.includes('analytics') || src.includes('gtag') || src.includes('facebook') || src.includes('twitter')) {
+                $(this).remove();
+            }
+        });
+        
+        // Fix relative URLs
+        $('a').each(function() {
+            const href = $(this).attr('href');
+            if (href && href.startsWith('/')) {
+                $(this).attr('href', baseHref + href);
+            } else if (href && !href.startsWith('http') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+                $(this).attr('href', baseHref + '/' + href);
+            }
+        });
+        
+        $('img').each(function() {
+            const src = $(this).attr('src');
+            if (src && src.startsWith('/')) {
+                $(this).attr('src', baseHref + src);
+            } else if (src && !src.startsWith('http') && !src.startsWith('data:')) {
+                $(this).attr('src', baseHref + '/' + src);
+            }
+        });
+        
+        $('link').each(function() {
+            const href = $(this).attr('href');
+            if (href && href.startsWith('/')) {
+                $(this).attr('href', baseHref + href);
+            } else if (href && !href.startsWith('http')) {
+                $(this).attr('href', baseHref + '/' + href);
+            }
+        });
+        
+        // Add base tag to help with relative URLs
+        $('head').prepend(`<base href="${baseHref}/">`);
+        
+        // Add some basic styling to make it look embedded
+        $('head').append(`
+            <style>
+                body { 
+                    margin: 0 !important; 
+                    padding: 20px !important;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                }
+                .embedded-notice {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    background: #007bff;
+                    color: white;
+                    padding: 5px 10px;
+                    font-size: 12px;
+                    z-index: 9999;
+                    text-align: center;
+                }
+                body { padding-top: 35px !important; }
+            </style>
+        `);
+        
+        // Add embedded notice
+        $('body').prepend('<div class="embedded-notice">📎 This website is being displayed through 42Web.io proxy</div>');
+        
+        // Set appropriate content type
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        
+        // Send the modified HTML
+        res.send($.html());
+        
+    } catch (error) {
+        console.error('Proxy error:', error.message);
+        
+        let errorMessage = 'Failed to load the website';
+        if (error.code === 'ENOTFOUND') {
+            errorMessage = 'Website not found or unreachable';
+        } else if (error.code === 'ECONNREFUSED') {
+            errorMessage = 'Connection refused by the website';
+        } else if (error.response) {
+            errorMessage = `Website returned ${error.response.status} error`;
+        } else if (error.code === 'ECONNABORTED') {
+            errorMessage = 'Request timeout - website took too long to respond';
+        }
+        
+        res.status(500).json({ 
+            error: errorMessage,
+            details: error.message 
+        });
+    }
 });
 
 // Handle contact form submission

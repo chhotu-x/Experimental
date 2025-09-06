@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initFormValidation();
     initAnimations();
     initNavbar();
+    initWebsiteEmbedder();
 });
 
 // Smooth scrolling for anchor links
@@ -268,4 +269,250 @@ function formatPhoneNumber(phoneNumber) {
         return '(' + match[1] + ') ' + match[2] + '-' + match[3];
     }
     return phoneNumber;
+}
+
+// Website Embedder functionality
+function initWebsiteEmbedder() {
+    const urlInput = document.getElementById('urlInput');
+    const loadButton = document.getElementById('loadWebsite');
+    const websiteContainer = document.getElementById('websiteContainer');
+    const quickLinksSection = document.getElementById('quickLinksSection');
+    const websiteContent = document.getElementById('websiteContent');
+    const currentUrlInput = document.getElementById('currentUrl');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    // Navigation buttons
+    const goBackBtn = document.getElementById('goBack');
+    const goForwardBtn = document.getElementById('goForward');
+    const refreshBtn = document.getElementById('refreshPage');
+    const openInNewTabBtn = document.getElementById('openInNewTab');
+    const closeBtn = document.getElementById('closeEmbedded');
+    
+    // Quick link buttons
+    const quickLinkButtons = document.querySelectorAll('.quick-link');
+    
+    // History tracking
+    let navigationHistory = [];
+    let currentHistoryIndex = -1;
+    
+    if (!urlInput || !loadButton) return; // Exit if elements don't exist
+    
+    // Load website function
+    async function loadWebsite(url) {
+        if (!isValidUrl(url)) {
+            showError('Please enter a valid URL starting with http:// or https://');
+            return;
+        }
+        
+        // Show container and loading
+        websiteContainer.classList.remove('d-none');
+        quickLinksSection.classList.add('d-none');
+        loadingIndicator.classList.remove('d-none');
+        errorMessage.classList.add('d-none');
+        websiteContent.style.display = 'none';
+        
+        // Update current URL display
+        currentUrlInput.value = url;
+        
+        // Add to history if it's a new navigation
+        if (navigationHistory[currentHistoryIndex] !== url) {
+            // Remove any forward history
+            navigationHistory = navigationHistory.slice(0, currentHistoryIndex + 1);
+            navigationHistory.push(url);
+            currentHistoryIndex = navigationHistory.length - 1;
+        }
+        
+        updateNavigationButtons();
+        
+        try {
+            // Use our proxy endpoint to fetch the website
+            const proxyUrl = `/proxy?url=${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            
+            if (response.ok) {
+                const htmlContent = await response.text();
+                
+                // Clear previous content and load new content
+                websiteContent.innerHTML = htmlContent;
+                
+                // Process the loaded content
+                processLoadedContent(url);
+                
+                // Hide loading and show content
+                loadingIndicator.classList.add('d-none');
+                websiteContent.style.display = 'block';
+                
+            } else {
+                // Try to get error details from response
+                let errorDetails;
+                try {
+                    const errorData = await response.json();
+                    errorDetails = errorData.error || 'Unknown error occurred';
+                } catch (e) {
+                    errorDetails = `HTTP ${response.status} ${response.statusText}`;
+                }
+                showError(errorDetails);
+            }
+            
+        } catch (error) {
+            console.error('Load error:', error);
+            showError('Network error: Unable to connect to the website');
+        }
+    }
+    
+    // Process loaded content to fix links and improve functionality
+    function processLoadedContent(originalUrl) {
+        const baseUrl = new URL(originalUrl);
+        
+        // Find all links in the loaded content
+        const links = websiteContent.querySelectorAll('a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('/'))) {
+                // Make internal navigation use our proxy
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    let newUrl = href;
+                    
+                    // Convert relative URLs to absolute
+                    if (href.startsWith('/')) {
+                        newUrl = `${baseUrl.protocol}//${baseUrl.host}${href}`;
+                    }
+                    
+                    // Load the new URL through our proxy
+                    loadWebsite(newUrl);
+                });
+            }
+        });
+        
+        // Handle form submissions
+        const forms = websiteContent.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast('Form submissions are limited in embedded mode. Please visit the original site for full functionality.', 'warning');
+            });
+        });
+        
+        // Scroll to top when new content loads
+        websiteContent.scrollTop = 0;
+    }
+    
+    // Show error function
+    function showError(message) {
+        loadingIndicator.classList.add('d-none');
+        websiteContent.style.display = 'none';
+        errorMessage.classList.remove('d-none');
+        errorText.textContent = message;
+    }
+    
+    // URL validation
+    function isValidUrl(string) {
+        try {
+            const url = new URL(string);
+            return url.protocol === 'http:' || url.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    }
+    
+    // Update navigation buttons
+    function updateNavigationButtons() {
+        if (goBackBtn && goForwardBtn) {
+            goBackBtn.disabled = currentHistoryIndex <= 0;
+            goForwardBtn.disabled = currentHistoryIndex >= navigationHistory.length - 1;
+        }
+    }
+    
+    // Event listeners
+    if (loadButton) {
+        loadButton.addEventListener('click', function() {
+            const url = urlInput.value.trim();
+            if (url) {
+                loadWebsite(url);
+            }
+        });
+    }
+    
+    if (urlInput) {
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const url = urlInput.value.trim();
+                if (url) {
+                    loadWebsite(url);
+                }
+            }
+        });
+        
+        // Auto-add protocol if missing
+        urlInput.addEventListener('blur', function() {
+            let url = this.value.trim();
+            if (url && !url.match(/^https?:\/\//)) {
+                url = 'https://' + url;
+                this.value = url;
+            }
+        });
+    }
+    
+    // Navigation button handlers
+    if (goBackBtn) {
+        goBackBtn.addEventListener('click', function() {
+            if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                const url = navigationHistory[currentHistoryIndex];
+                loadWebsite(url);
+            }
+        });
+    }
+    
+    if (goForwardBtn) {
+        goForwardBtn.addEventListener('click', function() {
+            if (currentHistoryIndex < navigationHistory.length - 1) {
+                currentHistoryIndex++;
+                const url = navigationHistory[currentHistoryIndex];
+                loadWebsite(url);
+            }
+        });
+    }
+    
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            if (navigationHistory[currentHistoryIndex]) {
+                loadWebsite(navigationHistory[currentHistoryIndex]);
+            }
+        });
+    }
+    
+    if (openInNewTabBtn) {
+        openInNewTabBtn.addEventListener('click', function() {
+            const currentUrl = currentUrlInput.value;
+            if (currentUrl) {
+                window.open(currentUrl, '_blank');
+            }
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            websiteContainer.classList.add('d-none');
+            quickLinksSection.classList.remove('d-none');
+            websiteContent.innerHTML = '';
+            urlInput.value = '';
+            navigationHistory = [];
+            currentHistoryIndex = -1;
+        });
+    }
+    
+    // Quick link handlers
+    quickLinkButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.getAttribute('data-url');
+            if (url) {
+                urlInput.value = url;
+                loadWebsite(url);
+            }
+        });
+    });
 }
