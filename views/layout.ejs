@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,39 +15,80 @@
     <meta name="twitter:title" content="<%= (meta && (meta.ogTitle || title)) || '' %>">
     <meta name="twitter:description" content="<%= (meta && meta.ogDescription) || (meta && meta.description) || '' %>">
     <meta name="twitter:image" content="<%= (meta && meta.ogImage) || '' %>">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
+    <link rel="preload" href="/css/style.css" as="style">
+    <link rel="preload" href="/js/main.js" as="script">
+    
+    <!-- Stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
+    
+    <!-- PWA Support -->
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Performance optimization -->
+    <script>
+        // Set theme early to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Enhanced Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/">
                 <i class="fas fa-code text-primary"></i> 42Web.io
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" href="/">Home</a>
+                        <a class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" href="/">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <%= currentPage === 'about' ? 'active' : '' %>" href="/about">About</a>
+                        <a class="nav-link <%= currentPage === 'about' ? 'active' : '' %>" href="/about">
+                            <i class="fas fa-info-circle me-1"></i>About
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <%= currentPage === 'services' ? 'active' : '' %>" href="/services">Services</a>
+                        <a class="nav-link <%= currentPage === 'services' ? 'active' : '' %>" href="/services">
+                            <i class="fas fa-cogs me-1"></i>Services
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <%= currentPage === 'embed' ? 'active' : '' %>" href="/embed">Embed</a>
+                        <a class="nav-link <%= currentPage === 'embed' ? 'active' : '' %>" href="/embed">
+                            <i class="fas fa-globe me-1"></i>Embed
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <%= currentPage === 'blog' ? 'active' : '' %>" href="/blog">Blog</a>
+                        <a class="nav-link <%= currentPage === 'blog' ? 'active' : '' %>" href="/blog">
+                            <i class="fas fa-blog me-1"></i>Blog
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <%= currentPage === 'contact' ? 'active' : '' %>" href="/contact">Contact</a>
+                        <a class="nav-link <%= currentPage === 'contact' ? 'active' : '' %>" href="/contact">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
                     </li>
                 </ul>
             </div>
@@ -59,24 +100,76 @@
         <%- body %>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <!-- Enhanced Footer -->
+    <footer class="bg-dark text-light py-5 mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-lg-4 col-md-6 mb-4">
                     <h5><i class="fas fa-code text-primary"></i> 42Web.io</h5>
-                    <p class="text-muted">Innovative tech solutions for modern businesses.</p>
+                    <p class="text-muted mb-3">Innovative tech solutions for modern businesses. 
+                    Building the future with cutting-edge web, mobile, and cloud technologies.</p>
+                    <div class="d-flex">
+                        <a href="#" class="text-light me-3 fs-5" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-light me-3 fs-5" title="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-light me-3 fs-5" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="text-light fs-5" title="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <h6>Follow Us</h6>
-                    <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-light me-3"><i class="fab fa-linkedin"></i></a>
-                    <a href="#" class="text-light me-3"><i class="fab fa-github"></i></a>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-warning">Services</h6>
+                    <ul class="list-unstyled text-muted">
+                        <li><a href="/services" class="text-muted text-decoration-none">Web Development</a></li>
+                        <li><a href="/services" class="text-muted text-decoration-none">Mobile Apps</a></li>
+                        <li><a href="/services" class="text-muted text-decoration-none">Cloud Solutions</a></li>
+                        <li><a href="/embed" class="text-muted text-decoration-none">Website Embedder</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-warning">Company</h6>
+                    <ul class="list-unstyled text-muted">
+                        <li><a href="/about" class="text-muted text-decoration-none">About Us</a></li>
+                        <li><a href="/blog" class="text-muted text-decoration-none">Blog</a></li>
+                        <li><a href="/contact" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h6 class="text-warning">Newsletter</h6>
+                    <p class="text-muted small">Stay updated with our latest insights and tech trends.</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Enter your email" 
+                               aria-label="Email for newsletter">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <hr class="border-secondary">
-            <div class="text-center text-muted">
-                <p>&copy; 2025 42Web.io. All rights reserved.</p>
+            <hr class="border-secondary my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">
+                        &copy; 2025 42Web.io. All rights reserved. 
+                        <span class="d-inline-block ms-2">
+                            <i class="fas fa-shield-alt text-success me-1"></i>Secured by HTTPS
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        <a href="#" class="text-muted text-decoration-none me-3">Privacy Policy</a>
+                        <a href="#" class="text-muted text-decoration-none me-3">Terms of Service</a>
+                        <a href="#" class="text-muted text-decoration-none">Sitemap</a>
+                    </small>
+                </div>
             </div>
         </div>
     </footer>
@@ -84,5 +177,45 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/main.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Register service worker for offline support and performance
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('Service Worker registered successfully:', registration.scope);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New content is available, show update notification
+                                if (confirm('New version available! Reload to update?')) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('Service Worker registration failed:', error);
+                }
+            });
+        }
+        
+        // Performance monitoring
+        window.addEventListener('load', () => {
+            if ('performance' in window && 'navigation' in performance) {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                console.log('Page load performance:', {
+                    loadTime: Math.round(perfData.loadEventEnd - perfData.loadEventStart),
+                    domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
+                    networkTime: Math.round(perfData.responseEnd - perfData.requestStart)
+                });
+            }
+        });
+    </script>
 </body>
 </html>
