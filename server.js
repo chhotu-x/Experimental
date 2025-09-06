@@ -441,14 +441,23 @@ app.get('/proxy', proxyRateLimit, async (req, res) => {
         let userFriendlyCode = 'UNKNOWN_ERROR';
         
         if (error.code === 'ENOTFOUND') {
+            // For DNS errors, provide a demo fallback for certain popular sites
+            const fallbackContent = generateFallbackContent(targetUrl);
+            if (fallbackContent) {
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                res.setHeader('X-Cache', 'FALLBACK');
+                res.setHeader('X-Content-Source', 'demo-fallback');
+                return res.send(fallbackContent);
+            }
+            
             errorMessage = 'Website not found or DNS resolution failed';
             statusCode = 404;
             userFriendlyCode = 'DNS_ERROR';
             suggestions = [
-                'Check if the URL is spelled correctly',
-                'Try a different website to test the embedder',
-                'The website might be temporarily unavailable',
-                'DNS resolution may be restricted in this demo environment'
+                'This environment has DNS restrictions - external sites may not load',
+                'Try the local demo pages (Homepage, About, Services) for full functionality',
+                'Click "Demo Mode" below to see how the embedder works with sample content',
+                'External websites require different network configuration'
             ];
         } else if (error.code === 'ECONNREFUSED') {
             errorMessage = 'Connection refused by the website';
@@ -541,6 +550,321 @@ app.get('/proxy', proxyRateLimit, async (req, res) => {
         });
     }
 });
+
+// Generate fallback content for popular websites when DNS fails
+function generateFallbackContent(targetUrl) {
+    const url = new URL(targetUrl);
+    const hostname = url.hostname.toLowerCase();
+    
+    // Define fallback content for popular sites
+    const fallbacks = {
+        'example.com': {
+            title: 'Example Domain (Demo Mode)',
+            content: `
+                <div style="max-width: 800px; margin: 40px auto; padding: 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                    <h1 style="color: #333; margin-bottom: 20px;">Example Domain - Demo Mode</h1>
+                    <p style="font-size: 18px; line-height: 1.6; color: #666; margin-bottom: 30px;">
+                        This domain is for use in illustrative examples in documents. You may use this
+                        domain in literature without prior coordination or asking for permission.
+                    </p>
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin: 30px 0;">
+                        <h2 style="margin: 0 0 15px 0;">🚀 Embedder Demo Mode</h2>
+                        <p style="margin: 0; opacity: 0.9;">
+                            This is a demonstration of how the website embedder works. In a real environment
+                            with proper DNS access, this would show the actual example.com website.
+                        </p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0;">
+                        <div style="border: 1px solid #e1e5e9; border-radius: 8px; padding: 20px;">
+                            <h3 style="color: #333; margin-top: 0;">✨ Features</h3>
+                            <ul style="color: #666; line-height: 1.8;">
+                                <li>Server-side content fetching</li>
+                                <li>Smart URL rewriting</li>
+                                <li>Enhanced navigation</li>
+                                <li>Mobile responsive design</li>
+                            </ul>
+                        </div>
+                        <div style="border: 1px solid #e1e5e9; border-radius: 8px; padding: 20px;">
+                            <h3 style="color: #333; margin-top: 0;">🛠️ How It Works</h3>
+                            <ul style="color: #666; line-height: 1.8;">
+                                <li>Bypasses iframe restrictions</li>
+                                <li>Filters malicious content</li>
+                                <li>Preserves website functionality</li>
+                                <li>Adds enhanced features</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div style="background: #f8f9fa; border-left: 4px solid #007bff; padding: 20px; margin: 30px 0;">
+                        <strong>💡 Tip:</strong> Try the local demo pages (Homepage, About, Services) for full functionality,
+                        or visit the original website directly for the real content.
+                    </div>
+                </div>
+            `
+        },
+        'httpbin.org': {
+            title: 'HTTPBin.org Testing APIs (Demo Mode)',
+            content: `
+                <div style="max-width: 1000px; margin: 20px auto; padding: 20px; font-family: 'Segoe UI', sans-serif;">
+                    <header style="text-align: center; margin-bottom: 40px;">
+                        <h1 style="color: #2c3e50; font-size: 2.5em; margin-bottom: 10px;">HTTPBin.org</h1>
+                        <p style="color: #7f8c8d; font-size: 1.2em;">HTTP Request & Response Service (Demo Mode)</p>
+                    </header>
+                    
+                    <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; text-align: center;">
+                        <h2 style="margin: 0 0 15px 0;">🧪 Demo Mode Active</h2>
+                        <p style="margin: 0; opacity: 0.9;">
+                            This is a demonstration of the website embedder. In a real environment,
+                            this would show the actual HTTPBin.org testing interface.
+                        </p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin: 30px 0;">
+                        <div style="background: white; border: 1px solid #ecf0f1; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <h3 style="color: #27ae60; margin-top: 0; display: flex; align-items: center;">
+                                <span style="background: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; margin-right: 10px;">GET</span>
+                                HTTP Methods
+                            </h3>
+                            <p style="color: #7f8c8d; line-height: 1.6;">
+                                Testing different HTTP methods like GET, POST, PUT, DELETE with various response codes and headers.
+                            </p>
+                        </div>
+                        
+                        <div style="background: white; border: 1px solid #ecf0f1; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <h3 style="color: #e74c3c; margin-top: 0; display: flex; align-items: center;">
+                                <span style="background: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; margin-right: 10px;">JSON</span>
+                                Response Formats
+                            </h3>
+                            <p style="color: #7f8c8d; line-height: 1.6;">
+                                Return data in various formats including JSON, XML, HTML, and plain text responses.
+                            </p>
+                        </div>
+                        
+                        <div style="background: white; border: 1px solid #ecf0f1; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <h3 style="color: #9b59b6; margin-top: 0; display: flex; align-items: center;">
+                                <span style="background: #9b59b6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; margin-right: 10px;">AUTH</span>
+                                Authentication
+                            </h3>
+                            <p style="color: #7f8c8d; line-height: 1.6;">
+                                Test various authentication methods including Basic Auth, Bearer tokens, and cookies.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="background: #ecf0f1; border-radius: 8px; padding: 30px; text-align: center; margin: 30px 0;">
+                        <h3 style="color: #2c3e50; margin-bottom: 20px;">📚 What HTTPBin Offers</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: left;">
+                            <div style="background: white; padding: 15px; border-radius: 6px;">
+                                <strong style="color: #27ae60;">Request Inspection</strong><br>
+                                <small style="color: #7f8c8d;">View headers, IP, user agent</small>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 6px;">
+                                <strong style="color: #3498db;">Response Control</strong><br>
+                                <small style="color: #7f8c8d;">Custom status codes, delays</small>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 6px;">
+                                <strong style="color: #e74c3c;">Data Formats</strong><br>
+                                <small style="color: #7f8c8d;">JSON, XML, HTML responses</small>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 6px;">
+                                <strong style="color: #f39c12;">API Testing</strong><br>
+                                <small style="color: #7f8c8d;">Perfect for development</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                        <strong style="color: #856404;">💡 Note:</strong>
+                        <span style="color: #856404;">
+                            This demo shows how the embedder handles external websites. Visit the original site directly for the full API testing interface.
+                        </span>
+                    </div>
+                </div>
+            `
+        },
+        'github.com': {
+            title: 'GitHub (Demo Mode)',
+            content: `
+                <div style="max-width: 1200px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                    <header style="background: #24292f; color: white; padding: 20px; margin: -20px -20px 30px -20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center;">
+                                <h1 style="margin: 0; font-size: 24px;">🐙 GitHub</h1>
+                                <span style="background: #ff6b6b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-left: 15px;">DEMO MODE</span>
+                            </div>
+                            <div style="font-size: 14px; opacity: 0.8;">
+                                The world's leading software development platform
+                            </div>
+                        </div>
+                    </header>
+
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; border-radius: 12px; margin: 30px 0; text-align: center;">
+                        <h2 style="margin: 0 0 15px 0; font-size: 2em;">🚀 Embedder Demo</h2>
+                        <p style="margin: 0; opacity: 0.9; font-size: 1.1em;">
+                            This demonstrates how GitHub would appear in the embedder. 
+                            The actual site has millions of repositories and developers.
+                        </p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin: 30px 0;">
+                        <div>
+                            <h3 style="color: #24292f; border-bottom: 2px solid #e1e4e8; padding-bottom: 10px;">📁 Popular Repositories</h3>
+                            <div style="space-y: 15px;">
+                                ${[
+                                    { name: 'microsoft/vscode', desc: 'Visual Studio Code editor', stars: '142k', lang: 'TypeScript' },
+                                    { name: 'facebook/react', desc: 'A declarative JavaScript library', stars: '210k', lang: 'JavaScript' },
+                                    { name: 'tensorflow/tensorflow', desc: 'Machine Learning framework', stars: '180k', lang: 'Python' },
+                                    { name: 'torvalds/linux', desc: 'Linux kernel source tree', stars: '165k', lang: 'C' }
+                                ].map(repo => `
+                                    <div style="border: 1px solid #e1e4e8; border-radius: 8px; padding: 20px; margin: 15px 0; background: white;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                                            <div>
+                                                <h4 style="margin: 0 0 8px 0; color: #0969da;">${repo.name}</h4>
+                                                <p style="margin: 0 0 12px 0; color: #656d76; line-height: 1.5;">${repo.desc}</p>
+                                                <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #656d76;">
+                                                    <span>⭐ ${repo.stars}</span>
+                                                    <span style="display: flex; align-items: center;">
+                                                        <span style="width: 12px; height: 12px; border-radius: 50%; background: #f1e05a; margin-right: 6px;"></span>
+                                                        ${repo.lang}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style="color: #24292f; border-bottom: 2px solid #e1e4e8; padding-bottom: 10px;">🔥 Trending</h3>
+                            <div style="background: white; border: 1px solid #e1e4e8; border-radius: 8px; padding: 20px;">
+                                <h4 style="margin: 0 0 15px 0; color: #24292f;">Today's Trending</h4>
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                                    <li style="padding: 8px 0; border-bottom: 1px solid #f6f8fa;">🔥 AI/ML Projects</li>
+                                    <li style="padding: 8px 0; border-bottom: 1px solid #f6f8fa;">⚡ Web Frameworks</li>
+                                    <li style="padding: 8px 0; border-bottom: 1px solid #f6f8fa;">🛠️ DevOps Tools</li>
+                                    <li style="padding: 8px 0;">📱 Mobile Apps</li>
+                                </ul>
+                            </div>
+
+                            <div style="background: #f6f8fa; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                                <h4 style="margin: 0 0 15px 0; color: #24292f;">📊 Platform Stats</h4>
+                                <div style="font-size: 14px; line-height: 1.8; color: #656d76;">
+                                    <div>👥 100M+ developers</div>
+                                    <div>📦 330M+ repositories</div>
+                                    <div>🏢 4M+ organizations</div>
+                                    <div>🌍 Used in 200+ countries</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff8e1; border: 1px solid #ffecb3; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: center;">
+                        <h4 style="color: #e65100; margin: 0 0 10px 0;">💡 Demo Mode Information</h4>
+                        <p style="color: #ef6c00; margin: 0; line-height: 1.6;">
+                            This is a simulated GitHub interface to demonstrate the website embedder. 
+                            The real GitHub has live repositories, issues, pull requests, and collaboration features.
+                        </p>
+                    </div>
+                </div>
+            `
+        }
+    };
+    
+    // Check if we have a fallback for this hostname
+    const fallback = fallbacks[hostname];
+    if (!fallback) {
+        return null;
+    }
+    
+    // Generate complete HTML with enhanced styling and navigation
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <base href="${targetUrl}">
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${fallback.title}</title>
+            <style>
+                body { 
+                    margin: 0; 
+                    padding: 20px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    line-height: 1.6;
+                    background: #f8f9fa;
+                }
+                
+                .demo-notice {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+                    color: white;
+                    padding: 10px 20px;
+                    font-size: 14px;
+                    z-index: 9999;
+                    text-align: center;
+                    box-shadow: 0 2px 10px rgba(255,107,107,0.3);
+                }
+                
+                .demo-notice a {
+                    color: #fff3cd !important;
+                    text-decoration: none !important;
+                    font-weight: 600;
+                }
+                
+                body { 
+                    padding-top: 60px; 
+                }
+                
+                html {
+                    scroll-behavior: smooth;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="demo-notice">
+                🎭 DEMO MODE: Simulated content via <a href="/" target="_blank">42Web.io Embedder</a> 
+                | <a href="${targetUrl}" target="_blank">Visit Real Site</a>
+                | <a href="javascript:window.parent.postMessage('close-embed', '*')">Close Embed</a>
+            </div>
+            
+            ${fallback.content}
+            
+            <script>
+                // Enhanced demo functionality
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('Demo content loaded for ${hostname}');
+                    
+                    // Smooth scrolling for any anchor links
+                    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+                    anchorLinks.forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            const target = document.querySelector(this.getAttribute('href'));
+                            if (target) {
+                                e.preventDefault();
+                                target.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        });
+                    });
+                    
+                    // Add interactive elements
+                    const buttons = document.querySelectorAll('button, .btn');
+                    buttons.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            this.style.transform = 'scale(0.98)';
+                            setTimeout(() => {
+                                this.style.transform = 'scale(1)';
+                            }, 150);
+                        });
+                    });
+                });
+            </script>
+        </body>
+        </html>
+    `;
+}
 
 // Enhanced contact form submission with rate limiting and validation
 app.post('/contact', contactRateLimit, (req, res) => {

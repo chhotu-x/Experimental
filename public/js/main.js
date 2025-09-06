@@ -552,12 +552,15 @@ function debounce(func, wait) {
 // Show toast notification
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    const alertClass = type === 'info' ? 'alert-info' : type === 'success' ? 'alert-success' : 'alert-danger';
+    const iconClass = type === 'info' ? 'fa-info-circle' : type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+    
+    toast.className = `alert ${alertClass} position-fixed top-0 end-0 m-3`;
     toast.style.zIndex = '9999';
     toast.style.minWidth = '300px';
     toast.innerHTML = `
         <div class="d-flex align-items-center">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            <i class="fas ${iconClass} me-2"></i>
             <span>${message}</span>
             <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
         </div>
@@ -666,18 +669,29 @@ function initWebsiteEmbedder() {
             updateStatsDisplay('Loading...', 'LOADING');
             
             try {
-                const proxyUrl = `/proxy?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl);
+                // Ensure we use the correct server URL, not the embedded content's base URL
+                const serverOrigin = window.location.origin;
+                const proxyUrl = `${serverOrigin}/proxy?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl, {
+                    // Add explicit credentials and headers to ensure proper proxying
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
                 
                 if (response.ok) {
                     const loadTime = performance.now() - startTime;
                     const htmlContent = await response.text();
                     const cacheStatus = response.headers.get('X-Cache') || 'MISS';
+                    const contentSource = response.headers.get('X-Content-Source') || 'proxy';
                     
                     // Store performance metrics
                     performanceMetrics = {
                         loadTime: Math.round(loadTime),
                         cacheStatus,
+                        contentSource,
                         url,
                         timestamp: new Date().toISOString()
                     };
@@ -693,11 +707,17 @@ function initWebsiteEmbedder() {
                     elements.websiteContent.style.display = 'block';
                     elements.websiteContent.classList.remove('loading');
                     
-                    // Update performance display
-                    updateStatsDisplay(`${loadTime.toFixed(0)}ms`, cacheStatus);
+                    // Update performance display with source indicator
+                    const cacheDisplay = contentSource === 'demo-fallback' ? 'DEMO' : cacheStatus;
+                    updateStatsDisplay(`${loadTime.toFixed(0)}ms`, cacheDisplay);
+                    
+                    // Show demo notice if fallback content was used
+                    if (contentSource === 'demo-fallback') {
+                        showToast('Demo content loaded - shows how the embedder works with external sites!', 'info');
+                    }
                     
                     // Track successful load
-                    console.log(`Successfully loaded ${url} in ${loadTime.toFixed(2)}ms`);
+                    console.log(`Successfully loaded ${url} in ${loadTime.toFixed(2)}ms (source: ${contentSource})`);
                     
                 } else {
                     // Enhanced error handling
@@ -852,6 +872,9 @@ function initWebsiteEmbedder() {
                     <div class="error-actions mt-3">
                         <button class="btn btn-primary btn-sm me-2" onclick="document.getElementById('urlInput').focus()">
                             <i class="fas fa-edit me-1"></i>Try Different URL
+                        </button>
+                        <button class="btn btn-outline-success btn-sm me-2" onclick="tryDemoMode()">
+                            <i class="fas fa-play me-1"></i>Try Demo Mode
                         </button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
                             <i class="fas fa-refresh me-1"></i>Refresh Page
@@ -1123,4 +1146,28 @@ function initWebsiteEmbedder() {
         
         resolve();
     });
+}
+
+// Try demo mode - loads a demo website
+function tryDemoMode() {
+    const demoSites = [
+        'https://example.com',
+        'https://github.com', 
+        'https://httpbin.org/html'
+    ];
+    
+    const randomSite = demoSites[Math.floor(Math.random() * demoSites.length)];
+    const urlInput = document.getElementById('urlInput');
+    
+    if (urlInput) {
+        urlInput.value = randomSite;
+        urlInput.classList.remove('is-invalid');
+        urlInput.classList.add('is-valid');
+        
+        // Load the demo site using the load button
+        const loadButton = document.getElementById('loadWebsite');
+        if (loadButton) {
+            loadButton.click();
+        }
+    }
 }
