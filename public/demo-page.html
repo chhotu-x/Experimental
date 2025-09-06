@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embeddable Demo Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .demo-content {
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #ff5252;
+        }
+        .feature-box {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .timestamp {
+            font-size: 0.9em;
+            color: #ddd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Embedding Success!</h1>
+        
+        <div class="demo-content">
+            <p>✅ <strong>This page loaded successfully in an iframe!</strong></p>
+            <p>This demonstrates that the website embedder is working correctly.</p>
+        </div>
+
+        <div class="feature-box">
+            <h3>🚀 Interactive Features</h3>
+            <p>Click the buttons below to test navigation:</p>
+            <a href="#section1" class="button">Section 1</a>
+            <a href="#section2" class="button">Section 2</a>
+            <a href="https://www.42web.io" class="button" target="_blank">External Link</a>
+        </div>
+
+        <div id="section1" class="feature-box">
+            <h3>📱 Section 1: Responsive Design</h3>
+            <p>This page adapts to different screen sizes and works perfectly in iframes.</p>
+        </div>
+
+        <div id="section2" class="feature-box">
+            <h3>🔒 Section 2: Security Information</h3>
+            <p>This page allows iframe embedding because it doesn't set X-Frame-Options or CSP restrictions.</p>
+            <p><strong>Why do other sites block embedding?</strong></p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>Clickjacking protection</li>
+                <li>Brand control</li>
+                <li>Analytics accuracy</li>
+                <li>Security policies</li>
+            </ul>
+        </div>
+
+        <div class="feature-box">
+            <h3>✨ Test Navigation</h3>
+            <p>Try using the back/forward buttons in the embedder controls above!</p>
+            <button onclick="changeBackground()" class="button">Change Background</button>
+        </div>
+
+        <div class="timestamp">
+            Page loaded at: <span id="timestamp"></span>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Interactive demo
+        function changeBackground() {
+            const colors = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+            ];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.background = randomColor;
+        }
+        
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

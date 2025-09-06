@@ -327,54 +327,133 @@ function initWebsiteEmbedder() {
         
         updateNavigationButtons();
         
-        // Set iframe source
-        websiteFrame.src = url;
+        // Clear previous iframe
+        websiteFrame.src = 'about:blank';
+        
+        // Enhanced load detection
+        let hasLoaded = false;
+        let loadTimeout;
         
         // Handle iframe load
         websiteFrame.onload = function() {
-            loadingIndicator.classList.add('d-none');
-            iframeContainer.style.display = 'block';
+            if (websiteFrame.src === 'about:blank') return; // Ignore blank loads
             
-            try {
-                // Try to access iframe content to detect if it loaded successfully
-                // This will fail for cross-origin frames, which is expected
-                const iframeDoc = websiteFrame.contentDocument || websiteFrame.contentWindow.document;
-                if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.trim() === '') {
-                    showError('Website appears to be empty or blocked iframe embedding');
+            hasLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            // Delay to check if content actually loaded
+            setTimeout(() => {
+                try {
+                    const iframeDoc = websiteFrame.contentDocument || websiteFrame.contentWindow.document;
+                    const iframeWin = websiteFrame.contentWindow;
+                    
+                    // Check if we can access the document (same-origin)
+                    if (iframeDoc) {
+                        // Same-origin - check if content is there
+                        if (iframeDoc.body && iframeDoc.body.innerHTML.trim() === '') {
+                            showError('Website appears to be empty or returned no content', url);
+                            return;
+                        }
+                        
+                        // Check for error pages or blocked content
+                        const title = iframeDoc.title.toLowerCase();
+                        const bodyText = iframeDoc.body ? iframeDoc.body.textContent.toLowerCase() : '';
+                        
+                        if (title.includes('blocked') || title.includes('forbidden') || 
+                            bodyText.includes('blocked') || bodyText.includes('forbidden') ||
+                            bodyText.includes('not allowed') || bodyText.includes('access denied')) {
+                            showError('Website blocked iframe embedding', url);
+                            return;
+                        }
+                    } else if (iframeWin) {
+                        // Cross-origin - try to detect if it's actually blocked
+                        try {
+                            // If we can access location, it's not properly sandboxed
+                            const loc = iframeWin.location.href;
+                            if (loc === 'about:blank' || loc.includes('chrome-error://')) {
+                                showError('Website refused to load in iframe', url);
+                                return;
+                            }
+                        } catch (e) {
+                            // This is expected for cross-origin frames
+                            // If we get here, the iframe likely loaded successfully
+                        }
+                    }
+                    
+                    // If we get here, assume successful load
+                    loadingIndicator.classList.add('d-none');
+                    iframeContainer.style.display = 'block';
+                    
+                } catch (e) {
+                    // Cross-origin frame - assume successful load if no other errors
+                    loadingIndicator.classList.add('d-none');
+                    iframeContainer.style.display = 'block';
                 }
-            } catch (e) {
-                // Cross-origin frame - this is normal and expected
-                // The iframe loaded successfully but we can't access its content
-            }
+            }, 500); // Give time for content to render
         };
         
         // Handle iframe error
         websiteFrame.onerror = function() {
-            showError('Failed to load the website. The site may block iframe embedding.');
+            hasLoaded = true;
+            clearTimeout(loadTimeout);
+            showError('Failed to load the website due to network or security restrictions', url);
         };
         
-        // Timeout fallback
-        setTimeout(() => {
-            if (loadingIndicator && !loadingIndicator.classList.contains('d-none')) {
-                showError('Website took too long to load. It may block iframe embedding or be unavailable.');
+        // Set iframe source after setting up handlers
+        websiteFrame.src = url;
+        
+        // Timeout fallback with better detection
+        loadTimeout = setTimeout(() => {
+            if (!hasLoaded) {
+                showError('Website took too long to respond. It may be unavailable or blocking iframe embedding', url);
             }
-        }, 15000);
+        }, 10000); // Reduced timeout for better UX
     }
     
     // Show error function
-    function showError(message) {
+    function showError(message, url) {
         loadingIndicator.classList.add('d-none');
         iframeContainer.style.display = 'none';
         errorMessage.classList.remove('d-none');
         errorText.textContent = message;
+        
+        // Add suggestions based on URL
+        const suggestions = document.getElementById('errorSuggestions');
+        if (suggestions && url) {
+            let suggestionText = '';
+            
+            if (url.includes('example.com') || url.includes('google.com') || url.includes('facebook.com') || 
+                url.includes('youtube.com') || url.includes('twitter.com') || url.includes('instagram.com') ||
+                url.includes('github.com') || url.includes('linkedin.com') || url.includes('reddit.com')) {
+                suggestionText = 'Popular sites like Google, Facebook, YouTube, GitHub, and social media platforms typically block embedding for security reasons. Try the "Demo Page" above instead!';
+            } else if (url.includes('github.com') || url.includes('stackoverflow.com')) {
+                suggestionText = 'Developer sites often block embedding. Try using their API or viewing directly in a new tab.';
+            } else if (url.includes('bank') || url.includes('paypal') || url.includes('stripe')) {
+                suggestionText = 'Financial and payment sites always block embedding for security. This is normal and expected.';
+            } else {
+                suggestionText = 'Try the "Demo Page (Always Works)" button above to test that embedding works correctly. Then try other embed-friendly sites.';
+            }
+            
+            suggestions.innerHTML = `<i class="fas fa-lightbulb me-1"></i>${suggestionText}`;
+            suggestions.style.display = 'block';
+        }
     }
     
     // URL validation
     function isValidUrl(string) {
+        // Allow relative URLs for local demo pages
+        if (string.startsWith('/')) {
+            return true;
+        }
+        
         try {
             const url = new URL(string);
             return url.protocol === 'http:' || url.protocol === 'https:';
         } catch (_) {
+            // Check for data URLs
+            if (string.startsWith('data:')) {
+                return true;
+            }
             return false;
         }
     }

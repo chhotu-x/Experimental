@@ -29,12 +29,12 @@
                                     <input type="url" 
                                            class="form-control" 
                                            id="urlInput" 
-                                           placeholder="Enter website URL (e.g., https://example.com)"
+                                           placeholder="Enter website URL (e.g., https://jsonplaceholder.typicode.com)"
                                            value="">
                                 </div>
                                 <div class="form-text mt-2">
                                     <i class="fas fa-info-circle text-info me-1"></i>
-                                    Enter a complete URL including http:// or https://
+                                    Enter a complete URL - Not all sites allow embedding (try the suggestions below)
                                 </div>
                             </div>
                             <div class="col-md-4 mt-3 mt-md-0">
@@ -98,19 +98,28 @@
             </div>
             
             <!-- Error Message -->
-            <div id="errorMessage" class="alert alert-danger m-3 d-none" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Unable to load website:</strong>
-                <span id="errorText"></span>
-                <div class="mt-2">
-                    <small>
-                        This could be due to:
-                        <ul class="mb-0">
-                            <li>The website blocking iframe embedding</li>
-                            <li>Invalid URL</li>
-                            <li>Network connectivity issues</li>
-                        </ul>
-                    </small>
+            <div id="errorMessage" class="alert alert-warning m-3 d-none" role="alert">
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-exclamation-triangle me-2 mt-1 text-warning"></i>
+                    <div class="flex-grow-1">
+                        <strong>Unable to load website:</strong>
+                        <span id="errorText"></span>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <strong>Common reasons:</strong>
+                                <ul class="mb-2">
+                                    <li><strong>X-Frame-Options header:</strong> Website explicitly blocks iframe embedding</li>
+                                    <li><strong>Content Security Policy:</strong> Site's security settings prevent embedding</li>
+                                    <li><strong>HTTPS requirements:</strong> Mixed content restrictions</li>
+                                    <li><strong>Geo-blocking:</strong> Site may be restricted in your region</li>
+                                </ul>
+                                <div id="errorSuggestions" style="display: none;" class="alert alert-info py-2 mt-2">
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    <span></span>
+                                </div>
+                            </small>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -130,25 +139,61 @@
         <div id="quickLinksSection" class="container mt-4">
             <div class="row">
                 <div class="col-12">
-                    <h5 class="text-center mb-3">Quick Links - Try These Popular Sites</h5>
-                    <div class="d-flex flex-wrap justify-content-center gap-2">
-                        <button class="btn btn-outline-primary btn-sm quick-link" data-url="https://example.com">
-                            Example.com
+                    <h5 class="text-center mb-3">🚀 Try These Embed-Friendly Sites</h5>
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                        <button class="btn btn-success btn-sm quick-link" data-url="/demo-page.html">
+                            <i class="fas fa-check-circle me-1"></i>Demo Page (Always Works)
                         </button>
-                        <button class="btn btn-outline-success btn-sm quick-link" data-url="https://httpbin.org">
-                            HTTPBin
+                        <button class="btn btn-outline-info btn-sm quick-link" data-url="https://httpbin.org/html">
+                            <i class="fas fa-code me-1"></i>HTTPBin HTML
                         </button>
-                        <button class="btn btn-outline-info btn-sm quick-link" data-url="https://jsonplaceholder.typicode.com">
-                            JSON Placeholder
+                        <button class="btn btn-outline-primary btn-sm quick-link" data-url="https://postman-echo.com">
+                            <i class="fas fa-server me-1"></i>Postman Echo
                         </button>
-                        <button class="btn btn-outline-warning btn-sm quick-link" data-url="https://duckduckgo.com">
-                            DuckDuckGo
+                        <button class="btn btn-outline-secondary btn-sm quick-link" data-url="data:text/html,<h1>Hello%20World</h1><p>This%20is%20a%20data%20URL%20that%20should%20work!</p>">
+                            <i class="fas fa-file-code me-1"></i>Data URL Demo
                         </button>
                     </div>
-                    <p class="text-center text-muted mt-2 small">
-                        <i class="fas fa-shield-alt me-1"></i>
-                        Note: Some websites may not display properly due to security restrictions
-                    </p>
+                    
+                    <div class="alert alert-info py-2 px-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Embedding Reality:</strong> Most modern websites (Google, Facebook, YouTube, banks, social media) block iframe embedding for security. The green "Demo Page" above always works - try it first!
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>This is standard web security
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <details class="mb-3">
+                        <summary class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-question-circle me-1"></i>Why Can't I Embed Some Sites?
+                        </summary>
+                        <div class="mt-2 p-3 bg-light rounded">
+                            <h6>Common Blocking Methods:</h6>
+                            <ul class="small">
+                                <li><strong>X-Frame-Options:</strong> HTTP header that prevents page from being displayed in iframe</li>
+                                <li><strong>Content Security Policy (CSP):</strong> Modern security standard that controls resource loading</li>
+                                <li><strong>JavaScript Frame Busting:</strong> Code that detects iframe embedding and redirects</li>
+                                <li><strong>HTTPS Mixed Content:</strong> Secure sites can't embed insecure content</li>
+                            </ul>
+                            <h6>Sites That Typically Allow Embedding:</h6>
+                            <ul class="small text-success">
+                                <li>API documentation sites (JSON Placeholder, HTTPBin)</li>
+                                <li>Developer tools and testing services</li>
+                                <li>Some news and blog sites</li>
+                                <li>Educational content platforms</li>
+                                <li>Simple static websites</li>
+                            </ul>
+                            <p class="small text-muted mb-0">
+                                <strong>Pro Tip:</strong> If you need to embed blocked content, consider using the "Open in New Tab" button or implementing server-side proxying (advanced).
+                            </p>
+                        </div>
+                    </details>
                 </div>
             </div>
         </div>
