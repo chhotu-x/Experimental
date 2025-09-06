@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initFormValidation();
     initAnimations();
     initNavbar();
+    initWebsiteEmbedder();
 });
 
 // Smooth scrolling for anchor links
@@ -268,4 +269,211 @@ function formatPhoneNumber(phoneNumber) {
         return '(' + match[1] + ') ' + match[2] + '-' + match[3];
     }
     return phoneNumber;
+}
+
+// Website Embedder functionality
+function initWebsiteEmbedder() {
+    const urlInput = document.getElementById('urlInput');
+    const loadButton = document.getElementById('loadWebsite');
+    const websiteContainer = document.getElementById('websiteContainer');
+    const quickLinksSection = document.getElementById('quickLinksSection');
+    const websiteFrame = document.getElementById('websiteFrame');
+    const currentUrlInput = document.getElementById('currentUrl');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    const iframeContainer = document.getElementById('iframeContainer');
+    
+    // Navigation buttons
+    const goBackBtn = document.getElementById('goBack');
+    const goForwardBtn = document.getElementById('goForward');
+    const refreshBtn = document.getElementById('refreshPage');
+    const openInNewTabBtn = document.getElementById('openInNewTab');
+    const closeBtn = document.getElementById('closeEmbedded');
+    
+    // Quick link buttons
+    const quickLinkButtons = document.querySelectorAll('.quick-link');
+    
+    // History tracking
+    let navigationHistory = [];
+    let currentHistoryIndex = -1;
+    
+    if (!urlInput || !loadButton) return; // Exit if elements don't exist
+    
+    // Load website function
+    function loadWebsite(url) {
+        if (!isValidUrl(url)) {
+            showError('Please enter a valid URL starting with http:// or https://');
+            return;
+        }
+        
+        // Show container and loading
+        websiteContainer.classList.remove('d-none');
+        quickLinksSection.classList.add('d-none');
+        loadingIndicator.classList.remove('d-none');
+        errorMessage.classList.add('d-none');
+        iframeContainer.style.display = 'none';
+        
+        // Update current URL display
+        currentUrlInput.value = url;
+        
+        // Add to history if it's a new navigation
+        if (navigationHistory[currentHistoryIndex] !== url) {
+            // Remove any forward history
+            navigationHistory = navigationHistory.slice(0, currentHistoryIndex + 1);
+            navigationHistory.push(url);
+            currentHistoryIndex = navigationHistory.length - 1;
+        }
+        
+        updateNavigationButtons();
+        
+        // Set iframe source
+        websiteFrame.src = url;
+        
+        // Handle iframe load
+        websiteFrame.onload = function() {
+            loadingIndicator.classList.add('d-none');
+            iframeContainer.style.display = 'block';
+            
+            try {
+                // Try to access iframe content to detect if it loaded successfully
+                // This will fail for cross-origin frames, which is expected
+                const iframeDoc = websiteFrame.contentDocument || websiteFrame.contentWindow.document;
+                if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.trim() === '') {
+                    showError('Website appears to be empty or blocked iframe embedding');
+                }
+            } catch (e) {
+                // Cross-origin frame - this is normal and expected
+                // The iframe loaded successfully but we can't access its content
+            }
+        };
+        
+        // Handle iframe error
+        websiteFrame.onerror = function() {
+            showError('Failed to load the website. The site may block iframe embedding.');
+        };
+        
+        // Timeout fallback
+        setTimeout(() => {
+            if (loadingIndicator && !loadingIndicator.classList.contains('d-none')) {
+                showError('Website took too long to load. It may block iframe embedding or be unavailable.');
+            }
+        }, 15000);
+    }
+    
+    // Show error function
+    function showError(message) {
+        loadingIndicator.classList.add('d-none');
+        iframeContainer.style.display = 'none';
+        errorMessage.classList.remove('d-none');
+        errorText.textContent = message;
+    }
+    
+    // URL validation
+    function isValidUrl(string) {
+        try {
+            const url = new URL(string);
+            return url.protocol === 'http:' || url.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    }
+    
+    // Update navigation buttons
+    function updateNavigationButtons() {
+        if (goBackBtn && goForwardBtn) {
+            goBackBtn.disabled = currentHistoryIndex <= 0;
+            goForwardBtn.disabled = currentHistoryIndex >= navigationHistory.length - 1;
+        }
+    }
+    
+    // Event listeners
+    if (loadButton) {
+        loadButton.addEventListener('click', function() {
+            const url = urlInput.value.trim();
+            if (url) {
+                loadWebsite(url);
+            }
+        });
+    }
+    
+    if (urlInput) {
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const url = urlInput.value.trim();
+                if (url) {
+                    loadWebsite(url);
+                }
+            }
+        });
+        
+        // Auto-add protocol if missing
+        urlInput.addEventListener('blur', function() {
+            let url = this.value.trim();
+            if (url && !url.match(/^https?:\/\//)) {
+                url = 'https://' + url;
+                this.value = url;
+            }
+        });
+    }
+    
+    // Navigation button handlers
+    if (goBackBtn) {
+        goBackBtn.addEventListener('click', function() {
+            if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                const url = navigationHistory[currentHistoryIndex];
+                loadWebsite(url);
+            }
+        });
+    }
+    
+    if (goForwardBtn) {
+        goForwardBtn.addEventListener('click', function() {
+            if (currentHistoryIndex < navigationHistory.length - 1) {
+                currentHistoryIndex++;
+                const url = navigationHistory[currentHistoryIndex];
+                loadWebsite(url);
+            }
+        });
+    }
+    
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            if (navigationHistory[currentHistoryIndex]) {
+                loadWebsite(navigationHistory[currentHistoryIndex]);
+            }
+        });
+    }
+    
+    if (openInNewTabBtn) {
+        openInNewTabBtn.addEventListener('click', function() {
+            const currentUrl = currentUrlInput.value;
+            if (currentUrl) {
+                window.open(currentUrl, '_blank');
+            }
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            websiteContainer.classList.add('d-none');
+            quickLinksSection.classList.remove('d-none');
+            websiteFrame.src = 'about:blank';
+            urlInput.value = '';
+            navigationHistory = [];
+            currentHistoryIndex = -1;
+        });
+    }
+    
+    // Quick link handlers
+    quickLinkButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.getAttribute('data-url');
+            if (url) {
+                urlInput.value = url;
+                loadWebsite(url);
+            }
+        });
+    });
 }

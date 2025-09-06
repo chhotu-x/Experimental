@@ -109,6 +109,17 @@ app.get('/contact', (req, res) => {
     });
 });
 
+app.get('/embed', (req, res) => {
+    res.render('embed', {
+        title: 'Website Embedder - 42Web.io',
+        currentPage: 'embed',
+        ...withMeta({
+            description: 'Embed any website with full navigation capabilities.',
+            canonical: req.protocol + '://' + req.get('host') + '/embed'
+        })
+    });
+});
+
 // Handle contact form submission
 app.post('/contact', (req, res) => {
     const { name, email, message } = req.body;
