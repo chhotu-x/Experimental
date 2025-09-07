@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initAnimations(),
         initNavbar(),
         initWebsiteEmbedder(),
+        initWebsiteAutomation(),
         initImageLazyLoading(),
         initSearchFunctionality(),
         initThemeToggle()
@@ -1170,4 +1171,814 @@ function tryDemoMode() {
             loadButton.click();
         }
     }
+}
+
+// Advanced Website Automation Engine
+function initWebsiteAutomation() {
+    return new Promise((resolve) => {
+        // Automation state management
+        window.automationEngine = {
+            isRecording: false,
+            isPlaying: false,
+            isScheduled: false,
+            recordedActions: [],
+            currentActionIndex: 0,
+            scheduleInterval: null,
+            executionCount: 0,
+            maxExecutions: 10,
+            startTime: null,
+            config: {
+                autoFill: {
+                    name: '',
+                    email: '',
+                    phone: '',
+                    message: ''
+                },
+                scroll: {
+                    speed: 2000,
+                    distance: 300,
+                    infinite: false,
+                    pauseOnHover: false
+                },
+                schedule: {
+                    interval: 'none',
+                    maxExecutions: 10
+                }
+            }
+        };
+
+        // Get automation UI elements
+        const automationElements = {
+            toggleBtn: document.getElementById('toggleAutomation'),
+            panel: document.getElementById('automationPanel'),
+            status: document.getElementById('automationStatus'),
+            indicator: document.getElementById('automationIndicator'),
+            description: document.getElementById('automationDescription'),
+            actionCount: document.getElementById('actionCount'),
+            runtime: document.getElementById('automationRuntime'),
+            recordBtn: document.getElementById('recordActions'),
+            playBtn: document.getElementById('playbackActions'),
+            stopBtn: document.getElementById('stopAutomation'),
+            autoFillBtn: document.getElementById('autoFillForms'),
+            autoScrollBtn: document.getElementById('autoScroll'),
+            extractBtn: document.getElementById('extractContent'),
+            scheduleBtn: document.getElementById('scheduleTask'),
+            templatesBtn: document.getElementById('automationTemplates'),
+            configModal: document.getElementById('automationConfigModal'),
+            saveConfigBtn: document.getElementById('saveAutomationConfig'),
+            clearActionsBtn: document.getElementById('clearActions'),
+            actionsList: document.getElementById('recordedActionsList'),
+            customScript: document.getElementById('customScript'),
+            validateScriptBtn: document.getElementById('validateScript'),
+            executeScriptBtn: document.getElementById('executeScript')
+        };
+
+        // Toggle automation panel
+        if (automationElements.toggleBtn) {
+            automationElements.toggleBtn.addEventListener('click', function() {
+                const panel = automationElements.panel;
+                const isVisible = !panel.classList.contains('d-none');
+                
+                if (isVisible) {
+                    panel.classList.add('d-none');
+                    automationElements.status.classList.add('d-none');
+                    this.classList.remove('btn-outline-info');
+                    this.classList.add('btn-outline-secondary');
+                } else {
+                    panel.classList.remove('d-none');
+                    automationElements.status.classList.remove('d-none');
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-outline-info');
+                    updateAutomationStatus('READY', 'Automation panel activated');
+                }
+            });
+        }
+
+        // Record actions functionality
+        if (automationElements.recordBtn) {
+            automationElements.recordBtn.addEventListener('click', function() {
+                if (!window.automationEngine.isRecording) {
+                    startRecording();
+                } else {
+                    stopRecording();
+                }
+            });
+        }
+
+        // Playback recorded actions
+        if (automationElements.playBtn) {
+            automationElements.playBtn.addEventListener('click', async function() {
+                if (window.automationEngine.recordedActions.length > 0) {
+                    await playbackActions();
+                } else {
+                    showToast('No recorded actions to playback', 'warning');
+                }
+            });
+        }
+
+        // Stop automation
+        if (automationElements.stopBtn) {
+            automationElements.stopBtn.addEventListener('click', function() {
+                stopAllAutomation();
+            });
+        }
+
+        // Auto-fill forms
+        if (automationElements.autoFillBtn) {
+            automationElements.autoFillBtn.addEventListener('click', function() {
+                autoFillForms();
+            });
+        }
+
+        // Auto-scroll functionality
+        if (automationElements.autoScrollBtn) {
+            automationElements.autoScrollBtn.addEventListener('click', function() {
+                toggleAutoScroll();
+            });
+        }
+
+        // Content extraction
+        if (automationElements.extractBtn) {
+            automationElements.extractBtn.addEventListener('click', function() {
+                extractContent();
+            });
+        }
+
+        // Schedule task
+        if (automationElements.scheduleBtn) {
+            automationElements.scheduleBtn.addEventListener('click', function() {
+                const modal = new bootstrap.Modal(automationElements.configModal);
+                modal.show();
+            });
+        }
+
+        // Template selection
+        document.querySelectorAll('[data-template]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadAutomationTemplate(this.dataset.template);
+            });
+        });
+
+        // Save configuration
+        if (automationElements.saveConfigBtn) {
+            automationElements.saveConfigBtn.addEventListener('click', function() {
+                saveAutomationConfig();
+                const modal = bootstrap.Modal.getInstance(automationElements.configModal);
+                if (modal) modal.hide();
+            });
+        }
+
+        // Clear actions
+        if (automationElements.clearActionsBtn) {
+            automationElements.clearActionsBtn.addEventListener('click', function() {
+                clearRecordedActions();
+            });
+        }
+
+        // Custom script validation and execution
+        if (automationElements.validateScriptBtn) {
+            automationElements.validateScriptBtn.addEventListener('click', function() {
+                validateCustomScript();
+            });
+        }
+
+        if (automationElements.executeScriptBtn) {
+            automationElements.executeScriptBtn.addEventListener('click', function() {
+                executeCustomScript();
+            });
+        }
+
+        // Start automation runtime timer
+        startAutomationTimer();
+
+        resolve();
+    });
+}
+
+// Start recording user actions
+function startRecording() {
+    window.automationEngine.isRecording = true;
+    window.automationEngine.recordedActions = [];
+    window.automationEngine.startTime = Date.now();
+    
+    const recordBtn = document.getElementById('recordActions');
+    recordBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+    recordBtn.classList.remove('btn-outline-light');
+    recordBtn.classList.add('btn-outline-danger');
+    
+    updateAutomationStatus('RECORDING', 'Recording user actions...');
+    
+    // Inject recording script into embedded content
+    injectRecordingScript();
+    
+    showToast('Started recording actions', 'success');
+}
+
+// Stop recording actions
+function stopRecording() {
+    window.automationEngine.isRecording = false;
+    
+    const recordBtn = document.getElementById('recordActions');
+    recordBtn.innerHTML = '<i class="fas fa-record-vinyl"></i> Record';
+    recordBtn.classList.remove('btn-outline-danger');
+    recordBtn.classList.add('btn-outline-light');
+    
+    const playBtn = document.getElementById('playbackActions');
+    if (playBtn) playBtn.disabled = false;
+    
+    updateAutomationStatus('READY', `Recorded ${window.automationEngine.recordedActions.length} actions`);
+    updateActionsList();
+    
+    showToast(`Recording stopped. Captured ${window.automationEngine.recordedActions.length} actions`, 'info');
+}
+
+// Inject recording script into embedded website
+function injectRecordingScript() {
+    const websiteContent = document.getElementById('websiteContent');
+    if (!websiteContent) return;
+    
+    // Create recording overlay
+    const recordingOverlay = document.createElement('div');
+    recordingOverlay.id = 'automationRecordingOverlay';
+    recordingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 0, 0, 0.1);
+        pointer-events: none;
+        z-index: 999999;
+        border: 3px dashed red;
+    `;
+    
+    websiteContent.appendChild(recordingOverlay);
+    
+    // Record clicks, form interactions, and scrolls
+    const recordAction = (type, data) => {
+        if (window.automationEngine.isRecording) {
+            const action = {
+                type,
+                data,
+                timestamp: Date.now() - window.automationEngine.startTime,
+                selector: data.selector || null
+            };
+            window.automationEngine.recordedActions.push(action);
+            updateActionCount();
+        }
+    };
+    
+    // Add event listeners for recording
+    websiteContent.addEventListener('click', function(e) {
+        if (window.automationEngine.isRecording) {
+            const selector = generateSelector(e.target);
+            recordAction('click', {
+                selector,
+                x: e.clientX,
+                y: e.clientY,
+                tagName: e.target.tagName,
+                text: e.target.textContent.substring(0, 50)
+            });
+        }
+    }, true);
+    
+    websiteContent.addEventListener('input', function(e) {
+        if (window.automationEngine.isRecording && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+            const selector = generateSelector(e.target);
+            recordAction('input', {
+                selector,
+                value: e.target.value,
+                type: e.target.type || 'text'
+            });
+        }
+    }, true);
+    
+    websiteContent.addEventListener('scroll', function(e) {
+        if (window.automationEngine.isRecording) {
+            recordAction('scroll', {
+                scrollTop: websiteContent.scrollTop,
+                scrollLeft: websiteContent.scrollLeft
+            });
+        }
+    }, { passive: true });
+}
+
+// Generate CSS selector for an element
+function generateSelector(element) {
+    if (element.id) {
+        return `#${element.id}`;
+    }
+    
+    if (element.className) {
+        const classes = element.className.split(' ').filter(c => c);
+        if (classes.length > 0) {
+            return `.${classes.join('.')}`;
+        }
+    }
+    
+    let selector = element.tagName.toLowerCase();
+    let parent = element.parentElement;
+    
+    while (parent && parent !== document.body) {
+        const siblings = Array.from(parent.children).filter(child => child.tagName === element.tagName);
+        if (siblings.length > 1) {
+            const index = siblings.indexOf(element) + 1;
+            selector = `${parent.tagName.toLowerCase()} > ${selector}:nth-child(${index})`;
+        } else {
+            selector = `${parent.tagName.toLowerCase()} > ${selector}`;
+        }
+        element = parent;
+        parent = parent.parentElement;
+    }
+    
+    return selector;
+}
+
+// Auto-fill forms with configured data
+function autoFillForms() {
+    const websiteContent = document.getElementById('websiteContent');
+    if (!websiteContent) {
+        showToast('No embedded website to auto-fill', 'warning');
+        return;
+    }
+    
+    const config = window.automationEngine.config.autoFill;
+    const forms = websiteContent.querySelectorAll('form');
+    let fieldsFilledCount = 0;
+    
+    forms.forEach(form => {
+        // Fill name fields
+        const nameFields = form.querySelectorAll('input[name*="name"], input[id*="name"], input[placeholder*="name"], input[type="text"]');
+        nameFields.forEach(field => {
+            if (config.name && !field.value) {
+                field.value = config.name;
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                fieldsFilledCount++;
+            }
+        });
+        
+        // Fill email fields
+        const emailFields = form.querySelectorAll('input[type="email"], input[name*="email"], input[id*="email"], input[placeholder*="email"]');
+        emailFields.forEach(field => {
+            if (config.email && !field.value) {
+                field.value = config.email;
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                fieldsFilledCount++;
+            }
+        });
+        
+        // Fill phone fields
+        const phoneFields = form.querySelectorAll('input[type="tel"], input[name*="phone"], input[id*="phone"], input[placeholder*="phone"]');
+        phoneFields.forEach(field => {
+            if (config.phone && !field.value) {
+                field.value = config.phone;
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                fieldsFilledCount++;
+            }
+        });
+        
+        // Fill message/textarea fields
+        const messageFields = form.querySelectorAll('textarea, input[name*="message"], input[id*="message"], input[placeholder*="message"]');
+        messageFields.forEach(field => {
+            if (config.message && !field.value) {
+                field.value = config.message;
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                fieldsFilledCount++;
+            }
+        });
+    });
+    
+    if (fieldsFilledCount > 0) {
+        showToast(`Auto-filled ${fieldsFilledCount} form fields`, 'success');
+        updateAutomationStatus('ACTIVE', `Auto-filled ${fieldsFilledCount} fields`);
+    } else {
+        showToast('No compatible form fields found', 'info');
+    }
+}
+
+// Toggle auto-scroll functionality
+function toggleAutoScroll() {
+    const websiteContent = document.getElementById('websiteContent');
+    if (!websiteContent) {
+        showToast('No embedded website to scroll', 'warning');
+        return;
+    }
+    
+    if (window.automationEngine.autoScrollInterval) {
+        // Stop auto-scroll
+        clearInterval(window.automationEngine.autoScrollInterval);
+        window.automationEngine.autoScrollInterval = null;
+        
+        const scrollBtn = document.getElementById('autoScroll');
+        if (scrollBtn) {
+            scrollBtn.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Scroll';
+            scrollBtn.classList.remove('btn-outline-warning');
+            scrollBtn.classList.add('btn-outline-light');
+        }
+        
+        updateAutomationStatus('READY', 'Auto-scroll stopped');
+        showToast('Auto-scroll stopped', 'info');
+    } else {
+        // Start auto-scroll
+        const config = window.automationEngine.config.scroll;
+        let currentPosition = websiteContent.scrollTop;
+        
+        window.automationEngine.autoScrollInterval = setInterval(() => {
+            currentPosition += config.distance;
+            
+            if (currentPosition >= websiteContent.scrollHeight - websiteContent.clientHeight) {
+                if (config.infinite) {
+                    currentPosition = 0;
+                } else {
+                    // Stop at bottom
+                    clearInterval(window.automationEngine.autoScrollInterval);
+                    window.automationEngine.autoScrollInterval = null;
+                    showToast('Reached bottom of page', 'info');
+                    return;
+                }
+            }
+            
+            websiteContent.scrollTo({
+                top: currentPosition,
+                behavior: 'smooth'
+            });
+        }, config.speed);
+        
+        const scrollBtn = document.getElementById('autoScroll');
+        if (scrollBtn) {
+            scrollBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+            scrollBtn.classList.remove('btn-outline-light');
+            scrollBtn.classList.add('btn-outline-warning');
+        }
+        
+        updateAutomationStatus('SCROLLING', 'Auto-scrolling active');
+        showToast('Auto-scroll started', 'success');
+    }
+}
+
+// Extract content from embedded website
+function extractContent() {
+    const websiteContent = document.getElementById('websiteContent');
+    if (!websiteContent) {
+        showToast('No embedded website to extract from', 'warning');
+        return;
+    }
+    
+    const extractedData = {
+        title: websiteContent.querySelector('title')?.textContent || 'No title',
+        headings: Array.from(websiteContent.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(h => ({
+            level: h.tagName,
+            text: h.textContent.trim()
+        })),
+        paragraphs: Array.from(websiteContent.querySelectorAll('p')).map(p => p.textContent.trim()).filter(text => text.length > 10),
+        links: Array.from(websiteContent.querySelectorAll('a[href]')).map(a => ({
+            text: a.textContent.trim(),
+            href: a.href
+        })),
+        images: Array.from(websiteContent.querySelectorAll('img[src]')).map(img => ({
+            src: img.src,
+            alt: img.alt || 'No alt text'
+        })),
+        forms: Array.from(websiteContent.querySelectorAll('form')).map(form => ({
+            action: form.action || 'No action',
+            method: form.method || 'GET',
+            fields: Array.from(form.querySelectorAll('input, textarea, select')).map(field => ({
+                name: field.name || field.id || 'unnamed',
+                type: field.type || field.tagName.toLowerCase(),
+                placeholder: field.placeholder || ''
+            }))
+        }))
+    };
+    
+    // Create and download JSON file
+    const dataStr = JSON.stringify(extractedData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `extracted-content-${Date.now()}.json`;
+    link.click();
+    
+    updateAutomationStatus('ACTIVE', `Extracted ${extractedData.headings.length} headings, ${extractedData.paragraphs.length} paragraphs, ${extractedData.links.length} links`);
+    showToast('Content extracted and downloaded', 'success');
+}
+
+// Stop all automation activities
+function stopAllAutomation() {
+    window.automationEngine.isRecording = false;
+    window.automationEngine.isPlaying = false;
+    
+    // Clear intervals
+    if (window.automationEngine.autoScrollInterval) {
+        clearInterval(window.automationEngine.autoScrollInterval);
+        window.automationEngine.autoScrollInterval = null;
+    }
+    
+    if (window.automationEngine.scheduleInterval) {
+        clearInterval(window.automationEngine.scheduleInterval);
+        window.automationEngine.scheduleInterval = null;
+    }
+    
+    // Reset UI
+    const recordBtn = document.getElementById('recordActions');
+    const playBtn = document.getElementById('playbackActions');
+    const stopBtn = document.getElementById('stopAutomation');
+    const scrollBtn = document.getElementById('autoScroll');
+    
+    if (recordBtn) {
+        recordBtn.innerHTML = '<i class="fas fa-record-vinyl"></i> Record';
+        recordBtn.classList.remove('btn-outline-danger');
+        recordBtn.classList.add('btn-outline-light');
+    }
+    
+    if (playBtn) {
+        playBtn.innerHTML = '<i class="fas fa-play"></i> Play';
+        playBtn.disabled = window.automationEngine.recordedActions.length === 0;
+    }
+    
+    if (stopBtn) stopBtn.disabled = true;
+    
+    if (scrollBtn) {
+        scrollBtn.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Scroll';
+        scrollBtn.classList.remove('btn-outline-warning');
+        scrollBtn.classList.add('btn-outline-light');
+    }
+    
+    // Remove recording overlay
+    const overlay = document.getElementById('automationRecordingOverlay');
+    if (overlay) overlay.remove();
+    
+    updateAutomationStatus('READY', 'All automation stopped');
+    showToast('All automation activities stopped', 'warning');
+}
+
+// Update automation status display
+function updateAutomationStatus(status, description) {
+    const indicator = document.getElementById('automationIndicator');
+    const descriptionEl = document.getElementById('automationDescription');
+    
+    if (indicator) {
+        indicator.textContent = status;
+        indicator.className = 'badge me-2';
+        
+        switch (status) {
+            case 'READY':
+                indicator.classList.add('bg-success');
+                break;
+            case 'RECORDING':
+                indicator.classList.add('bg-danger');
+                break;
+            case 'PLAYING':
+            case 'SCROLLING':
+            case 'ACTIVE':
+                indicator.classList.add('bg-warning');
+                break;
+            default:
+                indicator.classList.add('bg-secondary');
+        }
+    }
+    
+    if (descriptionEl) {
+        descriptionEl.textContent = description;
+    }
+}
+
+// Update action count display
+function updateActionCount() {
+    const actionCountEl = document.getElementById('actionCount');
+    if (actionCountEl) {
+        actionCountEl.textContent = window.automationEngine.recordedActions.length;
+    }
+}
+
+// Update recorded actions list
+function updateActionsList() {
+    const listEl = document.getElementById('recordedActionsList');
+    if (!listEl) return;
+    
+    if (window.automationEngine.recordedActions.length === 0) {
+        listEl.innerHTML = `
+            <div class="text-muted text-center py-3">
+                <i class="fas fa-info-circle me-2"></i>
+                No actions recorded yet. Click "Record" to start capturing actions.
+            </div>
+        `;
+        return;
+    }
+    
+    const actionsHtml = window.automationEngine.recordedActions.map((action, index) => `
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+                <span class="badge bg-primary me-2">${index + 1}</span>
+                <strong>${action.type.toUpperCase()}</strong>
+                <small class="text-muted ms-2">${action.data.selector || action.data.tagName || ''}</small>
+            </div>
+            <small class="text-muted">${(action.timestamp / 1000).toFixed(1)}s</small>
+        </div>
+    `).join('');
+    
+    listEl.innerHTML = actionsHtml;
+}
+
+// Clear recorded actions
+function clearRecordedActions() {
+    window.automationEngine.recordedActions = [];
+    updateActionsList();
+    updateActionCount();
+    
+    const playBtn = document.getElementById('playbackActions');
+    if (playBtn) playBtn.disabled = true;
+    
+    showToast('Recorded actions cleared', 'info');
+}
+
+// Save automation configuration
+function saveAutomationConfig() {
+    const config = window.automationEngine.config;
+    
+    // Auto-fill configuration
+    config.autoFill.name = document.getElementById('autoFillName')?.value || '';
+    config.autoFill.email = document.getElementById('autoFillEmail')?.value || '';
+    config.autoFill.phone = document.getElementById('autoFillPhone')?.value || '';
+    config.autoFill.message = document.getElementById('autoFillMessage')?.value || '';
+    
+    // Scroll configuration
+    config.scroll.speed = parseInt(document.getElementById('scrollSpeed')?.value) || 2000;
+    config.scroll.distance = parseInt(document.getElementById('scrollDistance')?.value) || 300;
+    config.scroll.infinite = document.getElementById('infiniteScroll')?.checked || false;
+    config.scroll.pauseOnHover = document.getElementById('pauseOnHover')?.checked || false;
+    
+    // Schedule configuration
+    config.schedule.interval = document.getElementById('scheduleInterval')?.value || 'none';
+    config.schedule.maxExecutions = parseInt(document.getElementById('maxExecutions')?.value) || 10;
+    
+    // Save to localStorage
+    localStorage.setItem('automationConfig', JSON.stringify(config));
+    
+    showToast('Automation configuration saved', 'success');
+}
+
+// Load automation template
+function loadAutomationTemplate(templateType) {
+    const customScript = document.getElementById('customScript');
+    if (!customScript) return;
+    
+    const templates = {
+        'form-filler': `// Auto-fill form template
+await wait(1000);
+const forms = document.querySelectorAll('form');
+forms.forEach(async form => {
+    await fillForm({
+        name: 'John Doe',
+        email: 'john@example.com',
+        message: 'This is an automated message'
+    });
+});`,
+        'content-monitor': `// Content monitoring template
+const checkForChanges = async () => {
+    const content = document.body.textContent;
+    const hash = btoa(content).substring(0, 20);
+    console.log('Content hash:', hash);
+    
+    // Check every 30 seconds
+    setTimeout(checkForChanges, 30000);
+};
+checkForChanges();`,
+        'page-navigator': `// Page navigation template
+const links = document.querySelectorAll('a[href]');
+for (let i = 0; i < Math.min(links.length, 3); i++) {
+    await wait(2000);
+    await click(links[i]);
+    await wait(3000);
+}`,
+        'data-scraper': `// Data scraping template
+const data = {
+    title: document.title,
+    headings: Array.from(document.querySelectorAll('h1,h2,h3')).map(h => h.textContent),
+    links: Array.from(document.querySelectorAll('a')).map(a => ({text: a.textContent, href: a.href}))
+};
+console.log('Scraped data:', data);`,
+        'custom': `// Custom automation script
+// Available functions:
+// - wait(milliseconds) - Wait for specified time
+// - click(selector) - Click element by CSS selector
+// - fillForm(data) - Fill form with data object
+// - scrollTo(position) - Scroll to position
+
+await wait(1000);
+console.log('Custom automation started');`
+    };
+    
+    customScript.value = templates[templateType] || templates.custom;
+    showToast(`Loaded ${templateType} template`, 'info');
+}
+
+// Validate custom script
+function validateCustomScript() {
+    const customScript = document.getElementById('customScript');
+    if (!customScript) return;
+    
+    const script = customScript.value.trim();
+    if (!script) {
+        showToast('Script is empty', 'warning');
+        return;
+    }
+    
+    try {
+        // Basic syntax validation
+        new Function(`async function validateScript() { ${script} }`);
+        showToast('Script syntax is valid', 'success');
+    } catch (error) {
+        showToast(`Script validation error: ${error.message}`, 'error');
+    }
+}
+
+// Execute custom script
+async function executeCustomScript() {
+    const customScript = document.getElementById('customScript');
+    if (!customScript) return;
+    
+    const script = customScript.value.trim();
+    if (!script) {
+        showToast('Script is empty', 'warning');
+        return;
+    }
+    
+    const websiteContent = document.getElementById('websiteContent');
+    if (!websiteContent) {
+        showToast('No embedded website for script execution', 'warning');
+        return;
+    }
+    
+    updateAutomationStatus('EXECUTING', 'Running custom script...');
+    
+    try {
+        // Create execution context with helper functions
+        const executionContext = {
+            wait: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
+            click: (selector) => {
+                const element = websiteContent.querySelector(selector);
+                if (element) {
+                    element.click();
+                    return true;
+                }
+                return false;
+            },
+            fillForm: (data) => {
+                let filled = 0;
+                Object.keys(data).forEach(key => {
+                    const inputs = websiteContent.querySelectorAll(`input[name="${key}"], input[id="${key}"], #${key}`);
+                    inputs.forEach(input => {
+                        input.value = data[key];
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        filled++;
+                    });
+                });
+                return filled;
+            },
+            scrollTo: (position) => {
+                websiteContent.scrollTo({ top: position, behavior: 'smooth' });
+            },
+            document: websiteContent,
+            console: {
+                log: (...args) => {
+                    console.log('[Automation Script]:', ...args);
+                    showToast(`Script: ${args.join(' ')}`, 'info');
+                }
+            }
+        };
+        
+        // Execute script in context
+        const asyncFunction = new Function('context', `
+            return (async function() {
+                with (context) {
+                    ${script}
+                }
+            })();
+        `);
+        
+        await asyncFunction(executionContext);
+        
+        updateAutomationStatus('READY', 'Custom script completed');
+        showToast('Custom script executed successfully', 'success');
+    } catch (error) {
+        updateAutomationStatus('ERROR', `Script error: ${error.message}`);
+        showToast(`Script execution error: ${error.message}`, 'error');
+    }
+}
+
+// Start automation timer
+function startAutomationTimer() {
+    setInterval(() => {
+        if (window.automationEngine && window.automationEngine.startTime) {
+            const elapsed = Date.now() - window.automationEngine.startTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const runtimeEl = document.getElementById('automationRuntime');
+            if (runtimeEl) {
+                runtimeEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+    }, 1000);
 }

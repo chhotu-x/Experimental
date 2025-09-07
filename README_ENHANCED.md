@@ -13,6 +13,17 @@ A modern, high-performance web application featuring advanced website embedding 
 - **Fullscreen Mode**: Immersive viewing experience
 - **Error Handling**: Comprehensive error reporting with troubleshooting tips
 
+### 🤖 **NEW: Inbuilt Automation Engine**
+- **Action Recording**: Record user interactions for playback automation
+- **Auto-Fill Forms**: Intelligent form filling with predefined data
+- **Auto-Scroll**: Configurable automatic scrolling with speed controls
+- **Content Extraction**: Extract structured data from embedded websites (JSON export)
+- **Custom Scripts**: Execute custom JavaScript automation scripts with helper functions
+- **Automation Templates**: Pre-built templates for form-filling, content monitoring, page navigation, and data scraping
+- **Schedule Tasks**: Set up recurring automation with configurable intervals
+- **Real-time Status**: Live automation monitoring with action count and runtime tracking
+- **Ultra Controls**: Advanced automation features for power users and developers
+
 ### ⚡ Performance Optimizations
 - **Memory Caching**: In-memory cache for frequently accessed content
 - **Compression**: Gzip compression for faster loading
