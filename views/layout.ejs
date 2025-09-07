@@ -71,6 +71,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link <%= currentPage === 'bookmarks' ? 'active' : '' %>" href="/bookmarks">
+                            <i class="fas fa-bookmark me-1"></i>Bookmarks
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link <%= currentPage === 'blog' ? 'active' : '' %>" href="/blog">
                             <i class="fas fa-blog me-1"></i>Blog
                         </a>
@@ -80,15 +85,24 @@
                             <i class="fas fa-envelope me-1"></i>Contact
                         </a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle <%= currentPage === 'settings' ? 'active' : '' %>" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-tools me-1"></i>Tools
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="toolsDropdown">
+                            <li><a class="dropdown-item <%= currentPage === 'settings' ? 'active' : '' %>" href="/settings">
+                                <i class="fas fa-cog me-2"></i>Settings
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/api/performance-metrics" target="_blank">
+                                <i class="fas fa-chart-line me-2"></i>Performance Metrics
+                            </a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item ms-2">
                         <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
                             <i class="fas fa-moon"></i>
                         </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
                     </li>
                 </ul>
             </div>

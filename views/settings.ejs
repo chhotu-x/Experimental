@@ -1,0 +1,537 @@
+<%- include('layout', { 
+    title: title, 
+    currentPage: currentPage, 
+    meta: meta,
+    additionalHead: `
+        <style>
+            .settings-container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+            
+            .settings-section {
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e2e8f0;
+            }
+            
+            .settings-section h3 {
+                margin-top: 0;
+                color: #2d3748;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 0.5rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+            
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                color: #4a5568;
+            }
+            
+            .form-control {
+                width: 100%;
+                padding: 0.75rem;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: border-color 0.3s ease;
+            }
+            
+            .form-control:focus {
+                outline: none;
+                border-color: #3182ce;
+                box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+            }
+            
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 60px;
+                height: 34px;
+            }
+            
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                transition: .4s;
+                border-radius: 34px;
+            }
+            
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+            
+            input:checked + .slider {
+                background-color: #3182ce;
+            }
+            
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
+            
+            .btn-settings {
+                background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+                color: white;
+                padding: 0.75rem 2rem;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin-right: 1rem;
+            }
+            
+            .btn-settings:hover {
+                background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(49, 130, 206, 0.4);
+            }
+            
+            .btn-secondary {
+                background: #e2e8f0;
+                color: #4a5568;
+            }
+            
+            .btn-secondary:hover {
+                background: #cbd5e0;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(74, 85, 104, 0.2);
+            }
+            
+            .settings-info {
+                background: #ebf8ff;
+                border: 1px solid #90cdf4;
+                border-radius: 8px;
+                padding: 1rem;
+                margin-bottom: 2rem;
+                color: #2c5282;
+            }
+            
+            .performance-metrics {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .metric-card {
+                background: #f7fafc;
+                padding: 1rem;
+                border-radius: 8px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+            }
+            
+            .metric-value {
+                font-size: 1.5rem;
+                font-weight: bold;
+                color: #3182ce;
+            }
+            
+            .metric-label {
+                font-size: 0.875rem;
+                color: #718096;
+                margin-top: 0.25rem;
+            }
+        </style>
+    `
+}) %>
+
+<main class="settings-container">
+    <div class="hero-section text-center mb-5">
+        <h1 class="display-4 font-weight-bold text-gradient">User Settings</h1>
+        <p class="lead">Customize your 42Web.io experience</p>
+    </div>
+    
+    <div class="settings-info">
+        <strong>📋 Settings Info:</strong> Your preferences are stored locally in your browser. Changes take effect immediately and persist across sessions.
+    </div>
+    
+    <!-- Embedder Settings -->
+    <div class="settings-section">
+        <h3>🌐 Website Embedder Settings</h3>
+        
+        <div class="form-group">
+            <label for="defaultTimeout">Default Request Timeout (seconds)</label>
+            <input type="number" id="defaultTimeout" class="form-control" min="5" max="60" value="15">
+        </div>
+        
+        <div class="form-group">
+            <label for="enableCaching">
+                Enable Caching
+                <label class="switch">
+                    <input type="checkbox" id="enableCaching" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label for="removeTracking">
+                Remove Tracking Scripts
+                <label class="switch">
+                    <input type="checkbox" id="removeTracking" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label for="autoDetectMobile">
+                Auto-detect Mobile Layout
+                <label class="switch">
+                    <input type="checkbox" id="autoDetectMobile" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Performance Settings -->
+    <div class="settings-section">
+        <h3>⚡ Performance Settings</h3>
+        
+        <div class="form-group">
+            <label for="cacheExpiry">Cache Expiry Time (minutes)</label>
+            <input type="number" id="cacheExpiry" class="form-control" min="1" max="60" value="10">
+        </div>
+        
+        <div class="form-group">
+            <label for="enableCompression">
+                Enable Compression
+                <label class="switch">
+                    <input type="checkbox" id="enableCompression" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label for="lazyLoadImages">
+                Lazy Load Images
+                <label class="switch">
+                    <input type="checkbox" id="lazyLoadImages" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="performance-metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="cacheHitRate">--</div>
+                <div class="metric-label">Cache Hit Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="avgResponseTime">--</div>
+                <div class="metric-label">Avg Response Time</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="memoryUsage">--</div>
+                <div class="metric-label">Memory Usage</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Appearance Settings -->
+    <div class="settings-section">
+        <h3>🎨 Appearance Settings</h3>
+        
+        <div class="form-group">
+            <label for="theme">Theme</label>
+            <select id="theme" class="form-control">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="auto">Auto (System)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="fontSize">Font Size</label>
+            <select id="fontSize" class="form-control">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+                <option value="x-large">Extra Large</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="showAnimations">
+                Show Animations
+                <label class="switch">
+                    <input type="checkbox" id="showAnimations" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Privacy Settings -->
+    <div class="settings-section">
+        <h3>🔒 Privacy & Security Settings</h3>
+        
+        <div class="form-group">
+            <label for="blockTrackers">
+                Block Third-party Trackers
+                <label class="switch">
+                    <input type="checkbox" id="blockTrackers" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label for="enableHttps">
+                Force HTTPS
+                <label class="switch">
+                    <input type="checkbox" id="enableHttps" checked>
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label for="clearDataOnExit">
+                Clear Data on Exit
+                <label class="switch">
+                    <input type="checkbox" id="clearDataOnExit">
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="settings-section">
+        <h3>⚙️ Actions</h3>
+        <button class="btn-settings" onclick="saveSettings()">Save Settings</button>
+        <button class="btn-settings btn-secondary" onclick="resetSettings()">Reset to Defaults</button>
+        <button class="btn-settings btn-secondary" onclick="exportSettings()">Export Settings</button>
+        <button class="btn-settings btn-secondary" onclick="importSettings()">Import Settings</button>
+        <input type="file" id="importFile" style="display: none;" accept=".json">
+    </div>
+</main>
+
+<script>
+// Settings Management
+class SettingsManager {
+    constructor() {
+        this.settings = this.loadSettings();
+        this.initializeUI();
+        this.loadPerformanceMetrics();
+    }
+    
+    loadSettings() {
+        const defaultSettings = {
+            defaultTimeout: 15,
+            enableCaching: true,
+            removeTracking: true,
+            autoDetectMobile: true,
+            cacheExpiry: 10,
+            enableCompression: true,
+            lazyLoadImages: true,
+            theme: 'light',
+            fontSize: 'medium',
+            showAnimations: true,
+            blockTrackers: true,
+            enableHttps: true,
+            clearDataOnExit: false
+        };
+        
+        const stored = localStorage.getItem('42web-settings');
+        return stored ? { ...defaultSettings, ...JSON.parse(stored) } : defaultSettings;
+    }
+    
+    saveSettings() {
+        localStorage.setItem('42web-settings', JSON.stringify(this.settings));
+        this.applySettings();
+        
+        // Show success message
+        this.showMessage('Settings saved successfully!', 'success');
+    }
+    
+    resetSettings() {
+        if (confirm('Are you sure you want to reset all settings to defaults?')) {
+            localStorage.removeItem('42web-settings');
+            this.settings = this.loadSettings();
+            this.initializeUI();
+            this.showMessage('Settings reset to defaults', 'info');
+        }
+    }
+    
+    exportSettings() {
+        const dataStr = JSON.stringify(this.settings, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = '42web-settings.json';
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        this.showMessage('Settings exported successfully!', 'success');
+    }
+    
+    importSettings() {
+        document.getElementById('importFile').click();
+    }
+    
+    initializeUI() {
+        // Set all form values from settings
+        Object.keys(this.settings).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = this.settings[key];
+                } else {
+                    element.value = this.settings[key];
+                }
+            }
+        });
+        
+        // Add event listeners
+        this.addEventListeners();
+        this.applySettings();
+    }
+    
+    addEventListeners() {
+        // Update settings when form values change
+        Object.keys(this.settings).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) {
+                element.addEventListener('change', (e) => {
+                    this.settings[key] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+                });
+            }
+        });
+        
+        // Import file handler
+        document.getElementById('importFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        this.settings = { ...this.settings, ...imported };
+                        this.initializeUI();
+                        this.showMessage('Settings imported successfully!', 'success');
+                    } catch (error) {
+                        this.showMessage('Invalid settings file', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+    }
+    
+    applySettings() {
+        // Apply theme
+        document.documentElement.setAttribute('data-theme', this.settings.theme);
+        
+        // Apply font size
+        document.documentElement.style.fontSize = {
+            'small': '14px',
+            'medium': '16px',
+            'large': '18px',
+            'x-large': '20px'
+        }[this.settings.fontSize];
+        
+        // Apply animations
+        if (!this.settings.showAnimations) {
+            document.documentElement.style.setProperty('--animation-duration', '0s');
+        }
+        
+        // Send settings to server for proxy behavior
+        if (window.updateProxySettings) {
+            window.updateProxySettings(this.settings);
+        }
+    }
+    
+    async loadPerformanceMetrics() {
+        try {
+            const response = await fetch('/api/performance-metrics');
+            const metrics = await response.json();
+            
+            document.getElementById('cacheHitRate').textContent = `${metrics.cacheHitRate}%`;
+            document.getElementById('avgResponseTime').textContent = `${metrics.avgResponseTime}ms`;
+            document.getElementById('memoryUsage').textContent = `${metrics.memoryUsage}MB`;
+        } catch (error) {
+            console.error('Failed to load performance metrics:', error);
+        }
+    }
+    
+    showMessage(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'}`;
+        alertDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 1rem;
+            border-radius: 8px;
+            background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
+            border: 1px solid ${type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb'};
+            color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
+        `;
+        alertDiv.textContent = message;
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 3000);
+    }
+}
+
+// Initialize settings manager
+const settingsManager = new SettingsManager();
+
+// Global functions for buttons
+function saveSettings() {
+    settingsManager.saveSettings();
+}
+
+function resetSettings() {
+    settingsManager.resetSettings();
+}
+
+function exportSettings() {
+    settingsManager.exportSettings();
+}
+
+function importSettings() {
+    settingsManager.importSettings();
+}
+</script>
