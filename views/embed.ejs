@@ -235,13 +235,31 @@
                                 <i class="fas fa-list"></i> Templates
                             </button>
                             <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><h6 class="dropdown-header">📝 Basic Templates</h6></li>
                                 <li><a class="dropdown-item" href="#" data-template="form-filler">Form Auto-Filler</a></li>
                                 <li><a class="dropdown-item" href="#" data-template="content-monitor">Content Monitor</a></li>
                                 <li><a class="dropdown-item" href="#" data-template="page-navigator">Page Navigator</a></li>
                                 <li><a class="dropdown-item" href="#" data-template="data-scraper">Data Scraper</a></li>
                                 <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">🚀 Parallel Processing</h6></li>
+                                <li><a class="dropdown-item" href="#" data-template="massive-parallel-demo">
+                                    <i class="fas fa-bolt text-warning"></i> Massive Parallel Demo (10K)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" data-template="parallel-form-filling">
+                                    <i class="fas fa-fill text-info"></i> Parallel Forms (1K)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" data-template="stress-test-100k">
+                                    <i class="fas fa-fire text-danger"></i> Ultimate Stress Test (100K)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" data-template="parallel-monitoring">
+                                    <i class="fas fa-chart-line text-success"></i> Real-time Monitoring
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#" data-template="custom">Custom Script</a></li>
                             </ul>
+                            <button class="btn btn-outline-warning btn-sm" id="parallelControls" title="Parallel Controls" data-bs-toggle="modal" data-bs-target="#parallelControlModal">
+                                <i class="fas fa-cogs"></i> Parallel
+                            </button>
                             <button class="btn btn-outline-danger" id="stopAutomation" title="Stop All Automation" disabled>
                                 <i class="fas fa-stop"></i>
                             </button>
@@ -249,7 +267,7 @@
                     </div>
                 </div>
                 
-                <!-- Automation Status Bar -->
+                <!-- Enhanced Automation Status Bar with Parallel Info -->
                 <div id="automationStatus" class="mt-2 d-none">
                     <div class="row">
                         <div class="col">
@@ -263,6 +281,43 @@
                                 Actions: <span id="actionCount">0</span> | 
                                 Runtime: <span id="automationRuntime">00:00</span>
                             </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Parallel Processing Stats -->
+                    <div id="parallelStats" class="mt-2 d-none">
+                        <div class="row g-2">
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-tasks text-primary me-1"></i>
+                                    <small>Total: <span id="parallelTotal">0</span></small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check text-success me-1"></i>
+                                    <small>Done: <span id="parallelCompleted">0</span></small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-cog fa-spin text-warning me-1"></i>
+                                    <small>Active: <span id="parallelActive">0</span></small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-tachometer-alt text-info me-1"></i>
+                                    <small><span id="parallelThroughput">0</span> ops/s</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar for Parallel Operations -->
+                        <div class="mt-2">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-gradient" role="progressbar" id="parallelProgress" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -697,6 +752,160 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="saveAutomationConfig">
                     <i class="fas fa-save me-1"></i>Save Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Parallel Processing Control Modal -->
+<div class="modal fade" id="parallelControlModal" tabindex="-1" aria-labelledby="parallelControlModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="modal-title text-white" id="parallelControlModalLabel">
+                    <i class="fas fa-rocket me-2"></i>Massive Parallel Automation Control
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- Configuration Panel -->
+                    <div class="col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0"><i class="fas fa-cogs me-2"></i>Parallel Configuration</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="maxConcurrency" class="form-label">Max Concurrent Workers</label>
+                                    <input type="range" class="form-range" id="maxConcurrency" min="1" max="500" value="100">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">1</small>
+                                        <strong id="concurrencyValue">100</strong>
+                                        <small class="text-muted">500</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="batchSize" class="form-label">Batch Size</label>
+                                    <input type="range" class="form-range" id="batchSize" min="100" max="5000" value="1000" step="100">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">100</small>
+                                        <strong id="batchSizeValue">1000</strong>
+                                        <small class="text-muted">5000</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="operationCount" class="form-label">Operation Count</label>
+                                    <select class="form-select" id="operationCount">
+                                        <option value="1000">1,000 operations</option>
+                                        <option value="5000">5,000 operations</option>
+                                        <option value="10000" selected>10,000 operations</option>
+                                        <option value="25000">25,000 operations</option>
+                                        <option value="50000">50,000 operations</option>
+                                        <option value="100000">100,000 operations</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-warning" id="startParallelTest">
+                                        <i class="fas fa-rocket me-2"></i>Start Parallel Test
+                                    </button>
+                                    <button class="btn btn-danger" id="emergencyStopParallel" disabled>
+                                        <i class="fas fa-stop-circle me-2"></i>Emergency Stop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Real-time Statistics -->
+                    <div class="col-lg-8">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Real-time Statistics</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3 mb-4">
+                                    <div class="col-sm-6 col-lg-3">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <div class="h4 mb-1 text-primary" id="statsTotal">0</div>
+                                            <small class="text-muted">Total Operations</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-3">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <div class="h4 mb-1 text-success" id="statsCompleted">0</div>
+                                            <small class="text-muted">Completed</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-3">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <div class="h4 mb-1 text-warning" id="statsProcessing">0</div>
+                                            <small class="text-muted">Processing</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-3">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <div class="h4 mb-1 text-info" id="statsThroughput">0</div>
+                                            <small class="text-muted">Ops/Sec</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Progress Bar -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small>Progress</small>
+                                        <small id="progressPercent">0%</small>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-gradient" role="progressbar" id="parallelProgressBar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Performance Metrics -->
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">Peak Workers:</small>
+                                        <strong id="statsPeakWorkers">0</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Current Workers:</small>
+                                        <strong id="statsCurrentWorkers">0</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Efficiency:</small>
+                                        <strong id="statsEfficiency">0%</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Memory Usage:</small>
+                                        <strong id="statsMemory">0%</strong>
+                                    </div>
+                                </div>
+                                
+                                <!-- Log Output -->
+                                <div class="mt-3">
+                                    <h6 class="mb-2">Live Output</h6>
+                                    <div class="bg-dark text-light p-2 rounded font-monospace" style="height: 200px; overflow-y: auto;" id="parallelLog">
+                                        <div class="text-success">🚀 Parallel automation system ready</div>
+                                        <div class="text-info">ℹ️  Configure settings and click "Start Parallel Test"</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info" id="clearParallelLog">
+                    <i class="fas fa-eraser me-1"></i>Clear Log
+                </button>
+                <button type="button" class="btn btn-primary" id="exportParallelResults">
+                    <i class="fas fa-download me-1"></i>Export Results
                 </button>
             </div>
         </div>

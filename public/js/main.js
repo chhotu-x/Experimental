@@ -2151,92 +2151,481 @@ function generateAdvancedSelector(element) {
     return paths.join(' > ');
 }
 
-// Batch processing for multiple automation tasks
-class AutomationBatch {
-    constructor() {
-        this.tasks = [];
-        this.results = [];
-        this.isProcessing = false;
+// Semaphore for managing parallel concurrency
+class ParallelSemaphore {
+    constructor(maxConcurrency) {
+        this.maxConcurrency = maxConcurrency;
+        this.currentCount = 0;
+        this.waitingQueue = [];
     }
     
-    addTask(type, config) {
-        this.tasks.push({
-            id: Date.now() + Math.random(),
-            type,
-            config,
-            status: 'pending',
-            result: null,
-            error: null,
-            timestamp: Date.now()
+    async acquire() {
+        return new Promise((resolve) => {
+            if (this.currentCount < this.maxConcurrency) {
+                this.currentCount++;
+                resolve(() => this.release());
+            } else {
+                this.waitingQueue.push(() => {
+                    this.currentCount++;
+                    resolve(() => this.release());
+                });
+            }
         });
     }
     
+    release() {
+        this.currentCount--;
+        if (this.waitingQueue.length > 0) {
+            const next = this.waitingQueue.shift();
+            next();
+        }
+    }
+    
+    getStatus() {
+        return {
+            currentCount: this.currentCount,
+            maxConcurrency: this.maxConcurrency,
+            queueLength: this.waitingQueue.length,
+            utilization: (this.currentCount / this.maxConcurrency * 100).toFixed(1)
+        };
+    }
+}
+
+// Batch processing for multiple automation tasks
+class AutomationBatch {
+    constructor(options = {}) {
+        this.tasks = [];
+        this.results = [];
+        this.isProcessing = false;
+        
+        // Parallel processing configuration
+        this.maxConcurrency = options.maxConcurrency || 100; // Default 100 parallel workers
+        this.batchSize = options.batchSize || 1000; // Process in chunks of 1000 for memory management
+        this.enableParallel = options.enableParallel !== false; // Default to parallel processing
+        this.progressCallback = options.progressCallback || null;
+        this.memoryThreshold = options.memoryThreshold || 0.8; // GC threshold at 80% memory usage
+        
+        // Performance tracking for parallel operations
+        this.parallelMetrics = {
+            totalOperations: 0,
+            completedOperations: 0,
+            failedOperations: 0,
+            averageTaskTime: 0,
+            peakConcurrency: 0,
+            currentConcurrency: 0,
+            memoryUsage: 0
+        };
+        
+        // Worker pool for parallel processing
+        this.activeWorkers = new Set();
+        this.taskQueue = [];
+        this.completedTasks = new Map();
+    }
+    
+    addTask(type, config, priority = 0) {
+        const task = {
+            id: Date.now() + Math.random(),
+            type,
+            config,
+            priority, // Higher priority tasks run first
+            status: 'pending',
+            result: null,
+            error: null,
+            timestamp: Date.now(),
+            startTime: null,
+            endTime: null,
+            retryCount: 0,
+            maxRetries: config.maxRetries || 3
+        };
+        
+        this.tasks.push(task);
+        this.parallelMetrics.totalOperations++;
+        return task.id; // Return task ID for tracking
+    }
+    
+    // Add multiple tasks at once for bulk operations
+    addTasks(taskDefinitions) {
+        const taskIds = [];
+        for (const taskDef of taskDefinitions) {
+            const taskId = this.addTask(taskDef.type, taskDef.config, taskDef.priority || 0);
+            taskIds.push(taskId);
+        }
+        return taskIds;
+    }
+    
+    // Remove task by ID
+    removeTask(taskId) {
+        const index = this.tasks.findIndex(task => task.id === taskId);
+        if (index !== -1) {
+            this.tasks.splice(index, 1);
+            this.parallelMetrics.totalOperations--;
+            return true;
+        }
+        return false;
+    }
+    
     async processAll() {
-        if (this.isProcessing) return;
+        if (this.isProcessing) {
+            console.warn('Batch processing already in progress');
+            return this.getCurrentProgress();
+        }
+        
+        if (this.tasks.length === 0) {
+            console.warn('No tasks to process');
+            return { totalTasks: 0, successCount: 0, errorCount: 0, totalTime: 0, tasks: [] };
+        }
         
         this.isProcessing = true;
-        updateAutomationStatus('BATCH_PROCESSING', `Processing ${this.tasks.length} tasks...`);
+        this.resetMetrics();
         
         const startTime = Date.now();
-        let successCount = 0;
-        let errorCount = 0;
+        let result;
         
-        for (const task of this.tasks) {
-            try {
-                task.status = 'processing';
-                updateAutomationStatus('BATCH_PROCESSING', `Processing task ${task.type}...`);
-                
-                let result = null;
-                switch (task.type) {
-                    case 'auto-fill':
-                        result = await this.executeAutoFill(task.config);
-                        break;
-                    case 'extract-data':
-                        result = await this.executeDataExtraction(task.config);
-                        break;
-                    case 'navigate':
-                        result = await this.executeNavigation(task.config);
-                        break;
-                    case 'custom-script':
-                        result = await this.executeCustomScript(task.config);
-                        break;
-                    default:
-                        throw new Error(`Unknown task type: ${task.type}`);
-                }
-                
-                task.status = 'completed';
-                task.result = result;
-                successCount++;
-                
-            } catch (error) {
-                task.status = 'error';
-                task.error = error.message;
-                errorCount++;
-                console.error(`Batch task error:`, error);
+        try {
+            if (this.enableParallel && this.tasks.length > 1) {
+                result = await this.processParallel();
+            } else {
+                result = await this.processSequential();
             }
-            
-            // Small delay between tasks
-            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+            console.error('Batch processing failed:', error);
+            this.isProcessing = false;
+            throw error;
         }
         
         const totalTime = Date.now() - startTime;
         this.isProcessing = false;
         
-        updateAutomationStatus('READY', `Batch completed: ${successCount} success, ${errorCount} errors`);
-        showToast(`Batch processing completed in ${(totalTime / 1000).toFixed(1)}s`, 
-                  errorCount === 0 ? 'success' : 'warning');
+        // Final status update
+        const successCount = result.successCount;
+        const errorCount = result.errorCount;
+        
+        updateAutomationStatus('READY', 
+            `Batch completed: ${successCount} success, ${errorCount} errors in ${(totalTime / 1000).toFixed(1)}s`);
+        
+        showToast(
+            `Parallel processing completed: ${successCount}/${this.tasks.length} tasks in ${(totalTime / 1000).toFixed(1)}s`, 
+            errorCount === 0 ? 'success' : 'warning'
+        );
+        
+        // Cleanup memory after processing
+        this.cleanupCompletedTasks();
+        
+        return {
+            ...result,
+            totalTime,
+            parallelMetrics: { ...this.parallelMetrics },
+            averageTaskTime: totalTime / this.tasks.length,
+            tasksPerSecond: (this.tasks.length / totalTime * 1000).toFixed(2)
+        };
+    }
+    
+    async processParallel() {
+        updateAutomationStatus('BATCH_PROCESSING', 
+            `Starting parallel processing of ${this.tasks.length} tasks with ${this.maxConcurrency} workers...`);
+        
+        // Sort tasks by priority (higher priority first)
+        const sortedTasks = [...this.tasks].sort((a, b) => b.priority - a.priority);
+        
+        // Split into chunks for memory management
+        const chunks = this.chunkTasks(sortedTasks, this.batchSize);
+        let totalSuccessCount = 0;
+        let totalErrorCount = 0;
+        
+        for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+            const chunk = chunks[chunkIndex];
+            
+            updateAutomationStatus('BATCH_PROCESSING', 
+                `Processing chunk ${chunkIndex + 1}/${chunks.length} (${chunk.length} tasks)...`);
+            
+            const chunkResult = await this.processChunkParallel(chunk);
+            totalSuccessCount += chunkResult.successCount;
+            totalErrorCount += chunkResult.errorCount;
+            
+            // Memory cleanup between chunks
+            if (chunks.length > 1) {
+                await this.performMemoryCleanup();
+            }
+            
+            // Progress callback
+            if (this.progressCallback) {
+                const overallProgress = {
+                    completed: totalSuccessCount + totalErrorCount,
+                    total: this.tasks.length,
+                    successCount: totalSuccessCount,
+                    errorCount: totalErrorCount,
+                    chunkIndex: chunkIndex + 1,
+                    totalChunks: chunks.length
+                };
+                this.progressCallback(overallProgress);
+            }
+        }
+        
+        return {
+            totalTasks: this.tasks.length,
+            successCount: totalSuccessCount,
+            errorCount: totalErrorCount,
+            tasks: this.tasks
+        };
+    }
+    
+    async processChunkParallel(tasks) {
+        const semaphore = new ParallelSemaphore(this.maxConcurrency);
+        const promises = [];
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const task of tasks) {
+            const promise = semaphore.acquire().then(async (release) => {
+                try {
+                    this.parallelMetrics.currentConcurrency++;
+                    this.parallelMetrics.peakConcurrency = Math.max(
+                        this.parallelMetrics.peakConcurrency, 
+                        this.parallelMetrics.currentConcurrency
+                    );
+                    
+                    const result = await this.executeTask(task);
+                    successCount++;
+                    this.parallelMetrics.completedOperations++;
+                    return result;
+                } catch (error) {
+                    errorCount++;
+                    this.parallelMetrics.failedOperations++;
+                    throw error;
+                } finally {
+                    this.parallelMetrics.currentConcurrency--;
+                    release();
+                }
+            });
+            
+            promises.push(promise);
+        }
+        
+        // Wait for all tasks in chunk to complete
+        await Promise.allSettled(promises);
+        
+        return { successCount, errorCount };
+    }
+    
+    async processSequential() {
+        updateAutomationStatus('BATCH_PROCESSING', `Processing ${this.tasks.length} tasks sequentially...`);
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const task of this.tasks) {
+            try {
+                await this.executeTask(task);
+                successCount++;
+                this.parallelMetrics.completedOperations++;
+            } catch (error) {
+                errorCount++;
+                this.parallelMetrics.failedOperations++;
+                console.error(`Sequential task error:`, error);
+            }
+            
+            // Progress update
+            if (this.progressCallback) {
+                this.progressCallback({
+                    completed: successCount + errorCount,
+                    total: this.tasks.length,
+                    successCount,
+                    errorCount
+                });
+            }
+            
+            // Small delay between tasks in sequential mode
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
         
         return {
             totalTasks: this.tasks.length,
             successCount,
             errorCount,
-            totalTime,
             tasks: this.tasks
         };
     }
     
+    async executeTask(task) {
+        const startTime = Date.now();
+        task.startTime = startTime;
+        task.status = 'processing';
+        
+        try {
+            let result = null;
+            
+            switch (task.type) {
+                case 'auto-fill':
+                    result = await this.executeAutoFill(task.config);
+                    break;
+                case 'extract-data':
+                    result = await this.executeDataExtraction(task.config);
+                    break;
+                case 'navigate':
+                    result = await this.executeNavigation(task.config);
+                    break;
+                case 'custom-script':
+                    result = await this.executeCustomScript(task.config);
+                    break;
+                case 'wait':
+                    result = await this.executeWait(task.config);
+                    break;
+                case 'click':
+                    result = await this.executeClick(task.config);
+                    break;
+                case 'scroll':
+                    result = await this.executeScroll(task.config);
+                    break;
+                default:
+                    throw new Error(`Unknown task type: ${task.type}`);
+            }
+            
+            task.status = 'completed';
+            task.result = result;
+            task.endTime = Date.now();
+            
+            // Update average task time
+            const taskTime = task.endTime - task.startTime;
+            this.parallelMetrics.averageTaskTime = 
+                (this.parallelMetrics.averageTaskTime * this.parallelMetrics.completedOperations + taskTime) / 
+                (this.parallelMetrics.completedOperations + 1);
+            
+            return result;
+            
+        } catch (error) {
+            task.status = 'error';
+            task.error = error.message;
+            task.endTime = Date.now();
+            
+            // Retry logic for failed tasks
+            if (task.retryCount < task.maxRetries) {
+                task.retryCount++;
+                task.status = 'retrying';
+                console.warn(`Retrying task ${task.id} (attempt ${task.retryCount}/${task.maxRetries})`);
+                
+                // Exponential backoff for retries
+                await new Promise(resolve => 
+                    setTimeout(resolve, Math.pow(2, task.retryCount) * 1000)
+                );
+                
+                return this.executeTask(task);
+            }
+            
+            throw error;
+        }
+    }
+    
+    // Helper methods for memory management and parallel processing
+    chunkTasks(tasks, chunkSize) {
+        const chunks = [];
+        for (let i = 0; i < tasks.length; i += chunkSize) {
+            chunks.push(tasks.slice(i, i + chunkSize));
+        }
+        return chunks;
+    }
+    
+    resetMetrics() {
+        this.parallelMetrics = {
+            totalOperations: this.tasks.length,
+            completedOperations: 0,
+            failedOperations: 0,
+            averageTaskTime: 0,
+            peakConcurrency: 0,
+            currentConcurrency: 0,
+            memoryUsage: 0
+        };
+    }
+    
+    getCurrentProgress() {
+        return {
+            isProcessing: this.isProcessing,
+            metrics: { ...this.parallelMetrics },
+            progress: this.parallelMetrics.totalOperations > 0 ? 
+                (this.parallelMetrics.completedOperations + this.parallelMetrics.failedOperations) / 
+                this.parallelMetrics.totalOperations : 0
+        };
+    }
+    
+    async performMemoryCleanup() {
+        // Force garbage collection if available
+        if (window.gc && typeof window.gc === 'function') {
+            window.gc();
+        }
+        
+        // Clear completed tasks from memory if threshold exceeded
+        const memoryUsage = this.estimateMemoryUsage();
+        if (memoryUsage > this.memoryThreshold) {
+            this.cleanupCompletedTasks();
+        }
+        
+        // Small delay to allow cleanup
+        await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    
+    estimateMemoryUsage() {
+        // Estimate memory usage based on task count and size
+        const completedTasksSize = this.tasks.filter(task => 
+            task.status === 'completed' || task.status === 'error'
+        ).length;
+        
+        // Rough estimation - adjust based on actual usage patterns
+        return completedTasksSize / this.tasks.length;
+    }
+    
+    cleanupCompletedTasks() {
+        // Move completed tasks to results array and clear from main tasks
+        const completedTasks = this.tasks.filter(task => 
+            task.status === 'completed' || task.status === 'error'
+        );
+        
+        // Keep only essential data for completed tasks
+        completedTasks.forEach(task => {
+            this.completedTasks.set(task.id, {
+                id: task.id,
+                type: task.type,
+                status: task.status,
+                startTime: task.startTime,
+                endTime: task.endTime,
+                error: task.error
+            });
+            
+            // Clear heavy data
+            delete task.result;
+            delete task.config;
+        });
+    }
+    
+    // New task execution methods for additional automation types
+    async executeWait(config) {
+        const waitTime = config.duration || 1000;
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        return { waited: waitTime };
+    }
+    
+    async executeClick(config) {
+        const selector = config.selector;
+        if (!selector) throw new Error('Click task requires selector');
+        
+        const element = document.querySelector(selector);
+        if (!element) throw new Error(`Element not found: ${selector}`);
+        
+        element.click();
+        return { clicked: selector };
+    }
+    
+    async executeScroll(config) {
+        const { x = 0, y = 0, behavior = 'smooth' } = config;
+        
+        window.scrollTo({
+            left: x,
+            top: y,
+            behavior
+        });
+        
+        return { scrolled: { x, y } };
+    }
+    
     async executeAutoFill(config) {
-        const websiteContent = document.getElementById('websiteContent');
         if (!websiteContent) throw new Error('No website content available');
         
         const forms = websiteContent.querySelectorAll('form');
@@ -2381,6 +2770,188 @@ class AutomationBatch {
         const result = await asyncFunction(context);
         return { scriptResult: result };
     }
+    
+    // Advanced methods for massive parallel automation (100k+ operations)
+    
+    /**
+     * Process up to 100,000 automation operations in parallel
+     * Uses intelligent chunking and memory management
+     */
+    async processMassiveParallel(maxOperations = 100000) {
+        if (this.tasks.length > maxOperations) {
+            throw new Error(`Too many tasks: ${this.tasks.length}. Maximum allowed: ${maxOperations}`);
+        }
+        
+        console.log(`🚀 Starting massive parallel processing: ${this.tasks.length} operations`);
+        
+        // Optimize settings for massive operations
+        const originalBatchSize = this.batchSize;
+        const originalMaxConcurrency = this.maxConcurrency;
+        
+        // Adaptive settings based on task count
+        if (this.tasks.length > 10000) {
+            this.batchSize = Math.max(500, Math.min(2000, Math.floor(this.tasks.length / 50)));
+            this.maxConcurrency = Math.min(500, Math.max(50, Math.floor(navigator.hardwareConcurrency * 10)));
+        } else if (this.tasks.length > 1000) {
+            this.batchSize = Math.max(200, Math.min(1000, Math.floor(this.tasks.length / 20)));
+            this.maxConcurrency = Math.min(200, Math.max(20, Math.floor(navigator.hardwareConcurrency * 5)));
+        }
+        
+        updateAutomationStatus('MASSIVE_PARALLEL', 
+            `🔥 Massive parallel mode: ${this.tasks.length} ops, ${this.maxConcurrency} workers, ${this.batchSize} batch size`);
+        
+        try {
+            const result = await this.processParallel();
+            
+            // Restore original settings
+            this.batchSize = originalBatchSize;
+            this.maxConcurrency = originalMaxConcurrency;
+            
+            return result;
+        } catch (error) {
+            // Restore settings on error
+            this.batchSize = originalBatchSize;
+            this.maxConcurrency = originalMaxConcurrency;
+            throw error;
+        }
+    }
+    
+    /**
+     * Create automation tasks for stress testing (up to 100k operations)
+     */
+    generateStressTestTasks(count = 10000, taskTypes = ['wait', 'click', 'scroll']) {
+        const tasks = [];
+        
+        for (let i = 0; i < count; i++) {
+            const taskType = taskTypes[i % taskTypes.length];
+            let config;
+            
+            switch (taskType) {
+                case 'wait':
+                    config = { duration: Math.floor(Math.random() * 1000) + 100 };
+                    break;
+                case 'click':
+                    config = { selector: `#test-element-${i % 100}` };
+                    break;
+                case 'scroll':
+                    config = { x: 0, y: Math.floor(Math.random() * 1000) };
+                    break;
+                case 'auto-fill':
+                    config = { 
+                        name: `Test User ${i}`, 
+                        email: `test${i}@example.com` 
+                    };
+                    break;
+                default:
+                    config = {};
+            }
+            
+            tasks.push({
+                type: taskType,
+                config: config,
+                priority: Math.floor(Math.random() * 10)
+            });
+        }
+        
+        this.addTasks(tasks);
+        return tasks;
+    }
+    
+    /**
+     * Parallel form filling across multiple forms simultaneously
+     */
+    async massiveFillForms(formConfigs) {
+        const fillTasks = formConfigs.map((config, index) => ({
+            type: 'auto-fill',
+            config: config,
+            priority: config.priority || 0
+        }));
+        
+        this.addTasks(fillTasks);
+        
+        console.log(`🔄 Mass filling ${fillTasks.length} forms in parallel`);
+        return await this.processMassiveParallel();
+    }
+    
+    /**
+     * Parallel data extraction from multiple sources
+     */
+    async massiveDataExtraction(extractionConfigs) {
+        const extractTasks = extractionConfigs.map(config => ({
+            type: 'extract-data',
+            config: config,
+            priority: config.priority || 0
+        }));
+        
+        this.addTasks(extractTasks);
+        
+        console.log(`📊 Mass extracting data from ${extractTasks.length} sources in parallel`);
+        return await this.processMassiveParallel();
+    }
+    
+    /**
+     * Parallel navigation across multiple pages/sections
+     */
+    async massiveNavigation(navigationConfigs) {
+        const navTasks = navigationConfigs.map(config => ({
+            type: 'navigate',
+            config: config,
+            priority: config.priority || 0
+        }));
+        
+        this.addTasks(navTasks);
+        
+        console.log(`🧭 Mass navigation across ${navTasks.length} targets in parallel`);
+        return await this.processMassiveParallel();
+    }
+    
+    /**
+     * Get real-time parallel processing statistics
+     */
+    getParallelStats() {
+        const stats = {
+            ...this.parallelMetrics,
+            tasksRemaining: this.tasks.filter(t => t.status === 'pending').length,
+            tasksProcessing: this.tasks.filter(t => t.status === 'processing').length,
+            tasksCompleted: this.tasks.filter(t => t.status === 'completed').length,
+            tasksErrors: this.tasks.filter(t => t.status === 'error').length,
+            efficiency: this.parallelMetrics.totalOperations > 0 ? 
+                (this.parallelMetrics.completedOperations / this.parallelMetrics.totalOperations * 100).toFixed(2) : 0,
+            throughput: this.parallelMetrics.averageTaskTime > 0 ? 
+                (1000 / this.parallelMetrics.averageTaskTime).toFixed(2) : 0,
+            totalMemoryUsage: this.estimateMemoryUsage()
+        };
+        
+        return stats;
+    }
+    
+    /**
+     * Cancel all pending tasks (emergency stop for massive operations)
+     */
+    async emergencyStop() {
+        console.warn('🛑 Emergency stop triggered for parallel automation');
+        
+        // Mark all pending tasks as cancelled
+        this.tasks.filter(task => task.status === 'pending').forEach(task => {
+            task.status = 'cancelled';
+            task.error = 'Emergency stop triggered';
+        });
+        
+        // Wait for current processing to complete
+        let attempts = 0;
+        while (this.parallelMetrics.currentConcurrency > 0 && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        this.isProcessing = false;
+        updateAutomationStatus('STOPPED', 'Emergency stop completed');
+        
+        return {
+            cancelledTasks: this.tasks.filter(task => task.status === 'cancelled').length,
+            completedTasks: this.tasks.filter(task => task.status === 'completed').length
+        };
+    }
 }
 
 // Performance monitoring for automation tasks
@@ -2465,9 +3036,54 @@ class AutomationPerformanceMonitor {
     }
 }
 
-// Initialize global automation utilities
-window.automationBatch = new AutomationBatch();
+// Initialize global automation utilities with massive parallel support
+window.automationBatch = new AutomationBatch({
+    maxConcurrency: 100, // Default concurrent workers
+    batchSize: 1000,     // Default batch size
+    enableParallel: true, // Enable parallel processing by default
+    progressCallback: (progress) => {
+        // Real-time progress updates for massive operations
+        if (window.updateAutomationProgress) {
+            window.updateAutomationProgress(progress);
+        }
+        console.log(`📊 Progress: ${progress.completed}/${progress.total} (${(progress.completed/progress.total*100).toFixed(1)}%)`);
+    }
+});
+
 window.automationMonitor = new AutomationPerformanceMonitor();
+
+// Add global functions for massive parallel operations
+window.automationMassive = {
+    // Stress test with configurable operations
+    async stressTest(operationCount = 10000) {
+        console.log(`🔥 Starting stress test with ${operationCount} operations`);
+        const batch = new AutomationBatch({ maxConcurrency: 200, batchSize: 500 });
+        batch.generateStressTestTasks(operationCount);
+        return await batch.processMassiveParallel();
+    },
+    
+    // Mass form filling
+    async fillManyForms(count = 1000) {
+        const formConfigs = Array.from({ length: count }, (_, i) => ({
+            name: `User ${i}`,
+            email: `user${i}@test.com`,
+            phone: `555-${String(i).padStart(4, '0')}`,
+            priority: Math.floor(i / 100) // Group by priority
+        }));
+        
+        return await window.automationBatch.massiveFillForms(formConfigs);
+    },
+    
+    // Emergency stop all operations
+    async emergencyStop() {
+        return await window.automationBatch.emergencyStop();
+    },
+    
+    // Get real-time stats
+    getStats() {
+        return window.automationBatch.getParallelStats();
+    }
+};
 
 // Enhanced automation templates with new features
 function getEnhancedAutomationTemplates() {
@@ -2577,6 +3193,422 @@ for (const link of links) {
     
     await wait(2000);
 }`
+        },
+        
+        'massive-parallel-demo': {
+            name: '🚀 Massive Parallel Demo (10K Operations)',
+            description: 'Demonstrate massive parallel processing with 10,000 automation operations',
+            script: `// Massive parallel processing demonstration
+console.log('🔥 Starting massive parallel demo with 10,000 operations...');
+
+const batch = new AutomationBatch({
+    maxConcurrency: 200,    // 200 parallel workers
+    batchSize: 500,         // Process in chunks of 500
+    enableParallel: true,
+    progressCallback: (progress) => {
+        console.log(\`Progress: \${progress.completed}/\${progress.total} (\${(progress.completed/progress.total*100).toFixed(1)}%)\`);
+    }
+});
+
+// Generate 10,000 test operations
+batch.generateStressTestTasks(10000, ['wait', 'scroll', 'click']);
+
+const startTime = Date.now();
+const result = await batch.processMassiveParallel();
+const totalTime = Date.now() - startTime;
+
+console.log(\`🎉 Completed \${result.totalTasks} operations in \${(totalTime/1000).toFixed(2)}s\`);
+console.log(\`⚡ Throughput: \${(result.totalTasks / totalTime * 1000).toFixed(0)} ops/sec\`);
+console.log(\`✅ Success rate: \${(result.successCount/result.totalTasks*100).toFixed(1)}%\`);`
+        },
+        
+        'parallel-form-filling': {
+            name: '📝 Parallel Form Filling (1K Forms)',
+            description: 'Fill 1,000 forms simultaneously with intelligent field detection',
+            script: `// Mass parallel form filling
+console.log('📝 Starting parallel form filling for 1,000 forms...');
+
+const formConfigs = Array.from({ length: 1000 }, (_, i) => ({
+    name: \`User \${i + 1}\`,
+    email: \`user\${i + 1}@parallel-test.com\`,
+    phone: \`555-\${String(i + 1).padStart(4, '0')}\`,
+    message: \`Automated message \${i + 1} from parallel processing\`,
+    priority: Math.floor(i / 100) // Prioritize in groups
+}));
+
+const result = await window.automationBatch.massiveFillForms(formConfigs);
+
+console.log(\`📊 Form filling results:\`);
+console.log(\`   Total forms: \${result.totalTasks}\`);
+console.log(\`   Successful: \${result.successCount}\`);
+console.log(\`   Failed: \${result.errorCount}\`);
+console.log(\`   Time: \${(result.totalTime/1000).toFixed(2)}s\`);
+console.log(\`   Forms/sec: \${result.tasksPerSecond}\`);`
+        },
+        
+        'stress-test-100k': {
+            name: '💪 Ultimate Stress Test (100K Operations)',
+            description: 'Push the limits with 100,000 parallel automation operations',
+            script: `// Ultimate stress test with 100,000 operations
+console.warn('⚠️  This will run 100,000 operations in parallel!');
+console.log('🚀 Initializing ultimate stress test...');
+
+// Create high-performance batch configuration
+const batch = new AutomationBatch({
+    maxConcurrency: 500,    // Maximum parallel workers
+    batchSize: 2000,        // Large batch sizes for efficiency
+    enableParallel: true,
+    memoryThreshold: 0.9,   // Aggressive memory management
+    progressCallback: (progress) => {
+        if (progress.completed % 10000 === 0) {
+            console.log(\`🔥 Milestone: \${progress.completed}/\${progress.total} operations completed\`);
+        }
+    }
+});
+
+// Generate 100,000 test operations with varied types
+const operationTypes = ['wait', 'scroll', 'click', 'auto-fill'];
+batch.generateStressTestTasks(100000, operationTypes);
+
+console.log('🎯 Starting 100K parallel operations...');
+const startTime = performance.now();
+
+try {
+    const result = await batch.processMassiveParallel(100000);
+    const totalTime = performance.now() - startTime;
+    
+    console.log('🎉 STRESS TEST COMPLETED!');
+    console.log(\`📊 Results:\`);
+    console.log(\`   Operations: \${result.totalTasks.toLocaleString()}\`);
+    console.log(\`   Successful: \${result.successCount.toLocaleString()}\`);
+    console.log(\`   Failed: \${result.errorCount.toLocaleString()}\`);
+    console.log(\`   Total time: \${(totalTime/1000).toFixed(2)}s\`);
+    console.log(\`   Throughput: \${Math.round(result.totalTasks / totalTime * 1000).toLocaleString()} ops/sec\`);
+    console.log(\`   Success rate: \${(result.successCount/result.totalTasks*100).toFixed(2)}%\`);
+    
+} catch (error) {
+    console.error('❌ Stress test failed:', error);
+} finally {
+    // Cleanup and memory recovery
+    await batch.performMemoryCleanup();
+    console.log('🧹 Memory cleanup completed');
+}`
+        },
+        
+        'parallel-monitoring': {
+            name: '📊 Real-time Parallel Monitoring',
+            description: 'Monitor parallel automation performance in real-time',
+            script: `// Real-time parallel processing monitor
+console.log('📊 Starting real-time parallel monitoring...');
+
+// Start a background operation to monitor
+const batch = new AutomationBatch({
+    maxConcurrency: 100,
+    batchSize: 200,
+    enableParallel: true
+});
+
+// Generate background operations
+batch.generateStressTestTasks(5000, ['wait', 'scroll']);
+
+// Start monitoring before processing
+const monitorInterval = setInterval(() => {
+    const stats = batch.getParallelStats();
+    console.clear();
+    console.log('🔄 REAL-TIME PARALLEL AUTOMATION MONITOR');
+    console.log('═══════════════════════════════════════');
+    console.log(\`📈 Total Operations: \${stats.totalOperations}\`);
+    console.log(\`✅ Completed: \${stats.tasksCompleted}\`);
+    console.log(\`⚡ Processing: \${stats.tasksProcessing}\`);
+    console.log(\`⏳ Remaining: \${stats.tasksRemaining}\`);
+    console.log(\`❌ Errors: \${stats.tasksErrors}\`);
+    console.log(\`🎯 Efficiency: \${stats.efficiency}%\`);
+    console.log(\`🚀 Throughput: \${stats.throughput} ops/sec\`);
+    console.log(\`🧠 Memory Usage: \${(stats.totalMemoryUsage * 100).toFixed(1)}%\`);
+    console.log(\`⚙️  Current Workers: \${stats.currentConcurrency}\`);
+    console.log(\`📊 Peak Workers: \${stats.peakConcurrency}\`);
+    
+    if (!batch.isProcessing) {
+        clearInterval(monitorInterval);
+        console.log('\\n🎉 Monitoring completed!');
+    }
+}, 500);
+
+// Start the batch processing
+batch.processAll().then(result => {
+    console.log('\\n📋 Final Results:', result);
+});`
         }
     };
 }
+
+// Parallel Processing UI Controls and Real-time Updates
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize parallel processing controls
+    initParallelProcessingUI();
+});
+
+function initParallelProcessingUI() {
+    // Slider value updates
+    const maxConcurrencySlider = document.getElementById('maxConcurrency');
+    const batchSizeSlider = document.getElementById('batchSize');
+    const concurrencyValue = document.getElementById('concurrencyValue');
+    const batchSizeValue = document.getElementById('batchSizeValue');
+    
+    if (maxConcurrencySlider && concurrencyValue) {
+        maxConcurrencySlider.addEventListener('input', function() {
+            concurrencyValue.textContent = this.value;
+            if (window.automationBatch) {
+                window.automationBatch.maxConcurrency = parseInt(this.value);
+            }
+        });
+    }
+    
+    if (batchSizeSlider && batchSizeValue) {
+        batchSizeSlider.addEventListener('input', function() {
+            batchSizeValue.textContent = this.value;
+            if (window.automationBatch) {
+                window.automationBatch.batchSize = parseInt(this.value);
+            }
+        });
+    }
+    
+    // Start parallel test button
+    const startParallelTest = document.getElementById('startParallelTest');
+    if (startParallelTest) {
+        startParallelTest.addEventListener('click', async function() {
+            const operationCount = parseInt(document.getElementById('operationCount').value);
+            const maxConcurrency = parseInt(document.getElementById('maxConcurrency').value);
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            
+            addToParallelLog(`🚀 Starting parallel test with ${operationCount.toLocaleString()} operations`);
+            addToParallelLog(`⚙️  Configuration: ${maxConcurrency} workers, ${batchSize} batch size`);
+            
+            this.disabled = true;
+            document.getElementById('emergencyStopParallel').disabled = false;
+            
+            try {
+                // Create new batch with current settings
+                const testBatch = new AutomationBatch({
+                    maxConcurrency: maxConcurrency,
+                    batchSize: batchSize,
+                    enableParallel: true,
+                    progressCallback: updateParallelProgress
+                });
+                
+                // Generate test operations
+                testBatch.generateStressTestTasks(operationCount, ['wait', 'scroll', 'click']);
+                
+                // Start processing
+                const startTime = performance.now();
+                const result = await testBatch.processMassiveParallel();
+                const totalTime = performance.now() - startTime;
+                
+                // Display results
+                addToParallelLog(`🎉 Test completed successfully!`);
+                addToParallelLog(`📊 Results: ${result.successCount}/${result.totalTasks} successful`);
+                addToParallelLog(`⚡ Performance: ${(result.totalTasks / totalTime * 1000).toFixed(0)} ops/sec`);
+                addToParallelLog(`⏱️  Total time: ${(totalTime / 1000).toFixed(2)} seconds`);
+                
+            } catch (error) {
+                addToParallelLog(`❌ Test failed: ${error.message}`, 'error');
+                console.error('Parallel test error:', error);
+            } finally {
+                this.disabled = false;
+                document.getElementById('emergencyStopParallel').disabled = true;
+            }
+        });
+    }
+    
+    // Emergency stop button
+    const emergencyStop = document.getElementById('emergencyStopParallel');
+    if (emergencyStop) {
+        emergencyStop.addEventListener('click', async function() {
+            addToParallelLog(`🛑 Emergency stop triggered!`, 'warning');
+            
+            if (window.automationBatch) {
+                const result = await window.automationBatch.emergencyStop();
+                addToParallelLog(`🔴 Stopped: ${result.cancelledTasks} cancelled, ${result.completedTasks} completed`);
+            }
+            
+            this.disabled = true;
+            document.getElementById('startParallelTest').disabled = false;
+        });
+    }
+    
+    // Clear log button
+    const clearLog = document.getElementById('clearParallelLog');
+    if (clearLog) {
+        clearLog.addEventListener('click', function() {
+            const log = document.getElementById('parallelLog');
+            if (log) {
+                log.innerHTML = '<div class="text-success">🚀 Parallel automation system ready</div>';
+            }
+        });
+    }
+    
+    // Export results button
+    const exportResults = document.getElementById('exportParallelResults');
+    if (exportResults) {
+        exportResults.addEventListener('click', function() {
+            if (window.automationBatch) {
+                const stats = window.automationBatch.getParallelStats();
+                const exportData = {
+                    timestamp: new Date().toISOString(),
+                    configuration: {
+                        maxConcurrency: window.automationBatch.maxConcurrency,
+                        batchSize: window.automationBatch.batchSize
+                    },
+                    statistics: stats,
+                    tasks: window.automationBatch.tasks.map(task => ({
+                        id: task.id,
+                        type: task.type,
+                        status: task.status,
+                        startTime: task.startTime,
+                        endTime: task.endTime,
+                        duration: task.endTime ? task.endTime - task.startTime : null
+                    }))
+                };
+                
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `parallel-automation-results-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                addToParallelLog(`📥 Results exported successfully`);
+            }
+        });
+    }
+}
+
+// Global progress update function for parallel operations
+window.updateAutomationProgress = function(progress) {
+    // Update parallel stats in the main status bar
+    const parallelStats = document.getElementById('parallelStats');
+    if (parallelStats && progress.total > 100) { // Only show for large operations
+        parallelStats.classList.remove('d-none');
+        
+        // Update individual elements
+        updateElement('parallelTotal', progress.total.toLocaleString());
+        updateElement('parallelCompleted', progress.completed.toLocaleString());
+        updateElement('parallelActive', (progress.total - progress.completed).toLocaleString());
+        
+        // Update progress bar
+        const progressBar = document.getElementById('parallelProgress');
+        if (progressBar) {
+            const percentage = (progress.completed / progress.total * 100).toFixed(1);
+            progressBar.style.width = percentage + '%';
+            progressBar.setAttribute('aria-valuenow', percentage);
+        }
+        
+        // Calculate and update throughput
+        const currentTime = Date.now();
+        if (!window.parallelStartTime) {
+            window.parallelStartTime = currentTime;
+        }
+        
+        const elapsedSeconds = (currentTime - window.parallelStartTime) / 1000;
+        const throughput = elapsedSeconds > 0 ? (progress.completed / elapsedSeconds).toFixed(0) : '0';
+        updateElement('parallelThroughput', throughput);
+    }
+    
+    // Update modal statistics if open
+    updateModalStatistics(progress);
+};
+
+function updateModalStatistics(progress) {
+    const modal = document.getElementById('parallelControlModal');
+    if (modal && modal.classList.contains('show')) {
+        // Update main stats
+        updateElement('statsTotal', progress.total?.toLocaleString() || '0');
+        updateElement('statsCompleted', progress.completed?.toLocaleString() || '0');
+        updateElement('statsProcessing', (progress.total - progress.completed)?.toLocaleString() || '0');
+        
+        // Update progress bar in modal
+        const progressBar = document.getElementById('parallelProgressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        if (progressBar && progress.total > 0) {
+            const percentage = (progress.completed / progress.total * 100).toFixed(1);
+            progressBar.style.width = percentage + '%';
+            if (progressPercent) {
+                progressPercent.textContent = percentage + '%';
+            }
+        }
+        
+        // Update throughput
+        const currentTime = Date.now();
+        if (window.parallelStartTime) {
+            const elapsedSeconds = (currentTime - window.parallelStartTime) / 1000;
+            const throughput = elapsedSeconds > 0 ? (progress.completed / elapsedSeconds).toFixed(0) : '0';
+            updateElement('statsThroughput', throughput);
+        }
+        
+        // Update parallel stats if available
+        if (window.automationBatch) {
+            const stats = window.automationBatch.getParallelStats();
+            updateElement('statsPeakWorkers', stats.peakConcurrency || '0');
+            updateElement('statsCurrentWorkers', stats.currentConcurrency || '0');
+            updateElement('statsEfficiency', stats.efficiency + '%' || '0%');
+            updateElement('statsMemory', (stats.totalMemoryUsage * 100).toFixed(1) + '%' || '0%');
+        }
+    }
+}
+
+function addToParallelLog(message, type = 'info') {
+    const log = document.getElementById('parallelLog');
+    if (log) {
+        const timestamp = new Date().toLocaleTimeString();
+        let className = 'text-light';
+        let icon = 'ℹ️';
+        
+        switch (type) {
+            case 'success':
+                className = 'text-success';
+                icon = '✅';
+                break;
+            case 'warning':
+                className = 'text-warning';
+                icon = '⚠️';
+                break;
+            case 'error':
+                className = 'text-danger';
+                icon = '❌';
+                break;
+        }
+        
+        const logEntry = document.createElement('div');
+        logEntry.className = className;
+        logEntry.textContent = `[${timestamp}] ${icon} ${message}`;
+        
+        log.appendChild(logEntry);
+        log.scrollTop = log.scrollHeight;
+    }
+}
+
+function updateElement(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+// Initialize parallel start time when automation starts
+const originalUpdateAutomationStatus = window.updateAutomationStatus || function() {};
+window.updateAutomationStatus = function(status, description) {
+    if (status === 'BATCH_PROCESSING' || status === 'MASSIVE_PARALLEL') {
+        window.parallelStartTime = Date.now();
+    } else if (status === 'READY') {
+        window.parallelStartTime = null;
+        // Hide parallel stats when done
+        const parallelStats = document.getElementById('parallelStats');
+        if (parallelStats) {
+            setTimeout(() => parallelStats.classList.add('d-none'), 2000);
+        }
+    }
+    
+    // Call original function
+    originalUpdateAutomationStatus(status, description);
+};
