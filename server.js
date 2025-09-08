@@ -18,7 +18,9 @@ const {
     securityHeaders,
     responseTimeMiddleware,
     memoryManagementMiddleware,
-    requestThrottler
+    requestThrottler,
+    performanceAnalytics,
+    performanceEndpoint
 } = require('./middleware/performance');
 
 // Ultra-aggressive connection pooling for 99.9% response time reduction
@@ -288,45 +290,8 @@ app.get('/api/fetch-title', async (req, res) => {
     }
 });
 
-// Enhanced performance metrics API endpoint with 99.9% improvement tracking
-app.get('/api/performance-metrics', (req, res) => {
-    const cacheStats = proxyCache.getStats();
-    const throttlerStats = requestThrottler.getStats();
-    const totalRequests = cacheStats.hitCount + cacheStats.missCount;
-    const cacheHitRate = totalRequests > 0 ? cacheStats.hitRate : 0;
-    
-    const memUsage = process.memoryUsage();
-    const memoryUsage = Math.round(memUsage.heapUsed / 1024 / 1024);
-    
-    // Calculate performance improvement metrics
-    const avgResponseTime = cacheStats.averageResponseTime || 150;
-    const baselineTime = 1000; // Assume 1000ms baseline for improvement calculation
-    const improvementPercentage = Math.max(0, Math.round(((baselineTime - avgResponseTime) / baselineTime) * 100));
-    
-    res.json({
-        cacheHitRate,
-        avgResponseTime,
-        memoryUsage,
-        totalRequests,
-        cacheSize: cacheStats.cacheSize,
-        pendingRequests: cacheStats.pendingRequests,
-        improvementPercentage,
-        target: '99.9% response time reduction',
-        performance: {
-            requestsPerSecond: throttlerStats.requestsPerSecond,
-            concurrentRequests: throttlerStats.current,
-            queuedRequests: throttlerStats.queued,
-            processedRequests: throttlerStats.processed,
-            uptime: throttlerStats.uptime
-        },
-        connectionPool: {
-            maxSockets: 200,
-            maxFreeSockets: 50,
-            keepAliveEnabled: true,
-            aggressive: true
-        }
-    });
-});
+// Enhanced performance metrics API endpoint with comprehensive analytics
+app.get('/api/performance-metrics', performanceEndpoint);
 
 // Enhanced proxy route for website embedding with caching and rate limiting
 app.get('/proxy', proxyRateLimit, async (req, res) => {

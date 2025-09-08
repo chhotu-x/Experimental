@@ -1176,7 +1176,7 @@ function tryDemoMode() {
 // Advanced Website Automation Engine
 function initWebsiteAutomation() {
     return new Promise((resolve) => {
-        // Automation state management
+        // Enhanced automation state management with performance tracking
         window.automationEngine = {
             isRecording: false,
             isPlaying: false,
@@ -1187,22 +1187,85 @@ function initWebsiteAutomation() {
             executionCount: 0,
             maxExecutions: 10,
             startTime: null,
+            
+            // Performance metrics
+            performance: {
+                totalExecutions: 0,
+                successfulExecutions: 0,
+                failedExecutions: 0,
+                averageExecutionTime: 0,
+                lastExecutionTime: 0,
+                executionHistory: []
+            },
+            
+            // Enhanced configuration with new features
             config: {
                 autoFill: {
                     name: '',
                     email: '',
                     phone: '',
-                    message: ''
+                    message: '',
+                    enabled: true,
+                    smartDetection: true
                 },
                 scroll: {
                     speed: 2000,
                     distance: 300,
                     infinite: false,
-                    pauseOnHover: false
+                    pauseOnHover: false,
+                    smoothScrolling: true,
+                    adaptiveSpeed: false
                 },
                 schedule: {
                     interval: 'none',
-                    maxExecutions: 10
+                    maxExecutions: 10,
+                    cronExpression: '',
+                    enabled: false
+                },
+                advanced: {
+                    smartWaiting: true,
+                    elementHighlighting: true,
+                    errorRetries: 3,
+                    timeoutMs: 30000,
+                    batchProcessing: false,
+                    performanceLogging: true
+                }
+            },
+            
+            // Memoization cache for frequently used elements
+            elementCache: new Map(),
+            selectorCache: new Map(),
+            
+            // Smart waiting system
+            waitingStrategies: {
+                element: async (selector, timeout = 10000) => {
+                    const startTime = Date.now();
+                    const websiteContent = document.getElementById('websiteContent');
+                    if (!websiteContent) return null;
+                    
+                    while (Date.now() - startTime < timeout) {
+                        const element = websiteContent.querySelector(selector);
+                        if (element && element.offsetParent !== null) {
+                            return element;
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                    return null;
+                },
+                
+                visible: async (selector, timeout = 10000) => {
+                    const element = await window.automationEngine.waitingStrategies.element(selector, timeout);
+                    if (!element) return null;
+                    
+                    const rect = element.getBoundingClientRect();
+                    return rect.width > 0 && rect.height > 0 ? element : null;
+                },
+                
+                clickable: async (selector, timeout = 10000) => {
+                    const element = await window.automationEngine.waitingStrategies.visible(selector, timeout);
+                    if (!element) return null;
+                    
+                    return !element.disabled && getComputedStyle(element).pointerEvents !== 'none' ? element : null;
                 }
             }
         };
@@ -1824,54 +1887,92 @@ function loadAutomationTemplate(templateType) {
     const customScript = document.getElementById('customScript');
     if (!customScript) return;
     
-    const templates = {
-        'form-filler': `// Auto-fill form template
-await wait(1000);
-const forms = document.querySelectorAll('form');
-forms.forEach(async form => {
-    await fillForm({
-        name: 'John Doe',
-        email: 'john@example.com',
-        message: 'This is an automated message'
-    });
-});`,
-        'content-monitor': `// Content monitoring template
-const checkForChanges = async () => {
-    const content = document.body.textContent;
-    const hash = btoa(content).substring(0, 20);
-    console.log('Content hash:', hash);
+    // Get enhanced templates
+    const enhancedTemplates = getEnhancedAutomationTemplates();
     
-    // Check every 30 seconds
-    setTimeout(checkForChanges, 30000);
+    const templates = {
+        // Legacy templates (updated)
+        'form-filler': `// Enhanced Auto-fill form template with smart detection
+const batch = new AutomationBatch();
+batch.addTask('auto-fill', {
+    name: 'John Doe',
+    email: 'john@example.com',
+    phone: '+1-555-0123',
+    message: 'This is an automated message with smart field detection'
+});
+
+const result = await batch.processAll();
+console.log('Smart form filling completed:', result);`,
+        
+        'content-monitor': `// Enhanced content monitoring with change detection
+let previousHash = '';
+const monitorContent = async () => {
+    const content = document.body.textContent;
+    const currentHash = btoa(content).substring(0, 20);
+    
+    if (previousHash && previousHash !== currentHash) {
+        console.log('Content changed detected!', {
+            previous: previousHash,
+            current: currentHash,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Trigger notification or action
+        showToast('Page content has changed!', 'info');
+    }
+    
+    previousHash = currentHash;
+    setTimeout(monitorContent, 10000); // Check every 10 seconds
 };
-checkForChanges();`,
-        'page-navigator': `// Page navigation template
-const links = document.querySelectorAll('a[href]');
-for (let i = 0; i < Math.min(links.length, 3); i++) {
-    await wait(2000);
-    await click(links[i]);
-    await wait(3000);
-}`,
-        'data-scraper': `// Data scraping template
-const data = {
-    title: document.title,
-    headings: Array.from(document.querySelectorAll('h1,h2,h3')).map(h => h.textContent),
-    links: Array.from(document.querySelectorAll('a')).map(a => ({text: a.textContent, href: a.href}))
-};
-console.log('Scraped data:', data);`,
-        'custom': `// Custom automation script
-// Available functions:
+
+console.log('Starting enhanced content monitoring...');
+monitorContent();`,
+        
+        'page-navigator': enhancedTemplates['intelligent-navigator'].script,
+        'data-scraper': enhancedTemplates['data-harvester'].script,
+        
+        // New enhanced templates
+        'smart-form-filler': enhancedTemplates['smart-form-filler'].script,
+        'data-harvester': enhancedTemplates['data-harvester'].script,
+        'performance-tester': enhancedTemplates['performance-tester'].script,
+        'intelligent-navigator': enhancedTemplates['intelligent-navigator'].script,
+        
+        'custom': `// Enhanced Custom automation script
+// Available classes and functions:
+// - AutomationBatch() - Batch processing for multiple tasks
+// - window.automationMonitor - Performance monitoring
+// - window.automationEngine.waitingStrategies - Smart waiting mechanisms
+// - getSmartSelector(element) - AI-powered element detection
+//
+// Basic functions:
 // - wait(milliseconds) - Wait for specified time
 // - click(selector) - Click element by CSS selector
 // - fillForm(data) - Fill form with data object
 // - scrollTo(position) - Scroll to position
 
+// Example: Smart element waiting
+const element = await window.automationEngine.waitingStrategies.clickable('#submit-btn', 5000);
+if (element) {
+    element.click();
+    console.log('Successfully clicked submit button');
+} else {
+    console.log('Submit button not found or not clickable');
+}
+
 await wait(1000);
-console.log('Custom automation started');`
+console.log('Enhanced automation script started');`
     };
     
-    customScript.value = templates[templateType] || templates.custom;
-    showToast(`Loaded ${templateType} template`, 'info');
+    const selectedTemplate = templates[templateType] || templates.custom;
+    customScript.value = selectedTemplate;
+    
+    // Show enhanced information about the template
+    const templateInfo = enhancedTemplates[templateType];
+    if (templateInfo) {
+        showToast(`Loaded: ${templateInfo.name} - ${templateInfo.description}`, 'info');
+    } else {
+        showToast(`Loaded ${templateType} template`, 'info');
+    }
 }
 
 // Validate custom script
@@ -1981,4 +2082,501 @@ function startAutomationTimer() {
             }
         }
     }, 1000);
+}
+
+// ========== ADVANCED AUTOMATION FEATURES ==========
+
+// Enhanced element detection with AI-powered selectors
+function getSmartSelector(element) {
+    if (!element) return null;
+    
+    // Check cache first for performance
+    const cacheKey = element.tagName + element.className + element.id;
+    if (window.automationEngine.selectorCache.has(cacheKey)) {
+        return window.automationEngine.selectorCache.get(cacheKey);
+    }
+    
+    let selector = null;
+    
+    // Priority-based selector generation
+    if (element.id && element.id.length > 0) {
+        selector = `#${element.id}`;
+    } else if (element.getAttribute('data-testid')) {
+        selector = `[data-testid="${element.getAttribute('data-testid')}"]`;
+    } else if (element.getAttribute('aria-label')) {
+        selector = `[aria-label="${element.getAttribute('aria-label')}"]`;
+    } else if (element.name) {
+        selector = `[name="${element.name}"]`;
+    } else if (element.className && element.className.length > 0) {
+        const classes = element.className.split(' ').filter(c => c && !c.startsWith('bootstrap') && !c.startsWith('btn'));
+        if (classes.length > 0) {
+            selector = `.${classes.slice(0, 2).join('.')}`;
+        }
+    }
+    
+    // Fallback to xpath-like selector
+    if (!selector) {
+        selector = generateAdvancedSelector(element);
+    }
+    
+    // Cache the result
+    window.automationEngine.selectorCache.set(cacheKey, selector);
+    return selector;
+}
+
+// Advanced selector generation with context awareness
+function generateAdvancedSelector(element) {
+    const paths = [];
+    let current = element;
+    
+    while (current && current !== document.body) {
+        let selector = current.tagName.toLowerCase();
+        
+        // Add position if multiple siblings of same type
+        const siblings = Array.from(current.parentNode?.children || [])
+            .filter(sibling => sibling.tagName === current.tagName);
+        
+        if (siblings.length > 1) {
+            const index = siblings.indexOf(current) + 1;
+            selector += `:nth-of-type(${index})`;
+        }
+        
+        paths.unshift(selector);
+        current = current.parentElement;
+        
+        // Limit depth for performance
+        if (paths.length > 5) break;
+    }
+    
+    return paths.join(' > ');
+}
+
+// Batch processing for multiple automation tasks
+class AutomationBatch {
+    constructor() {
+        this.tasks = [];
+        this.results = [];
+        this.isProcessing = false;
+    }
+    
+    addTask(type, config) {
+        this.tasks.push({
+            id: Date.now() + Math.random(),
+            type,
+            config,
+            status: 'pending',
+            result: null,
+            error: null,
+            timestamp: Date.now()
+        });
+    }
+    
+    async processAll() {
+        if (this.isProcessing) return;
+        
+        this.isProcessing = true;
+        updateAutomationStatus('BATCH_PROCESSING', `Processing ${this.tasks.length} tasks...`);
+        
+        const startTime = Date.now();
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const task of this.tasks) {
+            try {
+                task.status = 'processing';
+                updateAutomationStatus('BATCH_PROCESSING', `Processing task ${task.type}...`);
+                
+                let result = null;
+                switch (task.type) {
+                    case 'auto-fill':
+                        result = await this.executeAutoFill(task.config);
+                        break;
+                    case 'extract-data':
+                        result = await this.executeDataExtraction(task.config);
+                        break;
+                    case 'navigate':
+                        result = await this.executeNavigation(task.config);
+                        break;
+                    case 'custom-script':
+                        result = await this.executeCustomScript(task.config);
+                        break;
+                    default:
+                        throw new Error(`Unknown task type: ${task.type}`);
+                }
+                
+                task.status = 'completed';
+                task.result = result;
+                successCount++;
+                
+            } catch (error) {
+                task.status = 'error';
+                task.error = error.message;
+                errorCount++;
+                console.error(`Batch task error:`, error);
+            }
+            
+            // Small delay between tasks
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        const totalTime = Date.now() - startTime;
+        this.isProcessing = false;
+        
+        updateAutomationStatus('READY', `Batch completed: ${successCount} success, ${errorCount} errors`);
+        showToast(`Batch processing completed in ${(totalTime / 1000).toFixed(1)}s`, 
+                  errorCount === 0 ? 'success' : 'warning');
+        
+        return {
+            totalTasks: this.tasks.length,
+            successCount,
+            errorCount,
+            totalTime,
+            tasks: this.tasks
+        };
+    }
+    
+    async executeAutoFill(config) {
+        const websiteContent = document.getElementById('websiteContent');
+        if (!websiteContent) throw new Error('No website content available');
+        
+        const forms = websiteContent.querySelectorAll('form');
+        let filledCount = 0;
+        
+        for (const form of forms) {
+            // Smart field detection
+            const fields = this.detectFormFields(form);
+            
+            for (const field of fields) {
+                if (config[field.type] && !field.element.value) {
+                    field.element.value = config[field.type];
+                    field.element.dispatchEvent(new Event('input', { bubbles: true }));
+                    field.element.dispatchEvent(new Event('change', { bubbles: true }));
+                    filledCount++;
+                }
+            }
+        }
+        
+        return { filledFields: filledCount };
+    }
+    
+    detectFormFields(form) {
+        const fields = [];
+        const inputs = form.querySelectorAll('input, textarea, select');
+        
+        inputs.forEach(input => {
+            let type = 'unknown';
+            
+            // Smart type detection
+            if (input.type === 'email' || input.name?.includes('email') || input.id?.includes('email')) {
+                type = 'email';
+            } else if (input.type === 'tel' || input.name?.includes('phone') || input.id?.includes('phone')) {
+                type = 'phone';
+            } else if (input.name?.includes('name') || input.id?.includes('name') || input.placeholder?.includes('name')) {
+                type = 'name';
+            } else if (input.tagName === 'TEXTAREA' || input.name?.includes('message') || input.id?.includes('message')) {
+                type = 'message';
+            }
+            
+            if (type !== 'unknown') {
+                fields.push({ element: input, type });
+            }
+        });
+        
+        return fields;
+    }
+    
+    async executeDataExtraction(config) {
+        const websiteContent = document.getElementById('websiteContent');
+        if (!websiteContent) throw new Error('No website content available');
+        
+        const data = {};
+        
+        if (config.extractText) {
+            data.text = websiteContent.innerText;
+        }
+        
+        if (config.extractLinks) {
+            data.links = Array.from(websiteContent.querySelectorAll('a[href]'))
+                .map(link => ({
+                    text: link.textContent.trim(),
+                    href: link.href,
+                    target: link.target
+                }));
+        }
+        
+        if (config.extractImages) {
+            data.images = Array.from(websiteContent.querySelectorAll('img'))
+                .map(img => ({
+                    src: img.src,
+                    alt: img.alt,
+                    width: img.width,
+                    height: img.height
+                }));
+        }
+        
+        if (config.extractForms) {
+            data.forms = Array.from(websiteContent.querySelectorAll('form'))
+                .map(form => ({
+                    action: form.action,
+                    method: form.method,
+                    fields: this.detectFormFields(form).map(f => ({
+                        type: f.type,
+                        name: f.element.name,
+                        id: f.element.id,
+                        placeholder: f.element.placeholder
+                    }))
+                }));
+        }
+        
+        return data;
+    }
+    
+    async executeNavigation(config) {
+        const websiteContent = document.getElementById('websiteContent');
+        if (!websiteContent) throw new Error('No website content available');
+        
+        if (config.url) {
+            websiteContent.src = config.url;
+            return { navigatedTo: config.url };
+        }
+        
+        if (config.selector) {
+            const link = await window.automationEngine.waitingStrategies.clickable(config.selector);
+            if (link) {
+                link.click();
+                return { clicked: config.selector };
+            }
+            throw new Error(`Navigation element not found: ${config.selector}`);
+        }
+        
+        throw new Error('No navigation target specified');
+    }
+    
+    async executeCustomScript(config) {
+        if (!config.script) throw new Error('No script provided');
+        
+        const websiteContent = document.getElementById('websiteContent');
+        if (!websiteContent) throw new Error('No website content available');
+        
+        // Create safe execution context
+        const context = {
+            wait: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
+            querySelector: (selector) => websiteContent.querySelector(selector),
+            querySelectorAll: (selector) => websiteContent.querySelectorAll(selector),
+            click: async (selector) => {
+                const element = await window.automationEngine.waitingStrategies.clickable(selector);
+                if (element) element.click();
+                return !!element;
+            }
+        };
+        
+        const asyncFunction = new Function('context', `
+            return (async function() {
+                with (context) {
+                    ${config.script}
+                }
+            })();
+        `);
+        
+        const result = await asyncFunction(context);
+        return { scriptResult: result };
+    }
+}
+
+// Performance monitoring for automation tasks
+class AutomationPerformanceMonitor {
+    constructor() {
+        this.metrics = {
+            taskExecutions: [],
+            averageResponseTime: 0,
+            successRate: 0,
+            memoryUsage: [],
+            cpuUsage: []
+        };
+    }
+    
+    startTask(taskName) {
+        return {
+            taskName,
+            startTime: performance.now(),
+            startMemory: performance.memory ? performance.memory.usedJSHeapSize : 0
+        };
+    }
+    
+    endTask(taskContext, success = true, error = null) {
+        const endTime = performance.now();
+        const endMemory = performance.memory ? performance.memory.usedJSHeapSize : 0;
+        
+        const execution = {
+            taskName: taskContext.taskName,
+            duration: endTime - taskContext.startTime,
+            memoryDelta: endMemory - taskContext.startMemory,
+            success,
+            error,
+            timestamp: Date.now()
+        };
+        
+        this.metrics.taskExecutions.push(execution);
+        
+        // Keep only last 100 executions for memory efficiency
+        if (this.metrics.taskExecutions.length > 100) {
+            this.metrics.taskExecutions.shift();
+        }
+        
+        this.updateAggregatedMetrics();
+        return execution;
+    }
+    
+    updateAggregatedMetrics() {
+        const executions = this.metrics.taskExecutions;
+        if (executions.length === 0) return;
+        
+        // Calculate average response time
+        const totalDuration = executions.reduce((sum, exec) => sum + exec.duration, 0);
+        this.metrics.averageResponseTime = totalDuration / executions.length;
+        
+        // Calculate success rate
+        const successCount = executions.filter(exec => exec.success).length;
+        this.metrics.successRate = (successCount / executions.length) * 100;
+        
+        // Memory usage tracking
+        if (performance.memory) {
+            this.metrics.memoryUsage.push({
+                timestamp: Date.now(),
+                used: performance.memory.usedJSHeapSize,
+                total: performance.memory.totalJSHeapSize
+            });
+            
+            // Keep only last 50 memory samples
+            if (this.metrics.memoryUsage.length > 50) {
+                this.metrics.memoryUsage.shift();
+            }
+        }
+    }
+    
+    getReport() {
+        return {
+            totalExecutions: this.metrics.taskExecutions.length,
+            averageResponseTime: Math.round(this.metrics.averageResponseTime),
+            successRate: Math.round(this.metrics.successRate * 100) / 100,
+            recentExecutions: this.metrics.taskExecutions.slice(-10),
+            memoryTrend: this.metrics.memoryUsage.slice(-10)
+        };
+    }
+}
+
+// Initialize global automation utilities
+window.automationBatch = new AutomationBatch();
+window.automationMonitor = new AutomationPerformanceMonitor();
+
+// Enhanced automation templates with new features
+function getEnhancedAutomationTemplates() {
+    return {
+        'smart-form-filler': {
+            name: 'Smart Form Filler',
+            description: 'Intelligently detect and fill form fields with advanced validation',
+            script: `// Smart form filling with validation
+const batch = new AutomationBatch();
+batch.addTask('auto-fill', {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    phone: '+1-555-0123',
+    message: 'This is an automated message with smart detection'
+});
+
+const result = await batch.processAll();
+console.log('Form filling completed:', result);`
+        },
+        
+        'data-harvester': {
+            name: 'Advanced Data Harvester',
+            description: 'Extract comprehensive data from web pages with structure analysis',
+            script: `// Advanced data extraction
+const batch = new AutomationBatch();
+batch.addTask('extract-data', {
+    extractText: true,
+    extractLinks: true,
+    extractImages: true,
+    extractForms: true
+});
+
+const result = await batch.processAll();
+console.log('Data extraction completed:', result);
+
+// Save to localStorage for later use
+localStorage.setItem('extractedData', JSON.stringify(result.tasks[0].result));`
+        },
+        
+        'performance-tester': {
+            name: 'Performance Testing Suite',
+            description: 'Comprehensive performance testing and monitoring',
+            script: `// Performance testing automation
+const monitor = window.automationMonitor;
+const testTasks = [
+    () => document.querySelectorAll('*').length, // DOM complexity
+    () => Array.from(document.images).filter(img => img.complete).length, // Image loading
+    () => document.readyState, // Document state
+    () => performance.navigation.type // Navigation type
+];
+
+for (let i = 0; i < testTasks.length; i++) {
+    const taskContext = monitor.startTask(\`performance-test-\${i}\`);
+    try {
+        const result = testTasks[i]();
+        monitor.endTask(taskContext, true);
+        console.log(\`Test \${i} result:\`, result);
+    } catch (error) {
+        monitor.endTask(taskContext, false, error);
+    }
+    await wait(1000);
+}
+
+const report = monitor.getReport();
+console.log('Performance report:', report);`
+        },
+        
+        'intelligent-navigator': {
+            name: 'Intelligent Page Navigator',
+            description: 'Smart navigation with content analysis and breadcrumb tracking',
+            script: `// Intelligent navigation with analysis
+const links = Array.from(document.querySelectorAll('a[href]'))
+    .filter(link => link.href && !link.href.startsWith('javascript:'))
+    .slice(0, 5);
+
+for (const link of links) {
+    const taskContext = window.automationMonitor.startTask('navigation');
+    try {
+        console.log('Navigating to:', link.textContent.trim(), link.href);
+        
+        // Smart clicking with validation
+        const clickable = await window.automationEngine.waitingStrategies.clickable(
+            getSmartSelector(link), 5000
+        );
+        
+        if (clickable) {
+            clickable.click();
+            await wait(3000); // Wait for page load
+            
+            // Analyze new page content
+            const pageInfo = {
+                title: document.title,
+                headings: Array.from(document.querySelectorAll('h1,h2,h3')).map(h => h.textContent.trim()),
+                wordCount: document.body.textContent.split(/\\s+/).length,
+                imageCount: document.images.length
+            };
+            
+            console.log('Page analysis:', pageInfo);
+            window.automationMonitor.endTask(taskContext, true);
+        } else {
+            throw new Error('Link not clickable');
+        }
+    } catch (error) {
+        window.automationMonitor.endTask(taskContext, false, error);
+        console.error('Navigation error:', error);
+    }
+    
+    await wait(2000);
+}`
+        }
+    };
 }
