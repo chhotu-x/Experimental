@@ -1,31 +1,1743 @@
-// Enhanced Main JavaScript for 42Web.io with Performance Optimizations
+// Enhanced Main JavaScript for 42Web.io with Advanced Complex Architecture
+// ████████████████████████████████████████████████████████████████████████████████
+// ██                    COMPLEX ARCHITECTURE ENGINE                             ██
+// ██              Advanced Design Patterns & Algorithms                        ██
+// ████████████████████████████████████████████████████████████████████████████████
 
-// Performance monitoring
+// 🚀 ADVANCED PERFORMANCE MONITORING WITH COMPLEX ANALYTICS
+class AdvancedPerformanceMonitor {
+    constructor() {
+        this.metrics = new Map();
+        this.observers = new Set();
+        this.complexAnalytics = new ComplexAnalyticsEngine();
+        this.performanceProfiler = new PerformanceProfiler();
+        this.memoryAnalyzer = new AdvancedMemoryAnalyzer();
+        this.startTime = performance.now();
+    }
+
+    // Complex performance tracking with statistical analysis
+    trackOperation(operationId, metadata = {}) {
+        const startTime = performance.now();
+        const memorySnapshot = this.memoryAnalyzer.captureSnapshot();
+        
+        return {
+            start: startTime,
+            memory: memorySnapshot,
+            metadata,
+            
+            // Complex completion tracking
+            complete: (result = null, error = null) => {
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                const memoryDelta = this.memoryAnalyzer.calculateDelta(memorySnapshot);
+                
+                const operationMetrics = {
+                    operationId,
+                    duration,
+                    memoryDelta,
+                    result,
+                    error,
+                    timestamp: Date.now(),
+                    metadata,
+                    complexMetrics: this.performanceProfiler.analyzeOperation(duration, memoryDelta)
+                };
+                
+                this.metrics.set(operationId, operationMetrics);
+                this.notifyObservers(operationMetrics);
+                this.complexAnalytics.processMetrics(operationMetrics);
+                
+                return operationMetrics;
+            }
+        };
+    }
+
+    // Observer pattern for real-time monitoring
+    addObserver(callback) {
+        this.observers.add(callback);
+    }
+
+    removeObserver(callback) {
+        this.observers.delete(callback);
+    }
+
+    notifyObservers(metrics) {
+        this.observers.forEach(observer => {
+            try {
+                observer(metrics);
+            } catch (error) {
+                console.error('Observer notification failed:', error);
+            }
+        });
+    }
+
+    // Complex statistical analysis of performance data
+    getComplexAnalytics() {
+        return this.complexAnalytics.generateAdvancedReport();
+    }
+
+    // Predictive performance analysis
+    predictPerformance(operationType, complexity) {
+        return this.complexAnalytics.predictPerformance(operationType, complexity);
+    }
+}
+
+// 🧠 COMPLEX ANALYTICS ENGINE WITH MACHINE LEARNING PATTERNS
+class ComplexAnalyticsEngine {
+    constructor() {
+        this.dataPoints = [];
+        this.regressionModel = new LinearRegressionModel();
+        this.anomalyDetector = new AnomalyDetectionSystem();
+        this.patternMatcher = new PatternMatchingEngine();
+        this.weights = new Map();
+        this.learningRate = 0.01;
+    }
+
+    processMetrics(metrics) {
+        this.dataPoints.push(metrics);
+        
+        // Keep only recent data for real-time analysis
+        if (this.dataPoints.length > 10000) {
+            this.dataPoints = this.dataPoints.slice(-5000);
+        }
+
+        // Complex pattern analysis
+        this.updatePerformanceModel(metrics);
+        this.detectAnomalies(metrics);
+        this.updatePatterns(metrics);
+    }
+
+    updatePerformanceModel(metrics) {
+        const features = this.extractComplexFeatures(metrics);
+        const target = metrics.duration;
+        
+        this.regressionModel.train(features, target, this.learningRate);
+        this.adjustWeights(features, target);
+    }
+
+    extractComplexFeatures(metrics) {
+        return [
+            metrics.memoryDelta.used,
+            metrics.memoryDelta.total,
+            Object.keys(metrics.metadata).length,
+            metrics.timestamp % 86400000, // Time of day factor
+            this.calculateComplexity(metrics.metadata),
+            this.getHistoricalAverageForOperation(metrics.operationId)
+        ];
+    }
+
+    calculateComplexity(metadata) {
+        let complexity = 1;
+        
+        // Complex algorithm to calculate operation complexity
+        if (metadata.domNodes) complexity *= Math.log(metadata.domNodes + 1);
+        if (metadata.networkRequests) complexity *= metadata.networkRequests;
+        if (metadata.computationSteps) complexity *= Math.sqrt(metadata.computationSteps);
+        if (metadata.dataSize) complexity *= Math.log10(metadata.dataSize + 1);
+        
+        return complexity;
+    }
+
+    detectAnomalies(metrics) {
+        return this.anomalyDetector.analyze(metrics, this.dataPoints);
+    }
+
+    predictPerformance(operationType, complexity) {
+        const features = this.generatePredictionFeatures(operationType, complexity);
+        return this.regressionModel.predict(features);
+    }
+
+    generateAdvancedReport() {
+        const recentData = this.dataPoints.slice(-1000);
+        
+        return {
+            totalOperations: this.dataPoints.length,
+            averagePerformance: this.calculateComplexAverage(recentData),
+            performanceTrends: this.analyzePerformanceTrends(recentData),
+            anomalies: this.anomalyDetector.getRecentAnomalies(),
+            patterns: this.patternMatcher.getDiscoveredPatterns(),
+            predictions: this.generatePerformancePredictions(),
+            optimizationSuggestions: this.generateOptimizationSuggestions(recentData)
+        };
+    }
+
+    calculateComplexAverage(data) {
+        if (data.length === 0) return 0;
+        
+        // Weighted average with time decay
+        const now = Date.now();
+        let weightedSum = 0;
+        let totalWeight = 0;
+        
+        data.forEach(metrics => {
+            const age = now - metrics.timestamp;
+            const weight = Math.exp(-age / 300000); // 5-minute decay
+            weightedSum += metrics.duration * weight;
+            totalWeight += weight;
+        });
+        
+        return totalWeight > 0 ? weightedSum / totalWeight : 0;
+    }
+
+    analyzePerformanceTrends(data) {
+        const buckets = this.bucketDataByTime(data, 60000); // 1-minute buckets
+        const trends = [];
+        
+        for (let i = 1; i < buckets.length; i++) {
+            const previousAvg = this.calculateSimpleAverage(buckets[i - 1]);
+            const currentAvg = this.calculateSimpleAverage(buckets[i]);
+            const trend = currentAvg > previousAvg ? 'degrading' : 'improving';
+            const magnitude = Math.abs(currentAvg - previousAvg) / previousAvg;
+            
+            trends.push({ bucket: i, trend, magnitude, previousAvg, currentAvg });
+        }
+        
+        return trends;
+    }
+
+    bucketDataByTime(data, bucketSize) {
+        const buckets = new Map();
+        
+        data.forEach(metrics => {
+            const bucket = Math.floor(metrics.timestamp / bucketSize);
+            if (!buckets.has(bucket)) {
+                buckets.set(bucket, []);
+            }
+            buckets.get(bucket).push(metrics);
+        });
+        
+        return Array.from(buckets.values());
+    }
+
+    calculateSimpleAverage(data) {
+        return data.length > 0 ? data.reduce((sum, m) => sum + m.duration, 0) / data.length : 0;
+    }
+
+    generateOptimizationSuggestions(data) {
+        const suggestions = [];
+        const averageMemoryUsage = this.calculateAverageMemoryUsage(data);
+        const averageDuration = this.calculateSimpleAverage(data);
+        
+        if (averageMemoryUsage > 50 * 1024 * 1024) { // 50MB
+            suggestions.push({
+                type: 'memory',
+                priority: 'high',
+                suggestion: 'Consider implementing more aggressive memory cleanup',
+                impact: 'High performance improvement expected'
+            });
+        }
+        
+        if (averageDuration > 5000) { // 5 seconds
+            suggestions.push({
+                type: 'performance',
+                priority: 'high',
+                suggestion: 'Operations are running slowly, consider optimization',
+                impact: 'Significant user experience improvement'
+            });
+        }
+        
+        return suggestions;
+    }
+
+    calculateAverageMemoryUsage(data) {
+        return data.length > 0 ? 
+            data.reduce((sum, m) => sum + (m.memoryDelta?.used || 0), 0) / data.length : 0;
+    }
+}
+
+// 🎯 ADVANCED MEMORY ANALYZER WITH COMPLEX TRACKING
+class AdvancedMemoryAnalyzer {
+    constructor() {
+        this.snapshots = new CircularBuffer(1000);
+        this.memoryPools = new Map();
+        this.allocationTracker = new AllocationTracker();
+        this.garbageCollectionMonitor = new GCMonitor();
+    }
+
+    captureSnapshot() {
+        const snapshot = {
+            timestamp: Date.now(),
+            used: performance.memory?.usedJSHeapSize || 0,
+            total: performance.memory?.totalJSHeapSize || 0,
+            limit: performance.memory?.jsHeapSizeLimit || 0,
+            nonHeap: this.estimateNonHeapMemory(),
+            customMetrics: this.captureCustomMetrics()
+        };
+        
+        this.snapshots.push(snapshot);
+        this.allocationTracker.recordAllocation(snapshot);
+        
+        return snapshot;
+    }
+
+    calculateDelta(previousSnapshot) {
+        const currentSnapshot = this.captureSnapshot();
+        
+        return {
+            used: currentSnapshot.used - previousSnapshot.used,
+            total: currentSnapshot.total - previousSnapshot.total,
+            duration: currentSnapshot.timestamp - previousSnapshot.timestamp,
+            efficiency: this.calculateMemoryEfficiency(previousSnapshot, currentSnapshot),
+            allocationRate: this.calculateAllocationRate(previousSnapshot, currentSnapshot)
+        };
+    }
+
+    estimateNonHeapMemory() {
+        // Complex estimation of non-heap memory usage
+        const domNodes = document.querySelectorAll('*').length;
+        const eventListeners = this.estimateEventListeners();
+        const canvasMemory = this.estimateCanvasMemory();
+        
+        return {
+            domNodes: domNodes * 100, // Estimated bytes per DOM node
+            eventListeners: eventListeners * 50,
+            canvas: canvasMemory,
+            total: (domNodes * 100) + (eventListeners * 50) + canvasMemory
+        };
+    }
+
+    estimateEventListeners() {
+        // Complex heuristic to estimate event listener count
+        const interactiveElements = document.querySelectorAll('button, a, input, select, textarea, [onclick]');
+        return interactiveElements.length * 2; // Estimate 2 listeners per interactive element
+    }
+
+    estimateCanvasMemory() {
+        const canvases = document.querySelectorAll('canvas');
+        let totalMemory = 0;
+        
+        canvases.forEach(canvas => {
+            const width = canvas.width || 300;
+            const height = canvas.height || 150;
+            totalMemory += width * height * 4; // 4 bytes per pixel (RGBA)
+        });
+        
+        return totalMemory;
+    }
+
+    calculateMemoryEfficiency(previous, current) {
+        const memoryGain = current.used - previous.used;
+        const timeSpent = current.timestamp - previous.timestamp;
+        
+        if (timeSpent === 0) return 100;
+        
+        // Complex efficiency calculation
+        const baseEfficiency = 100;
+        const memoryPenalty = memoryGain > 0 ? (memoryGain / 1024 / 1024) * 2 : 0; // 2% penalty per MB
+        const timePenalty = timeSpent > 1000 ? (timeSpent - 1000) / 100 : 0; // Penalty for slow operations
+        
+        return Math.max(0, baseEfficiency - memoryPenalty - timePenalty);
+    }
+
+    calculateAllocationRate(previous, current) {
+        const memoryDelta = current.used - previous.used;
+        const timeDelta = current.timestamp - previous.timestamp;
+        
+        return timeDelta > 0 ? (memoryDelta / timeDelta) * 1000 : 0; // bytes per second
+    }
+
+    captureCustomMetrics() {
+        return {
+            cacheSize: this.estimateCacheMemory(),
+            domTreeSize: this.calculateDOMTreeSize(),
+            activeConnections: this.estimateActiveConnections(),
+            pendingAnimations: this.countPendingAnimations()
+        };
+    }
+
+    estimateCacheMemory() {
+        // Estimate memory used by various caches
+        let totalCache = 0;
+        
+        if (window.automationCache) {
+            totalCache += window.automationCache.size * 1024; // Rough estimate
+        }
+        
+        if (window.performanceCache) {
+            totalCache += window.performanceCache.size * 512;
+        }
+        
+        return totalCache;
+    }
+
+    calculateDOMTreeSize() {
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_ELEMENT,
+            null,
+            false
+        );
+        
+        let nodeCount = 0;
+        let totalDepth = 0;
+        let maxDepth = 0;
+        let currentDepth = 0;
+        
+        while (walker.nextNode()) {
+            nodeCount++;
+            currentDepth = this.getNodeDepth(walker.currentNode);
+            totalDepth += currentDepth;
+            maxDepth = Math.max(maxDepth, currentDepth);
+        }
+        
+        return {
+            nodeCount,
+            averageDepth: nodeCount > 0 ? totalDepth / nodeCount : 0,
+            maxDepth,
+            estimatedSize: nodeCount * 150 // Estimated bytes per node
+        };
+    }
+
+    getNodeDepth(node) {
+        let depth = 0;
+        let parent = node.parentNode;
+        
+        while (parent) {
+            depth++;
+            parent = parent.parentNode;
+        }
+        
+        return depth;
+    }
+
+    estimateActiveConnections() {
+        // This is a complex estimation since we can't directly access network connections
+        const images = document.querySelectorAll('img[src]:not([complete])');
+        const scripts = document.querySelectorAll('script[src]');
+        const stylesheets = document.querySelectorAll('link[rel="stylesheet"]');
+        
+        return images.length + (scripts.length * 0.1) + (stylesheets.length * 0.1);
+    }
+
+    countPendingAnimations() {
+        return document.getAnimations ? document.getAnimations().length : 0;
+    }
+}
+
+// Performance monitoring with complex tracking
 const performanceMetrics = {
     loadTime: 0,
     renderTime: 0,
-    interactionTime: 0
+    interactionTime: 0,
+    complexAnalytics: new AdvancedPerformanceMonitor()
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+// 🚀 COMPLEX STATE MANAGEMENT SYSTEM WITH FINITE STATE MACHINE
+class ComplexStateManager {
+    constructor() {
+        this.states = new Map();
+        this.currentState = 'INITIALIZING';
+        this.stateHistory = new CircularBuffer(100);
+        this.stateTransitions = new Map();
+        this.observers = new Map();
+        this.complexRules = new StateRuleEngine();
+        this.statePredictor = new StatePredictor();
+        
+        this.initializeStates();
+    }
+
+    initializeStates() {
+        // Define complex state machine
+        this.defineState('INITIALIZING', {
+            onEnter: () => this.handleInitializingEnter(),
+            onExit: () => this.handleInitializingExit(),
+            validTransitions: ['LOADING', 'ERROR'],
+            complexity: 1
+        });
+        
+        this.defineState('LOADING', {
+            onEnter: () => this.handleLoadingEnter(),
+            onExit: () => this.handleLoadingExit(),
+            validTransitions: ['READY', 'ERROR', 'RETRYING'],
+            complexity: 2
+        });
+        
+        this.defineState('READY', {
+            onEnter: () => this.handleReadyEnter(),
+            onExit: () => this.handleReadyExit(),
+            validTransitions: ['PROCESSING', 'BATCH_PROCESSING', 'MASSIVE_PARALLEL', 'ERROR'],
+            complexity: 1
+        });
+        
+        this.defineState('PROCESSING', {
+            onEnter: () => this.handleProcessingEnter(),
+            onExit: () => this.handleProcessingExit(),
+            validTransitions: ['READY', 'ERROR', 'PAUSED'],
+            complexity: 3
+        });
+        
+        this.defineState('BATCH_PROCESSING', {
+            onEnter: () => this.handleBatchProcessingEnter(),
+            onExit: () => this.handleBatchProcessingExit(),
+            validTransitions: ['READY', 'ERROR', 'MASSIVE_PARALLEL'],
+            complexity: 5
+        });
+        
+        this.defineState('MASSIVE_PARALLEL', {
+            onEnter: () => this.handleMassiveParallelEnter(),
+            onExit: () => this.handleMassiveParallelExit(),
+            validTransitions: ['READY', 'ERROR', 'EMERGENCY_STOP'],
+            complexity: 10
+        });
+        
+        this.defineState('ERROR', {
+            onEnter: () => this.handleErrorEnter(),
+            onExit: () => this.handleErrorExit(),
+            validTransitions: ['READY', 'RETRYING'],
+            complexity: 2
+        });
+        
+        this.defineState('EMERGENCY_STOP', {
+            onEnter: () => this.handleEmergencyStopEnter(),
+            onExit: () => this.handleEmergencyStopExit(),
+            validTransitions: ['READY'],
+            complexity: 8
+        });
+    }
+
+    defineState(name, config) {
+        this.states.set(name, {
+            name,
+            onEnter: config.onEnter || (() => {}),
+            onExit: config.onExit || (() => {}),
+            validTransitions: config.validTransitions || [],
+            complexity: config.complexity || 1,
+            enterTime: null,
+            totalTime: 0,
+            enterCount: 0
+        });
+    }
+
+    async transitionTo(newState, context = {}) {
+        const tracking = performanceMetrics.complexAnalytics.trackOperation(
+            `state_transition_${this.currentState}_to_${newState}`,
+            { from: this.currentState, to: newState, context }
+        );
+
+        try {
+            if (!this.canTransitionTo(newState)) {
+                throw new Error(`Invalid transition from ${this.currentState} to ${newState}`);
+            }
+
+            // Complex transition validation
+            const transitionValid = await this.complexRules.validateTransition(
+                this.currentState, 
+                newState, 
+                context
+            );
+
+            if (!transitionValid.valid) {
+                throw new Error(`Transition validation failed: ${transitionValid.reason}`);
+            }
+
+            // Execute exit handler for current state
+            const currentStateConfig = this.states.get(this.currentState);
+            if (currentStateConfig) {
+                await currentStateConfig.onExit();
+                this.updateStateMetrics(currentStateConfig);
+            }
+
+            // Record state history
+            this.stateHistory.push({
+                from: this.currentState,
+                to: newState,
+                timestamp: Date.now(),
+                context,
+                duration: currentStateConfig?.enterTime ? Date.now() - currentStateConfig.enterTime : 0
+            });
+
+            // Update current state
+            const previousState = this.currentState;
+            this.currentState = newState;
+
+            // Execute enter handler for new state
+            const newStateConfig = this.states.get(newState);
+            if (newStateConfig) {
+                newStateConfig.enterTime = Date.now();
+                newStateConfig.enterCount++;
+                await newStateConfig.onEnter();
+            }
+
+            // Notify observers
+            this.notifyStateObservers(previousState, newState, context);
+            
+            // Update state predictor
+            this.statePredictor.recordTransition(previousState, newState, context);
+
+            tracking.complete({ success: true, newState });
+            
+            return true;
+        } catch (error) {
+            tracking.complete(null, error);
+            console.error('State transition failed:', error);
+            throw error;
+        }
+    }
+
+    canTransitionTo(newState) {
+        const currentStateConfig = this.states.get(this.currentState);
+        return currentStateConfig?.validTransitions.includes(newState) || false;
+    }
+
+    updateStateMetrics(stateConfig) {
+        if (stateConfig.enterTime) {
+            const duration = Date.now() - stateConfig.enterTime;
+            stateConfig.totalTime += duration;
+            stateConfig.enterTime = null;
+        }
+    }
+
+    addStateObserver(stateName, callback) {
+        if (!this.observers.has(stateName)) {
+            this.observers.set(stateName, new Set());
+        }
+        this.observers.get(stateName).add(callback);
+    }
+
+    removeStateObserver(stateName, callback) {
+        const stateObservers = this.observers.get(stateName);
+        if (stateObservers) {
+            stateObservers.delete(callback);
+        }
+    }
+
+    notifyStateObservers(fromState, toState, context) {
+        // Notify observers for the new state
+        const toStateObservers = this.observers.get(toState);
+        if (toStateObservers) {
+            toStateObservers.forEach(callback => {
+                try {
+                    callback({ fromState, toState, context, timestamp: Date.now() });
+                } catch (error) {
+                    console.error('State observer notification failed:', error);
+                }
+            });
+        }
+
+        // Notify global observers
+        const globalObservers = this.observers.get('*');
+        if (globalObservers) {
+            globalObservers.forEach(callback => {
+                try {
+                    callback({ fromState, toState, context, timestamp: Date.now() });
+                } catch (error) {
+                    console.error('Global state observer notification failed:', error);
+                }
+            });
+        }
+    }
+
+    // Complex state handlers with sophisticated logic
+    handleInitializingEnter() {
+        console.log('🚀 Entering INITIALIZING state - Complex system startup');
+        this.startComplexInitialization();
+    }
+
+    handleInitializingExit() {
+        console.log('✅ Exiting INITIALIZING state - System ready for loading');
+    }
+
+    handleLoadingEnter() {
+        console.log('📦 Entering LOADING state - Complex component initialization');
+        this.startComplexLoading();
+    }
+
+    handleLoadingExit() {
+        console.log('✅ Exiting LOADING state - Components loaded successfully');
+    }
+
+    handleReadyEnter() {
+        console.log('🎯 Entering READY state - System operational');
+        this.optimizeSystemForReady();
+    }
+
+    handleReadyExit() {
+        console.log('⚡ Exiting READY state - Transitioning to processing');
+    }
+
+    handleProcessingEnter() {
+        console.log('🔄 Entering PROCESSING state - Single operation mode');
+        this.setupProcessingEnvironment();
+    }
+
+    handleProcessingExit() {
+        console.log('✅ Exiting PROCESSING state - Operation completed');
+        this.cleanupProcessingEnvironment();
+    }
+
+    handleBatchProcessingEnter() {
+        console.log('📊 Entering BATCH_PROCESSING state - Multiple operations mode');
+        this.setupBatchProcessingEnvironment();
+    }
+
+    handleBatchProcessingExit() {
+        console.log('✅ Exiting BATCH_PROCESSING state - Batch completed');
+        this.cleanupBatchProcessingEnvironment();
+    }
+
+    handleMassiveParallelEnter() {
+        console.log('🚀 Entering MASSIVE_PARALLEL state - Ultra-high concurrency mode');
+        this.setupMassiveParallelEnvironment();
+    }
+
+    handleMassiveParallelExit() {
+        console.log('✅ Exiting MASSIVE_PARALLEL state - Parallel processing completed');
+        this.cleanupMassiveParallelEnvironment();
+    }
+
+    handleErrorEnter() {
+        console.log('❌ Entering ERROR state - System error handling');
+        this.handleSystemError();
+    }
+
+    handleErrorExit() {
+        console.log('🔄 Exiting ERROR state - Attempting recovery');
+    }
+
+    handleEmergencyStopEnter() {
+        console.log('🛑 Entering EMERGENCY_STOP state - Emergency shutdown');
+        this.executeEmergencyProtocol();
+    }
+
+    handleEmergencyStopExit() {
+        console.log('🔄 Exiting EMERGENCY_STOP state - System reset');
+    }
+
+    async startComplexInitialization() {
+        // Complex initialization logic
+        await this.initializeComplexSystems();
+        await this.validateSystemIntegrity();
+        await this.loadComplexConfigurations();
+    }
+
+    async startComplexLoading() {
+        // Advanced loading with dependency resolution
+        const components = await this.resolveComponentDependencies();
+        await this.loadComponentsInOptimalOrder(components);
+    }
+
+    optimizeSystemForReady() {
+        // Complex optimization algorithms
+        this.optimizeMemoryLayout();
+        this.preparePerformanceCaches();
+        this.initializeMonitoringSystems();
+    }
+
+    // State analysis and prediction methods
+    getStateAnalytics() {
+        const analytics = {
+            currentState: this.currentState,
+            stateHistory: this.stateHistory.getAll(),
+            stateMetrics: this.calculateStateMetrics(),
+            predictions: this.statePredictor.getPredictions(),
+            efficiency: this.calculateStateEfficiency()
+        };
+
+        return analytics;
+    }
+
+    calculateStateMetrics() {
+        const metrics = new Map();
+        
+        this.states.forEach((config, stateName) => {
+            metrics.set(stateName, {
+                enterCount: config.enterCount,
+                totalTime: config.totalTime,
+                averageTime: config.enterCount > 0 ? config.totalTime / config.enterCount : 0,
+                complexity: config.complexity,
+                efficiency: this.calculateStateEfficiency(stateName)
+            });
+        });
+
+        return Object.fromEntries(metrics);
+    }
+
+    calculateStateEfficiency(stateName = null) {
+        if (stateName) {
+            const stateConfig = this.states.get(stateName);
+            if (!stateConfig || stateConfig.enterCount === 0) return 100;
+            
+            const avgTime = stateConfig.totalTime / stateConfig.enterCount;
+            const expectedTime = stateConfig.complexity * 100; // Base expectation: 100ms per complexity unit
+            
+            return Math.max(0, 100 - ((avgTime - expectedTime) / expectedTime * 100));
+        }
+
+        // Overall system efficiency
+        let totalEfficiency = 0;
+        let stateCount = 0;
+
+        this.states.forEach((config, stateName) => {
+            totalEfficiency += this.calculateStateEfficiency(stateName);
+            stateCount++;
+        });
+
+        return stateCount > 0 ? totalEfficiency / stateCount : 100;
+    }
+
+    predictNextState(context = {}) {
+        return this.statePredictor.predictNextState(this.currentState, context);
+    }
+
+    // Complex initialization methods
+    async initializeComplexSystems() {
+        // Initialize various complex subsystems
+        await Promise.all([
+            this.initializeAnalyticsEngine(),
+            this.initializeMemoryManager(),
+            this.initializeCacheSystem(),
+            this.initializeMonitoringSystem()
+        ]);
+    }
+
+    async validateSystemIntegrity() {
+        // Complex system validation
+        const validations = await Promise.allSettled([
+            this.validateMemoryIntegrity(),
+            this.validateCacheIntegrity(),
+            this.validateNetworkConnectivity(),
+            this.validateBrowserCompatibility()
+        ]);
+
+        const failures = validations.filter(v => v.status === 'rejected');
+        if (failures.length > 0) {
+            throw new Error(`System validation failed: ${failures.map(f => f.reason).join(', ')}`);
+        }
+    }
+
+    async loadComplexConfigurations() {
+        // Load complex configuration data
+        await this.loadPerformanceConfigurations();
+        await this.loadAutomationConfigurations();
+        await this.loadUIConfigurations();
+    }
+
+    async resolveComponentDependencies() {
+        // Complex dependency resolution algorithm
+        const components = [
+            { name: 'smoothScrolling', dependencies: [] },
+            { name: 'formValidation', dependencies: [] },
+            { name: 'animations', dependencies: [] },
+            { name: 'navbar', dependencies: ['smoothScrolling'] },
+            { name: 'websiteEmbedder', dependencies: ['formValidation'] },
+            { name: 'websiteAutomation', dependencies: ['formValidation', 'animations'] },
+            { name: 'imageLazyLoading', dependencies: [] },
+            { name: 'searchFunctionality', dependencies: ['formValidation'] },
+            { name: 'themeToggle', dependencies: ['animations'] }
+        ];
+
+        return this.topologicalSort(components);
+    }
+
+    topologicalSort(components) {
+        const sorted = [];
+        const visited = new Set();
+        const visiting = new Set();
+
+        const visit = (component) => {
+            if (visiting.has(component.name)) {
+                throw new Error(`Circular dependency detected: ${component.name}`);
+            }
+            if (visited.has(component.name)) {
+                return;
+            }
+
+            visiting.add(component.name);
+
+            component.dependencies.forEach(depName => {
+                const dependency = components.find(c => c.name === depName);
+                if (dependency) {
+                    visit(dependency);
+                }
+            });
+
+            visiting.delete(component.name);
+            visited.add(component.name);
+            sorted.push(component);
+        };
+
+        components.forEach(component => {
+            if (!visited.has(component.name)) {
+                visit(component);
+            }
+        });
+
+        return sorted;
+    }
+
+    async loadComponentsInOptimalOrder(components) {
+        const results = [];
+        
+        for (const component of components) {
+            try {
+                const result = await this.loadComponent(component.name);
+                results.push({ component: component.name, success: true, result });
+            } catch (error) {
+                console.error(`Failed to load component ${component.name}:`, error);
+                results.push({ component: component.name, success: false, error });
+            }
+        }
+
+        return results;
+    }
+
+    async loadComponent(componentName) {
+        const loaders = {
+            smoothScrolling: () => initSmoothScrolling(),
+            formValidation: () => initFormValidation(),
+            animations: () => initAnimations(),
+            navbar: () => initNavbar(),
+            websiteEmbedder: () => initWebsiteEmbedder(),
+            websiteAutomation: () => initWebsiteAutomation(),
+            imageLazyLoading: () => initImageLazyLoading(),
+            searchFunctionality: () => initSearchFunctionality(),
+            themeToggle: () => initThemeToggle()
+        };
+
+        const loader = loaders[componentName];
+        if (!loader) {
+            throw new Error(`Unknown component: ${componentName}`);
+        }
+
+        return await loader();
+    }
+
+    // Complex memory and performance optimization methods
+    optimizeMemoryLayout() {
+        // Advanced memory optimization
+        if (window.gc && typeof window.gc === 'function') {
+            window.gc();
+        }
+        
+        // Optimize object layouts for better cache locality
+        this.reorganizeObjectLayouts();
+        this.optimizeCacheStructures();
+    }
+
+    preparePerformanceCaches() {
+        // Initialize high-performance caches
+        if (!window.automationCache) {
+            window.automationCache = new AdvancedCache({
+                maxSize: 10000,
+                algorithm: 'LRU_WITH_FREQUENCY',
+                compressionEnabled: true
+            });
+        }
+
+        if (!window.performanceCache) {
+            window.performanceCache = new AdvancedCache({
+                maxSize: 5000,
+                algorithm: 'ADAPTIVE_REPLACEMENT',
+                compressionEnabled: false
+            });
+        }
+    }
+
+    initializeMonitoringSystems() {
+        // Start complex monitoring systems
+        this.memoryMonitor = new AdvancedMemoryMonitor();
+        this.performanceMonitor = new AdvancedPerformanceMonitor();
+        this.networkMonitor = new NetworkPerformanceMonitor();
+        
+        // Start monitoring
+        this.memoryMonitor.start();
+        this.performanceMonitor.start();
+        this.networkMonitor.start();
+    }
+}
+
+// Initialize global complex state manager
+window.complexStateManager = new ComplexStateManager();
+
+document.addEventListener('DOMContentLoaded', async function() {
     const startTime = performance.now();
-    
-    // Initialize components with performance tracking
-    Promise.all([
-        initSmoothScrolling(),
-        initFormValidation(),
-        initAnimations(),
-        initNavbar(),
-        initWebsiteEmbedder(),
-        initWebsiteAutomation(),
-        initImageLazyLoading(),
-        initSearchFunctionality(),
-        initThemeToggle()
-    ]).then(() => {
-        performanceMetrics.loadTime = performance.now() - startTime;
-        console.log(`Components loaded in ${performanceMetrics.loadTime.toFixed(2)}ms`);
+    const operation = performanceMetrics.complexAnalytics.trackOperation('dom_content_loaded', {
+        timestamp: Date.now(),
+        userAgent: navigator.userAgent,
+        screenResolution: `${screen.width}x${screen.height}`,
+        colorDepth: screen.colorDepth
     });
+    
+    try {
+        // Transition to loading state
+        await window.complexStateManager.transitionTo('LOADING');
+        
+        // Complex component initialization with dependency resolution
+        const componentResults = await window.complexStateManager.startComplexLoading();
+        
+        // Calculate complex performance metrics
+        const loadTime = performance.now() - startTime;
+        performanceMetrics.loadTime = loadTime;
+        
+        // Advanced analytics
+        const analytics = performanceMetrics.complexAnalytics.getComplexAnalytics();
+        
+        console.log(`🚀 Components loaded in ${loadTime.toFixed(2)}ms`);
+        console.log('📊 Advanced Analytics:', analytics);
+        console.log('🎯 Component Results:', componentResults);
+        
+        // Transition to ready state
+        await window.complexStateManager.transitionTo('READY');
+        
+        operation.complete({ 
+            loadTime, 
+            componentResults, 
+            analytics: analytics.totalOperations 
+        });
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize application:', error);
+        await window.complexStateManager.transitionTo('ERROR');
+        operation.complete(null, error);
+    }
 });
+
+// 🧠 COMPLEX SUPPORTING CLASSES AND ALGORITHMS
+
+// 📊 Advanced Linear Regression Model for Performance Prediction
+class LinearRegressionModel {
+    constructor(features = 6) {
+        this.weights = new Array(features).fill(0);
+        this.bias = 0;
+        this.trainingHistory = [];
+        this.featureScales = new Array(features).fill(1);
+        this.featureMeans = new Array(features).fill(0);
+    }
+
+    train(features, target, learningRate = 0.01) {
+        // Normalize features for better convergence
+        const normalizedFeatures = this.normalizeFeatures(features);
+        
+        // Calculate prediction with current weights
+        const prediction = this.predictNormalized(normalizedFeatures);
+        const error = prediction - target;
+        
+        // Gradient descent update
+        for (let i = 0; i < this.weights.length; i++) {
+            this.weights[i] -= learningRate * error * normalizedFeatures[i];
+        }
+        this.bias -= learningRate * error;
+        
+        // Record training history for analysis
+        this.trainingHistory.push({
+            features: [...features],
+            target,
+            prediction,
+            error,
+            mse: error * error,
+            timestamp: Date.now()
+        });
+        
+        // Keep history manageable
+        if (this.trainingHistory.length > 1000) {
+            this.trainingHistory = this.trainingHistory.slice(-500);
+        }
+    }
+
+    predict(features) {
+        const normalizedFeatures = this.normalizeFeatures(features);
+        return this.predictNormalized(normalizedFeatures);
+    }
+
+    predictNormalized(normalizedFeatures) {
+        let prediction = this.bias;
+        for (let i = 0; i < this.weights.length; i++) {
+            prediction += this.weights[i] * normalizedFeatures[i];
+        }
+        return Math.max(0, prediction); // Predictions can't be negative
+    }
+
+    normalizeFeatures(features) {
+        return features.map((feature, index) => {
+            if (this.featureScales[index] === 0) return 0;
+            return (feature - this.featureMeans[index]) / this.featureScales[index];
+        });
+    }
+
+    updateFeatureStatistics(allFeatures) {
+        const numFeatures = allFeatures[0]?.length || 0;
+        
+        for (let i = 0; i < numFeatures; i++) {
+            const featureValues = allFeatures.map(features => features[i] || 0);
+            this.featureMeans[i] = featureValues.reduce((sum, val) => sum + val, 0) / featureValues.length;
+            
+            const variance = featureValues.reduce((sum, val) => sum + Math.pow(val - this.featureMeans[i], 2), 0) / featureValues.length;
+            this.featureScales[i] = Math.sqrt(variance) || 1;
+        }
+    }
+
+    getModelAccuracy() {
+        if (this.trainingHistory.length < 10) return null;
+        
+        const recentHistory = this.trainingHistory.slice(-100);
+        const mse = recentHistory.reduce((sum, record) => sum + record.mse, 0) / recentHistory.length;
+        const rmse = Math.sqrt(mse);
+        
+        const targets = recentHistory.map(record => record.target);
+        const meanTarget = targets.reduce((sum, val) => sum + val, 0) / targets.length;
+        const targetVariance = targets.reduce((sum, val) => sum + Math.pow(val - meanTarget, 2), 0) / targets.length;
+        
+        const r2 = 1 - (mse / targetVariance);
+        
+        return {
+            rmse,
+            r2: Math.max(0, r2),
+            sampleSize: recentHistory.length,
+            convergenceRate: this.calculateConvergenceRate()
+        };
+    }
+
+    calculateConvergenceRate() {
+        if (this.trainingHistory.length < 20) return 0;
+        
+        const recent = this.trainingHistory.slice(-10);
+        const older = this.trainingHistory.slice(-20, -10);
+        
+        const recentMSE = recent.reduce((sum, record) => sum + record.mse, 0) / recent.length;
+        const olderMSE = older.reduce((sum, record) => sum + record.mse, 0) / older.length;
+        
+        return olderMSE > 0 ? (olderMSE - recentMSE) / olderMSE : 0;
+    }
+}
+
+// 🚨 Anomaly Detection System with Statistical Analysis
+class AnomalyDetectionSystem {
+    constructor() {
+        this.historicalData = [];
+        this.anomalies = [];
+        this.baselineStats = null;
+        this.adaptiveThreshold = new AdaptiveThreshold();
+        this.patternDetector = new PatternAnomalyDetector();
+    }
+
+    analyze(currentMetrics, historicalData) {
+        this.historicalData = historicalData.slice(-1000); // Keep last 1000 data points
+        
+        if (this.historicalData.length < 30) {
+            return { isAnomaly: false, confidence: 0, reason: 'Insufficient historical data' };
+        }
+
+        this.updateBaselineStats();
+        
+        const anomalyChecks = [
+            this.checkStatisticalAnomaly(currentMetrics),
+            this.checkPerformanceAnomaly(currentMetrics),
+            this.checkMemoryAnomaly(currentMetrics),
+            this.checkPatternAnomaly(currentMetrics),
+            this.adaptiveThreshold.checkThresholdAnomaly(currentMetrics, this.historicalData)
+        ];
+
+        const positiveChecks = anomalyChecks.filter(check => check.isAnomaly);
+        
+        if (positiveChecks.length > 0) {
+            const anomaly = {
+                timestamp: Date.now(),
+                metrics: currentMetrics,
+                checks: positiveChecks,
+                severity: this.calculateAnomalySeverity(positiveChecks),
+                confidence: this.calculateAnomalyConfidence(positiveChecks)
+            };
+            
+            this.anomalies.push(anomaly);
+            
+            // Keep anomaly history manageable
+            if (this.anomalies.length > 100) {
+                this.anomalies = this.anomalies.slice(-50);
+            }
+            
+            return {
+                isAnomaly: true,
+                anomaly,
+                severity: anomaly.severity,
+                confidence: anomaly.confidence
+            };
+        }
+
+        return { isAnomaly: false, confidence: 1 - Math.max(...anomalyChecks.map(c => c.confidence)) };
+    }
+
+    updateBaselineStats() {
+        const durations = this.historicalData.map(d => d.duration);
+        const memoryUsages = this.historicalData.map(d => d.memoryDelta?.used || 0);
+        
+        this.baselineStats = {
+            duration: this.calculateAdvancedStats(durations),
+            memoryUsage: this.calculateAdvancedStats(memoryUsages),
+            sampleSize: this.historicalData.length
+        };
+    }
+
+    calculateAdvancedStats(values) {
+        if (values.length === 0) return null;
+        
+        const sorted = [...values].sort((a, b) => a - b);
+        const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+        const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+        const stdDev = Math.sqrt(variance);
+        
+        return {
+            mean,
+            median: sorted[Math.floor(sorted.length / 2)],
+            stdDev,
+            variance,
+            min: sorted[0],
+            max: sorted[sorted.length - 1],
+            q1: sorted[Math.floor(sorted.length * 0.25)],
+            q3: sorted[Math.floor(sorted.length * 0.75)],
+            iqr: sorted[Math.floor(sorted.length * 0.75)] - sorted[Math.floor(sorted.length * 0.25)],
+            skewness: this.calculateSkewness(values, mean, stdDev),
+            kurtosis: this.calculateKurtosis(values, mean, stdDev)
+        };
+    }
+
+    calculateSkewness(values, mean, stdDev) {
+        if (stdDev === 0) return 0;
+        const n = values.length;
+        const skewness = values.reduce((sum, val) => sum + Math.pow((val - mean) / stdDev, 3), 0) / n;
+        return skewness;
+    }
+
+    calculateKurtosis(values, mean, stdDev) {
+        if (stdDev === 0) return 0;
+        const n = values.length;
+        const kurtosis = values.reduce((sum, val) => sum + Math.pow((val - mean) / stdDev, 4), 0) / n;
+        return kurtosis - 3; // Excess kurtosis (normal distribution has kurtosis of 3)
+    }
+
+    checkStatisticalAnomaly(metrics) {
+        if (!this.baselineStats?.duration) {
+            return { isAnomaly: false, confidence: 0, type: 'statistical', reason: 'No baseline' };
+        }
+
+        const durationStats = this.baselineStats.duration;
+        const zScore = Math.abs((metrics.duration - durationStats.mean) / durationStats.stdDev);
+        
+        // Use modified Z-score for better anomaly detection
+        const modifiedZScore = 0.6745 * (metrics.duration - durationStats.median) / durationStats.iqr;
+        
+        const isAnomaly = zScore > 3 || Math.abs(modifiedZScore) > 3.5;
+        const confidence = Math.min(1, Math.max(zScore, Math.abs(modifiedZScore)) / 5);
+
+        return {
+            isAnomaly,
+            confidence,
+            type: 'statistical',
+            details: { zScore, modifiedZScore, threshold: 3 },
+            reason: isAnomaly ? `Duration z-score ${zScore.toFixed(2)} exceeds threshold` : 'Within normal range'
+        };
+    }
+
+    checkPerformanceAnomaly(metrics) {
+        const performanceThresholds = {
+            duration: 10000, // 10 seconds
+            memoryUsage: 100 * 1024 * 1024, // 100 MB
+            memoryLeak: 50 * 1024 * 1024 // 50 MB increase
+        };
+
+        const issues = [];
+        
+        if (metrics.duration > performanceThresholds.duration) {
+            issues.push(`Excessive duration: ${metrics.duration}ms`);
+        }
+        
+        if (metrics.memoryDelta?.used > performanceThresholds.memoryUsage) {
+            issues.push(`High memory usage: ${(metrics.memoryDelta.used / 1024 / 1024).toFixed(2)}MB`);
+        }
+
+        const isAnomaly = issues.length > 0;
+        const confidence = isAnomaly ? Math.min(1, issues.length / 3) : 0;
+
+        return {
+            isAnomaly,
+            confidence,
+            type: 'performance',
+            issues,
+            reason: isAnomaly ? issues.join(', ') : 'Performance within acceptable limits'
+        };
+    }
+
+    checkMemoryAnomaly(metrics) {
+        if (!metrics.memoryDelta) {
+            return { isAnomaly: false, confidence: 0, type: 'memory', reason: 'No memory data' };
+        }
+
+        const memoryStats = this.baselineStats?.memoryUsage;
+        if (!memoryStats) {
+            return { isAnomaly: false, confidence: 0, type: 'memory', reason: 'No memory baseline' };
+        }
+
+        const memoryZScore = Math.abs((metrics.memoryDelta.used - memoryStats.mean) / memoryStats.stdDev);
+        const isAnomaly = memoryZScore > 2.5; // More sensitive for memory
+        const confidence = Math.min(1, memoryZScore / 4);
+
+        return {
+            isAnomaly,
+            confidence,
+            type: 'memory',
+            details: { memoryZScore, memoryUsage: metrics.memoryDelta.used },
+            reason: isAnomaly ? `Memory usage z-score ${memoryZScore.toFixed(2)} exceeds threshold` : 'Memory usage normal'
+        };
+    }
+
+    checkPatternAnomaly(metrics) {
+        return this.patternDetector.detectAnomaly(metrics, this.historicalData);
+    }
+
+    calculateAnomalySeverity(positiveChecks) {
+        const severityWeights = {
+            statistical: 0.3,
+            performance: 0.4,
+            memory: 0.3,
+            pattern: 0.2,
+            threshold: 0.25
+        };
+
+        let weightedSeverity = 0;
+        let totalWeight = 0;
+
+        positiveChecks.forEach(check => {
+            const weight = severityWeights[check.type] || 0.1;
+            weightedSeverity += check.confidence * weight;
+            totalWeight += weight;
+        });
+
+        return totalWeight > 0 ? Math.min(1, weightedSeverity / totalWeight) : 0;
+    }
+
+    calculateAnomalyConfidence(positiveChecks) {
+        const maxConfidence = Math.max(...positiveChecks.map(c => c.confidence));
+        const avgConfidence = positiveChecks.reduce((sum, c) => sum + c.confidence, 0) / positiveChecks.length;
+        
+        // Combine max and average confidence with a bias towards higher values
+        return (maxConfidence * 0.7) + (avgConfidence * 0.3);
+    }
+
+    getRecentAnomalies(limit = 10) {
+        return this.anomalies.slice(-limit);
+    }
+
+    getAnomalyStatistics() {
+        if (this.anomalies.length === 0) {
+            return { count: 0, averageSeverity: 0, types: {} };
+        }
+
+        const types = {};
+        let totalSeverity = 0;
+
+        this.anomalies.forEach(anomaly => {
+            totalSeverity += anomaly.severity;
+            
+            anomaly.checks.forEach(check => {
+                types[check.type] = (types[check.type] || 0) + 1;
+            });
+        });
+
+        return {
+            count: this.anomalies.length,
+            averageSeverity: totalSeverity / this.anomalies.length,
+            types,
+            recentTrend: this.calculateAnomalyTrend()
+        };
+    }
+
+    calculateAnomalyTrend() {
+        if (this.anomalies.length < 10) return 'stable';
+        
+        const recent = this.anomalies.slice(-5);
+        const previous = this.anomalies.slice(-10, -5);
+        
+        const recentSeverity = recent.reduce((sum, a) => sum + a.severity, 0) / recent.length;
+        const previousSeverity = previous.reduce((sum, a) => sum + a.severity, 0) / previous.length;
+        
+        const change = (recentSeverity - previousSeverity) / previousSeverity;
+        
+        if (change > 0.2) return 'increasing';
+        if (change < -0.2) return 'decreasing';
+        return 'stable';
+    }
+}
+
+// 🔄 Circular Buffer for Efficient Fixed-Size Storage
+class CircularBuffer {
+    constructor(maxSize) {
+        this.maxSize = maxSize;
+        this.buffer = new Array(maxSize);
+        this.size = 0;
+        this.head = 0;
+        this.tail = 0;
+    }
+
+    push(item) {
+        this.buffer[this.tail] = item;
+        
+        if (this.size < this.maxSize) {
+            this.size++;
+        } else {
+            this.head = (this.head + 1) % this.maxSize;
+        }
+        
+        this.tail = (this.tail + 1) % this.maxSize;
+    }
+
+    getAll() {
+        if (this.size === 0) return [];
+        
+        const result = [];
+        let current = this.head;
+        
+        for (let i = 0; i < this.size; i++) {
+            result.push(this.buffer[current]);
+            current = (current + 1) % this.maxSize;
+        }
+        
+        return result;
+    }
+
+    getLast(count = 1) {
+        if (count <= 0 || this.size === 0) return [];
+        
+        const requestedCount = Math.min(count, this.size);
+        const result = [];
+        
+        let current = (this.tail - requestedCount + this.maxSize) % this.maxSize;
+        
+        for (let i = 0; i < requestedCount; i++) {
+            result.push(this.buffer[current]);
+            current = (current + 1) % this.maxSize;
+        }
+        
+        return result;
+    }
+
+    isEmpty() {
+        return this.size === 0;
+    }
+
+    isFull() {
+        return this.size === this.maxSize;
+    }
+
+    clear() {
+        this.size = 0;
+        this.head = 0;
+        this.tail = 0;
+    }
+
+    getCapacity() {
+        return this.maxSize;
+    }
+
+    getCurrentSize() {
+        return this.size;
+    }
+}
+
+// 🎯 Advanced Allocation Tracker for Memory Analysis
+class AllocationTracker {
+    constructor() {
+        this.allocations = new Map();
+        this.allocationHistory = new CircularBuffer(10000);
+        this.currentAllocationId = 0;
+        this.totalAllocations = 0;
+        this.totalDeallocations = 0;
+        this.peakMemoryUsage = 0;
+    }
+
+    recordAllocation(snapshot) {
+        const allocationId = ++this.currentAllocationId;
+        const allocation = {
+            id: allocationId,
+            timestamp: snapshot.timestamp,
+            size: snapshot.used,
+            total: snapshot.total,
+            stack: this.captureStackTrace(),
+            type: this.classifyAllocation(snapshot)
+        };
+
+        this.allocations.set(allocationId, allocation);
+        this.allocationHistory.push(allocation);
+        this.totalAllocations++;
+
+        if (snapshot.used > this.peakMemoryUsage) {
+            this.peakMemoryUsage = snapshot.used;
+        }
+
+        // Clean up old allocations to prevent memory leaks in the tracker itself
+        if (this.allocations.size > 5000) {
+            this.cleanupOldAllocations();
+        }
+
+        return allocationId;
+    }
+
+    recordDeallocation(allocationId) {
+        if (this.allocations.has(allocationId)) {
+            this.allocations.delete(allocationId);
+            this.totalDeallocations++;
+        }
+    }
+
+    captureStackTrace() {
+        try {
+            throw new Error();
+        } catch (e) {
+            const stack = e.stack || '';
+            const lines = stack.split('\n').slice(3, 8); // Skip first few lines and limit depth
+            return lines.map(line => line.trim()).join(' -> ');
+        }
+    }
+
+    classifyAllocation(snapshot) {
+        const growthRate = snapshot.used / (snapshot.total || 1);
+        
+        if (growthRate > 0.9) return 'high-pressure';
+        if (growthRate > 0.7) return 'moderate-pressure';
+        if (growthRate > 0.5) return 'normal';
+        return 'low-pressure';
+    }
+
+    cleanupOldAllocations() {
+        const cutoffTime = Date.now() - 300000; // 5 minutes ago
+        const toDelete = [];
+
+        this.allocations.forEach((allocation, id) => {
+            if (allocation.timestamp < cutoffTime) {
+                toDelete.push(id);
+            }
+        });
+
+        toDelete.forEach(id => this.allocations.delete(id));
+    }
+
+    getLeakAnalysis() {
+        const currentTime = Date.now();
+        const longLivedAllocations = [];
+
+        this.allocations.forEach(allocation => {
+            const age = currentTime - allocation.timestamp;
+            if (age > 60000) { // Older than 1 minute
+                longLivedAllocations.push({
+                    ...allocation,
+                    age,
+                    suspicionLevel: this.calculateSuspicionLevel(allocation, age)
+                });
+            }
+        });
+
+        return {
+            totalAllocations: this.totalAllocations,
+            totalDeallocations: this.totalDeallocations,
+            activeAllocations: this.allocations.size,
+            longLivedAllocations,
+            peakMemoryUsage: this.peakMemoryUsage,
+            leakSuspicion: this.calculateOverallLeakSuspicion(longLivedAllocations)
+        };
+    }
+
+    calculateSuspicionLevel(allocation, age) {
+        let suspicion = 0;
+        
+        // Age factor
+        suspicion += Math.min(50, age / 1000); // Up to 50 points for age
+        
+        // Size factor
+        if (allocation.size > 10 * 1024 * 1024) suspicion += 30; // 30 points for large allocations
+        else if (allocation.size > 1024 * 1024) suspicion += 15;
+        
+        // Pressure factor
+        if (allocation.type === 'high-pressure') suspicion += 20;
+        else if (allocation.type === 'moderate-pressure') suspicion += 10;
+        
+        return Math.min(100, suspicion);
+    }
+
+    calculateOverallLeakSuspicion(longLivedAllocations) {
+        if (longLivedAllocations.length === 0) return 0;
+        
+        const averageSuspicion = longLivedAllocations.reduce((sum, alloc) => sum + alloc.suspicionLevel, 0) / longLivedAllocations.length;
+        const countFactor = Math.min(40, longLivedAllocations.length * 2); // Up to 40 points for count
+        
+        return Math.min(100, averageSuspicion + countFactor);
+    }
+
+    getAllocationStatistics() {
+        const recentAllocations = this.allocationHistory.getLast(100);
+        const allocationsByType = {};
+        const allocationsBySize = { small: 0, medium: 0, large: 0, huge: 0 };
+
+        recentAllocations.forEach(allocation => {
+            // Count by type
+            allocationsByType[allocation.type] = (allocationsByType[allocation.type] || 0) + 1;
+
+            // Count by size
+            if (allocation.size < 1024 * 1024) allocationsBySize.small++;
+            else if (allocation.size < 10 * 1024 * 1024) allocationsBySize.medium++;
+            else if (allocation.size < 100 * 1024 * 1024) allocationsBySize.large++;
+            else allocationsBySize.huge++;
+        });
+
+        return {
+            recentAllocationCount: recentAllocations.length,
+            allocationsByType,
+            allocationsBySize,
+            allocationRate: this.calculateAllocationRate(recentAllocations),
+            memoryEfficiency: this.calculateMemoryEfficiency()
+        };
+    }
+
+    calculateAllocationRate(recentAllocations) {
+        if (recentAllocations.length < 2) return 0;
+        
+        const timeSpan = recentAllocations[recentAllocations.length - 1].timestamp - recentAllocations[0].timestamp;
+        return timeSpan > 0 ? (recentAllocations.length / timeSpan) * 1000 : 0; // allocations per second
+    }
+
+    calculateMemoryEfficiency() {
+        const activeAllocations = this.allocations.size;
+        const totalOperations = this.totalAllocations + this.totalDeallocations;
+        
+        if (totalOperations === 0) return 100;
+        
+        const deallocationRate = this.totalDeallocations / totalOperations;
+        const memoryUtilization = 100 - ((activeAllocations / this.totalAllocations) * 100);
+        
+        return (deallocationRate * 50) + (memoryUtilization * 0.5);
+    }
+}
+
+// 🗑️ Advanced Garbage Collection Monitor
+class GCMonitor {
+    constructor() {
+        this.gcEvents = new CircularBuffer(1000);
+        this.forceGCCount = 0;
+        this.lastGCTime = Date.now();
+        this.gcMetrics = {
+            averageGCTime: 0,
+            gcFrequency: 0,
+            memoryReclaimed: 0,
+            gcEfficiency: 100
+        };
+    }
+
+    recordGCEvent(beforeMemory, afterMemory, gcTime = 0) {
+        const gcEvent = {
+            timestamp: Date.now(),
+            beforeMemory,
+            afterMemory,
+            memoryReclaimed: beforeMemory - afterMemory,
+            gcTime,
+            type: this.detectGCType(beforeMemory, afterMemory),
+            efficiency: this.calculateGCEfficiency(beforeMemory, afterMemory, gcTime)
+        };
+
+        this.gcEvents.push(gcEvent);
+        this.updateGCMetrics();
+        this.lastGCTime = gcEvent.timestamp;
+
+        return gcEvent;
+    }
+
+    forceGarbageCollection() {
+        if (window.gc && typeof window.gc === 'function') {
+            const beforeMemory = performance.memory?.usedJSHeapSize || 0;
+            const startTime = performance.now();
+            
+            window.gc();
+            
+            const afterMemory = performance.memory?.usedJSHeapSize || 0;
+            const gcTime = performance.now() - startTime;
+            
+            this.forceGCCount++;
+            return this.recordGCEvent(beforeMemory, afterMemory, gcTime);
+        }
+        
+        return null;
+    }
+
+    detectGCType(beforeMemory, afterMemory) {
+        const reclaimedPercent = (beforeMemory - afterMemory) / beforeMemory;
+        
+        if (reclaimedPercent > 0.3) return 'major';
+        if (reclaimedPercent > 0.1) return 'minor';
+        return 'incremental';
+    }
+
+    calculateGCEfficiency(beforeMemory, afterMemory, gcTime) {
+        if (gcTime === 0) return 100;
+        
+        const memoryReclaimed = beforeMemory - afterMemory;
+        const reclaimedMB = memoryReclaimed / (1024 * 1024);
+        const efficiency = (reclaimedMB / gcTime) * 1000; // MB per second
+        
+        return Math.min(100, efficiency * 10); // Scale to 0-100
+    }
+
+    updateGCMetrics() {
+        const recentEvents = this.gcEvents.getLast(50);
+        
+        if (recentEvents.length === 0) return;
+        
+        // Calculate average GC time
+        const totalGCTime = recentEvents.reduce((sum, event) => sum + event.gcTime, 0);
+        this.gcMetrics.averageGCTime = totalGCTime / recentEvents.length;
+        
+        // Calculate GC frequency
+        if (recentEvents.length > 1) {
+            const timeSpan = recentEvents[recentEvents.length - 1].timestamp - recentEvents[0].timestamp;
+            this.gcMetrics.gcFrequency = timeSpan > 0 ? (recentEvents.length / timeSpan) * 60000 : 0; // GCs per minute
+        }
+        
+        // Calculate total memory reclaimed
+        this.gcMetrics.memoryReclaimed = recentEvents.reduce((sum, event) => sum + event.memoryReclaimed, 0);
+        
+        // Calculate overall GC efficiency
+        const totalEfficiency = recentEvents.reduce((sum, event) => sum + event.efficiency, 0);
+        this.gcMetrics.gcEfficiency = totalEfficiency / recentEvents.length;
+    }
+
+    shouldForceGC() {
+        const currentMemory = performance.memory?.usedJSHeapSize || 0;
+        const memoryLimit = performance.memory?.jsHeapSizeLimit || Infinity;
+        const memoryPressure = currentMemory / memoryLimit;
+        
+        const timeSinceLastGC = Date.now() - this.lastGCTime;
+        const recentGCEvents = this.gcEvents.getLast(10);
+        const avgReclaimedMemory = recentGCEvents.length > 0 ? 
+            recentGCEvents.reduce((sum, event) => sum + event.memoryReclaimed, 0) / recentGCEvents.length : 0;
+        
+        // Force GC if:
+        // 1. Memory pressure is high (>80%)
+        // 2. It's been a while since last GC (>5 minutes) AND recent GCs were effective
+        // 3. Memory usage is growing rapidly
+        return memoryPressure > 0.8 || 
+               (timeSinceLastGC > 300000 && avgReclaimedMemory > 1024 * 1024) ||
+               this.detectRapidMemoryGrowth();
+    }
+
+    detectRapidMemoryGrowth() {
+        const recentAllocations = this.gcEvents.getLast(5);
+        if (recentAllocations.length < 5) return false;
+        
+        let growthTrend = 0;
+        for (let i = 1; i < recentAllocations.length; i++) {
+            if (recentAllocations[i].beforeMemory > recentAllocations[i-1].beforeMemory) {
+                growthTrend++;
+            }
+        }
+        
+        return growthTrend >= 4; // Growing in 4 out of 5 recent samples
+    }
+
+    getGCStatistics() {
+        return {
+            ...this.gcMetrics,
+            totalGCEvents: this.gcEvents.getCurrentSize(),
+            forceGCCount: this.forceGCCount,
+            timeSinceLastGC: Date.now() - this.lastGCTime,
+            shouldForceGC: this.shouldForceGC(),
+            recentGCEvents: this.gcEvents.getLast(10)
+        };
+    }
+}
 
 // Enhanced smooth scrolling with performance optimization
 function initSmoothScrolling() {
@@ -2191,6 +3903,906 @@ class ParallelSemaphore {
     }
 }
 
+// 🧮 COMPLEX MATHEMATICAL ALGORITHMS AND DATA STRUCTURES
+
+// 🔗 Advanced Graph Algorithms for Dependency Resolution
+class ComplexDependencyGraph {
+    constructor() {
+        this.nodes = new Map();
+        this.edges = new Map();
+        this.reversedEdges = new Map();
+        this.weights = new Map();
+        this.clusters = new Map();
+        this.pathCache = new Map();
+    }
+
+    addNode(id, data = {}) {
+        this.nodes.set(id, {
+            id,
+            data,
+            inDegree: 0,
+            outDegree: 0,
+            visited: false,
+            distance: Infinity,
+            parent: null,
+            timestamp: Date.now()
+        });
+        
+        this.edges.set(id, new Set());
+        this.reversedEdges.set(id, new Set());
+    }
+
+    addEdge(from, to, weight = 1, metadata = {}) {
+        if (!this.nodes.has(from) || !this.nodes.has(to)) {
+            throw new Error(`Node ${from} or ${to} does not exist`);
+        }
+
+        this.edges.get(from).add(to);
+        this.reversedEdges.get(to).add(from);
+        
+        const edgeKey = `${from}->${to}`;
+        this.weights.set(edgeKey, { weight, metadata, timestamp: Date.now() });
+        
+        // Update degrees
+        this.nodes.get(from).outDegree++;
+        this.nodes.get(to).inDegree++;
+        
+        // Clear path cache as graph structure changed
+        this.pathCache.clear();
+    }
+
+    // Advanced topological sort with Kahn's algorithm and cycle detection
+    topologicalSort() {
+        const result = [];
+        const queue = [];
+        const tempInDegree = new Map();
+        
+        // Initialize temporary in-degree count
+        this.nodes.forEach((node, id) => {
+            tempInDegree.set(id, node.inDegree);
+            if (node.inDegree === 0) {
+                queue.push(id);
+            }
+        });
+
+        const processing = [];
+        
+        while (queue.length > 0) {
+            const current = queue.shift();
+            result.push(current);
+            processing.push({
+                node: current,
+                timestamp: Date.now(),
+                dependencies: Array.from(this.reversedEdges.get(current))
+            });
+
+            // Process all outgoing edges
+            this.edges.get(current).forEach(neighbor => {
+                tempInDegree.set(neighbor, tempInDegree.get(neighbor) - 1);
+                
+                if (tempInDegree.get(neighbor) === 0) {
+                    queue.push(neighbor);
+                }
+            });
+        }
+
+        // Cycle detection
+        if (result.length !== this.nodes.size) {
+            const remainingNodes = Array.from(this.nodes.keys()).filter(id => !result.includes(id));
+            throw new Error(`Circular dependency detected among nodes: ${remainingNodes.join(', ')}`);
+        }
+
+        return {
+            order: result,
+            processingDetails: processing,
+            complexity: this.calculateSortComplexity(result),
+            criticalPath: this.findCriticalPath(result)
+        };
+    }
+
+    // Dijkstra's algorithm for shortest path with weight consideration
+    findShortestPath(start, end) {
+        const cacheKey = `${start}->${end}`;
+        if (this.pathCache.has(cacheKey)) {
+            return this.pathCache.get(cacheKey);
+        }
+
+        if (!this.nodes.has(start) || !this.nodes.has(end)) {
+            throw new Error(`Node ${start} or ${end} does not exist`);
+        }
+
+        // Initialize distances
+        this.nodes.forEach(node => {
+            node.distance = Infinity;
+            node.parent = null;
+            node.visited = false;
+        });
+
+        const startNode = this.nodes.get(start);
+        startNode.distance = 0;
+
+        const priorityQueue = new PriorityQueue((a, b) => a.distance - b.distance);
+        priorityQueue.enqueue({ id: start, distance: 0 });
+
+        while (!priorityQueue.isEmpty()) {
+            const current = priorityQueue.dequeue();
+            const currentNode = this.nodes.get(current.id);
+            
+            if (currentNode.visited) continue;
+            currentNode.visited = true;
+
+            if (current.id === end) break;
+
+            // Process neighbors
+            this.edges.get(current.id).forEach(neighborId => {
+                const neighbor = this.nodes.get(neighborId);
+                const edgeWeight = this.weights.get(`${current.id}->${neighborId}`)?.weight || 1;
+                const newDistance = currentNode.distance + edgeWeight;
+
+                if (newDistance < neighbor.distance) {
+                    neighbor.distance = newDistance;
+                    neighbor.parent = current.id;
+                    priorityQueue.enqueue({ id: neighborId, distance: newDistance });
+                }
+            });
+        }
+
+        // Reconstruct path
+        const path = this.reconstructPath(start, end);
+        const result = {
+            path,
+            distance: this.nodes.get(end).distance,
+            complexity: this.calculatePathComplexity(path),
+            bottlenecks: this.identifyBottlenecks(path)
+        };
+
+        this.pathCache.set(cacheKey, result);
+        return result;
+    }
+
+    reconstructPath(start, end) {
+        const path = [];
+        let current = end;
+
+        while (current !== null) {
+            path.unshift(current);
+            current = this.nodes.get(current).parent;
+        }
+
+        return path[0] === start ? path : [];
+    }
+
+    // Advanced clustering using connected components
+    findStronglyConnectedComponents() {
+        const visited = new Set();
+        const stack = [];
+        const components = [];
+
+        // First DFS to fill stack
+        const dfs1 = (nodeId) => {
+            visited.add(nodeId);
+            
+            this.edges.get(nodeId).forEach(neighbor => {
+                if (!visited.has(neighbor)) {
+                    dfs1(neighbor);
+                }
+            });
+            
+            stack.push(nodeId);
+        };
+
+        // Perform DFS on all unvisited nodes
+        this.nodes.forEach((node, id) => {
+            if (!visited.has(id)) {
+                dfs1(id);
+            }
+        });
+
+        // Create transposed graph and perform second DFS
+        visited.clear();
+        
+        const dfs2 = (nodeId, component) => {
+            visited.add(nodeId);
+            component.push(nodeId);
+            
+            this.reversedEdges.get(nodeId).forEach(neighbor => {
+                if (!visited.has(neighbor)) {
+                    dfs2(neighbor, component);
+                }
+            });
+        };
+
+        while (stack.length > 0) {
+            const nodeId = stack.pop();
+            if (!visited.has(nodeId)) {
+                const component = [];
+                dfs2(nodeId, component);
+                components.push({
+                    nodes: component,
+                    size: component.length,
+                    complexity: this.calculateComponentComplexity(component),
+                    criticality: this.calculateComponentCriticality(component)
+                });
+            }
+        }
+
+        return components;
+    }
+
+    calculateSortComplexity(order) {
+        let complexity = 0;
+        const dependencies = new Map();
+
+        order.forEach(nodeId => {
+            const incomingEdges = Array.from(this.reversedEdges.get(nodeId));
+            dependencies.set(nodeId, incomingEdges.length);
+            complexity += incomingEdges.length * Math.log(incomingEdges.length + 1);
+        });
+
+        return {
+            totalComplexity: complexity,
+            averageDependencies: order.reduce((sum, id) => sum + dependencies.get(id), 0) / order.length,
+            maxDependencies: Math.max(...order.map(id => dependencies.get(id))),
+            dependencyDistribution: this.analyzeDependencyDistribution(dependencies)
+        };
+    }
+
+    findCriticalPath(order) {
+        const criticalPath = [];
+        let maxTime = 0;
+        const nodeTimes = new Map();
+
+        order.forEach(nodeId => {
+            const incomingEdges = Array.from(this.reversedEdges.get(nodeId));
+            const maxPredecessorTime = incomingEdges.length > 0 ? 
+                Math.max(...incomingEdges.map(predId => nodeTimes.get(predId) || 0)) : 0;
+            
+            const nodeTime = maxPredecessorTime + (this.nodes.get(nodeId).data.executionTime || 1);
+            nodeTimes.set(nodeId, nodeTime);
+            
+            if (nodeTime > maxTime) {
+                maxTime = nodeTime;
+            }
+        });
+
+        // Trace back critical path
+        const criticalNodes = order.filter(nodeId => nodeTimes.get(nodeId) === maxTime);
+        
+        return {
+            nodes: criticalNodes,
+            totalTime: maxTime,
+            parallelizationOpportunities: this.findParallelizationOpportunities(order, nodeTimes),
+            bottlenecks: this.identifyComplexBottlenecks(order, nodeTimes)
+        };
+    }
+
+    calculatePathComplexity(path) {
+        if (path.length <= 1) return 0;
+        
+        let complexity = path.length; // Base complexity
+        
+        for (let i = 0; i < path.length - 1; i++) {
+            const edgeWeight = this.weights.get(`${path[i]}->${path[i + 1]}`)?.weight || 1;
+            complexity += edgeWeight;
+        }
+        
+        return complexity;
+    }
+
+    identifyBottlenecks(path) {
+        const bottlenecks = [];
+        
+        path.forEach(nodeId => {
+            const inDegree = this.nodes.get(nodeId).inDegree;
+            const outDegree = this.nodes.get(nodeId).outDegree;
+            
+            if (inDegree > 3 || outDegree > 3) {
+                bottlenecks.push({
+                    nodeId,
+                    type: inDegree > outDegree ? 'convergence' : 'divergence',
+                    severity: Math.max(inDegree, outDegree),
+                    impact: this.calculateBottleneckImpact(nodeId)
+                });
+            }
+        });
+        
+        return bottlenecks;
+    }
+
+    // Advanced performance analytics
+    getGraphAnalytics() {
+        const components = this.findStronglyConnectedComponents();
+        const complexity = this.calculateOverallComplexity();
+        
+        return {
+            nodeCount: this.nodes.size,
+            edgeCount: Array.from(this.edges.values()).reduce((sum, edges) => sum + edges.size, 0),
+            stronglyConnectedComponents: components,
+            complexity,
+            density: this.calculateDensity(),
+            centralityMetrics: this.calculateCentralityMetrics(),
+            clusteringCoefficient: this.calculateClusteringCoefficient(),
+            pathEfficiency: this.calculatePathEfficiency()
+        };
+    }
+
+    calculateOverallComplexity() {
+        let totalComplexity = 0;
+        
+        this.nodes.forEach((node, id) => {
+            const inDegree = node.inDegree;
+            const outDegree = node.outDegree;
+            totalComplexity += (inDegree + outDegree) * Math.log(inDegree + outDegree + 1);
+        });
+        
+        return totalComplexity;
+    }
+
+    calculateDensity() {
+        const nodeCount = this.nodes.size;
+        const maxPossibleEdges = nodeCount * (nodeCount - 1);
+        const actualEdges = Array.from(this.edges.values()).reduce((sum, edges) => sum + edges.size, 0);
+        
+        return maxPossibleEdges > 0 ? actualEdges / maxPossibleEdges : 0;
+    }
+
+    calculateCentralityMetrics() {
+        const centrality = new Map();
+        
+        this.nodes.forEach((node, id) => {
+            const degreeCentrality = (node.inDegree + node.outDegree) / ((this.nodes.size - 1) * 2);
+            const betweennessCentrality = this.calculateBetweennessCentrality(id);
+            const closenessCentrality = this.calculateClosenessCentrality(id);
+            
+            centrality.set(id, {
+                degree: degreeCentrality,
+                betweenness: betweennessCentrality,
+                closeness: closenessCentrality,
+                overall: (degreeCentrality + betweennessCentrality + closenessCentrality) / 3
+            });
+        });
+        
+        return Object.fromEntries(centrality);
+    }
+
+    calculateBetweennessCentrality(nodeId) {
+        // Simplified betweenness centrality calculation
+        let betweenness = 0;
+        const paths = new Map();
+        
+        this.nodes.forEach((_, sourceId) => {
+            if (sourceId === nodeId) return;
+            
+            this.nodes.forEach((_, targetId) => {
+                if (targetId === nodeId || targetId === sourceId) return;
+                
+                try {
+                    const path = this.findShortestPath(sourceId, targetId);
+                    if (path.path.includes(nodeId)) {
+                        betweenness += 1;
+                    }
+                } catch (e) {
+                    // Path doesn't exist, ignore
+                }
+            });
+        });
+        
+        const maxPossiblePaths = (this.nodes.size - 1) * (this.nodes.size - 2);
+        return maxPossiblePaths > 0 ? betweenness / maxPossiblePaths : 0;
+    }
+
+    calculateClosenessCentrality(nodeId) {
+        let totalDistance = 0;
+        let reachableNodes = 0;
+        
+        this.nodes.forEach((_, targetId) => {
+            if (targetId === nodeId) return;
+            
+            try {
+                const path = this.findShortestPath(nodeId, targetId);
+                if (path.path.length > 0) {
+                    totalDistance += path.distance;
+                    reachableNodes++;
+                }
+            } catch (e) {
+                // Node not reachable
+            }
+        });
+        
+        return reachableNodes > 0 ? reachableNodes / totalDistance : 0;
+    }
+}
+
+// 🔢 Advanced Priority Queue with Complex Scheduling
+class PriorityQueue {
+    constructor(compareFn = (a, b) => a - b) {
+        this.heap = [];
+        this.compare = compareFn;
+        this.size = 0;
+        this.operationCount = 0;
+        this.maxSize = 0;
+    }
+
+    enqueue(item) {
+        this.heap.push(item);
+        this.size++;
+        this.maxSize = Math.max(this.maxSize, this.size);
+        this.operationCount++;
+        this.bubbleUp(this.size - 1);
+    }
+
+    dequeue() {
+        if (this.isEmpty()) return null;
+        
+        const root = this.heap[0];
+        const lastItem = this.heap.pop();
+        this.size--;
+        this.operationCount++;
+        
+        if (!this.isEmpty()) {
+            this.heap[0] = lastItem;
+            this.bubbleDown(0);
+        }
+        
+        return root;
+    }
+
+    peek() {
+        return this.isEmpty() ? null : this.heap[0];
+    }
+
+    isEmpty() {
+        return this.size === 0;
+    }
+
+    bubbleUp(index) {
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            
+            if (this.compare(this.heap[index], this.heap[parentIndex]) >= 0) {
+                break;
+            }
+            
+            this.swap(index, parentIndex);
+            index = parentIndex;
+        }
+    }
+
+    bubbleDown(index) {
+        while (true) {
+            const leftChild = 2 * index + 1;
+            const rightChild = 2 * index + 2;
+            let smallest = index;
+            
+            if (leftChild < this.size && this.compare(this.heap[leftChild], this.heap[smallest]) < 0) {
+                smallest = leftChild;
+            }
+            
+            if (rightChild < this.size && this.compare(this.heap[rightChild], this.heap[smallest]) < 0) {
+                smallest = rightChild;
+            }
+            
+            if (smallest === index) break;
+            
+            this.swap(index, smallest);
+            index = smallest;
+        }
+    }
+
+    swap(i, j) {
+        [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+    }
+
+    getStatistics() {
+        return {
+            currentSize: this.size,
+            maxSize: this.maxSize,
+            operationCount: this.operationCount,
+            averageOperationsPerItem: this.operationCount / Math.max(1, this.maxSize),
+            efficiency: this.calculateEfficiency()
+        };
+    }
+
+    calculateEfficiency() {
+        if (this.maxSize === 0) return 100;
+        
+        const theoreticalMinOps = this.maxSize * Math.log2(this.maxSize + 1);
+        const actualOps = this.operationCount;
+        
+        return theoreticalMinOps > 0 ? Math.min(100, (theoreticalMinOps / actualOps) * 100) : 100;
+    }
+}
+
+// 🎯 Advanced Cache System with Complex Algorithms
+class AdvancedCache {
+    constructor(options = {}) {
+        this.maxSize = options.maxSize || 1000;
+        this.algorithm = options.algorithm || 'LRU_WITH_FREQUENCY';
+        this.compressionEnabled = options.compressionEnabled || false;
+        this.ttl = options.ttl || 300000; // 5 minutes default
+        
+        this.data = new Map();
+        this.accessFrequency = new Map();
+        this.accessHistory = new CircularBuffer(10000);
+        this.sizeTracker = new Map();
+        this.compressionRatio = new Map();
+        
+        this.statistics = {
+            hits: 0,
+            misses: 0,
+            evictions: 0,
+            compressions: 0,
+            totalSize: 0,
+            averageAccessTime: 0
+        };
+        
+        this.initializeAlgorithm();
+    }
+
+    initializeAlgorithm() {
+        switch (this.algorithm) {
+            case 'LRU_WITH_FREQUENCY':
+                this.priorityQueue = new PriorityQueue((a, b) => {
+                    const aScore = this.calculateLRUFrequencyScore(a);
+                    const bScore = this.calculateLRUFrequencyScore(b);
+                    return aScore - bScore;
+                });
+                break;
+                
+            case 'ADAPTIVE_REPLACEMENT':
+                this.initializeARCAlgorithm();
+                break;
+                
+            case 'CLOCK_PRO':
+                this.initializeClockProAlgorithm();
+                break;
+                
+            default:
+                this.algorithm = 'LRU_WITH_FREQUENCY';
+                this.initializeAlgorithm();
+        }
+    }
+
+    get(key) {
+        const startTime = performance.now();
+        
+        const item = this.data.get(key);
+        
+        if (!item) {
+            this.statistics.misses++;
+            this.recordAccess(key, false, performance.now() - startTime);
+            return null;
+        }
+        
+        // Check TTL
+        if (Date.now() > item.expiry) {
+            this.delete(key);
+            this.statistics.misses++;
+            this.recordAccess(key, false, performance.now() - startTime);
+            return null;
+        }
+        
+        // Update access information
+        item.lastAccessed = Date.now();
+        item.accessCount++;
+        this.accessFrequency.set(key, (this.accessFrequency.get(key) || 0) + 1);
+        
+        this.statistics.hits++;
+        const accessTime = performance.now() - startTime;
+        this.updateAverageAccessTime(accessTime);
+        this.recordAccess(key, true, accessTime);
+        
+        // Decompress if needed
+        let value = item.value;
+        if (item.compressed) {
+            value = this.decompress(value);
+        }
+        
+        return value;
+    }
+
+    set(key, value, customTTL = null) {
+        const startTime = performance.now();
+        const ttl = customTTL || this.ttl;
+        const expiry = Date.now() + ttl;
+        
+        // Calculate item size
+        const originalSize = this.calculateSize(value);
+        let finalValue = value;
+        let compressed = false;
+        let compressionRatio = 1;
+        
+        // Apply compression if enabled and beneficial
+        if (this.compressionEnabled && originalSize > 1024) { // Compress items > 1KB
+            const compressedResult = this.compress(value);
+            if (compressedResult.size < originalSize * 0.8) { // Only if compression saves 20%+
+                finalValue = compressedResult.data;
+                compressed = true;
+                compressionRatio = originalSize / compressedResult.size;
+                this.statistics.compressions++;
+            }
+        }
+        
+        const item = {
+            value: finalValue,
+            timestamp: Date.now(),
+            lastAccessed: Date.now(),
+            expiry,
+            accessCount: 1,
+            size: compressed ? compressedResult.size : originalSize,
+            compressed,
+            compressionRatio,
+            priority: this.calculateInitialPriority(key, value)
+        };
+        
+        // Handle cache overflow
+        while (this.data.size >= this.maxSize && !this.data.has(key)) {
+            this.evictItem();
+        }
+        
+        this.data.set(key, item);
+        this.sizeTracker.set(key, item.size);
+        this.accessFrequency.set(key, 1);
+        
+        this.updateTotalSize();
+        this.recordOperation('set', performance.now() - startTime);
+        
+        return true;
+    }
+
+    delete(key) {
+        const item = this.data.get(key);
+        if (!item) return false;
+        
+        this.data.delete(key);
+        this.sizeTracker.delete(key);
+        this.accessFrequency.delete(key);
+        
+        this.updateTotalSize();
+        return true;
+    }
+
+    evictItem() {
+        if (this.data.size === 0) return;
+        
+        let keyToEvict;
+        
+        switch (this.algorithm) {
+            case 'LRU_WITH_FREQUENCY':
+                keyToEvict = this.findLRUWithFrequencyVictim();
+                break;
+                
+            case 'ADAPTIVE_REPLACEMENT':
+                keyToEvict = this.findARCVictim();
+                break;
+                
+            case 'CLOCK_PRO':
+                keyToEvict = this.findClockProVictim();
+                break;
+                
+            default:
+                keyToEvict = this.findLRUVictim();
+        }
+        
+        if (keyToEvict) {
+            this.delete(keyToEvict);
+            this.statistics.evictions++;
+        }
+    }
+
+    findLRUWithFrequencyVictim() {
+        let worstKey = null;
+        let worstScore = Infinity;
+        
+        this.data.forEach((item, key) => {
+            const score = this.calculateLRUFrequencyScore({ key, item });
+            if (score < worstScore) {
+                worstScore = score;
+                worstKey = key;
+            }
+        });
+        
+        return worstKey;
+    }
+
+    calculateLRUFrequencyScore(data) {
+        const { key, item } = data;
+        const frequency = this.accessFrequency.get(key) || 1;
+        const recency = Date.now() - item.lastAccessed;
+        const accessCount = item.accessCount;
+        
+        // Complex scoring algorithm balancing frequency, recency, and access patterns
+        const frequencyScore = Math.log(frequency + 1) * 100;
+        const recencyScore = Math.max(0, 1000 - (recency / 1000)); // Favor recent access
+        const accessScore = Math.log(accessCount + 1) * 50;
+        const sizeScore = Math.max(0, 100 - (item.size / 1024)); // Favor smaller items slightly
+        
+        return frequencyScore + recencyScore + accessScore + sizeScore;
+    }
+
+    compress(data) {
+        // Simplified compression simulation
+        // In a real implementation, you'd use actual compression algorithms
+        const jsonString = JSON.stringify(data);
+        const compressed = jsonString.replace(/\s+/g, ''); // Remove whitespace
+        
+        return {
+            data: compressed,
+            size: compressed.length,
+            originalSize: jsonString.length
+        };
+    }
+
+    decompress(compressedData) {
+        // Simplified decompression simulation
+        try {
+            return JSON.parse(compressedData);
+        } catch (e) {
+            console.error('Decompression failed:', e);
+            return compressedData;
+        }
+    }
+
+    calculateSize(data) {
+        // Estimate memory size of data
+        if (typeof data === 'string') return data.length * 2; // UTF-16
+        if (typeof data === 'number') return 8; // 64-bit number
+        if (typeof data === 'boolean') return 4;
+        if (data === null || data === undefined) return 0;
+        
+        // For objects and arrays, rough estimation
+        const jsonString = JSON.stringify(data);
+        return jsonString.length * 2;
+    }
+
+    calculateInitialPriority(key, value) {
+        // Calculate initial priority based on key and value characteristics
+        let priority = 100; // Base priority
+        
+        // Adjust based on key characteristics
+        if (key.includes('critical') || key.includes('important')) priority += 50;
+        if (key.includes('temp') || key.includes('cache')) priority -= 20;
+        
+        // Adjust based on value size
+        const size = this.calculateSize(value);
+        if (size > 10 * 1024) priority -= 30; // Large items get lower priority
+        if (size < 1024) priority += 10; // Small items get higher priority
+        
+        return priority;
+    }
+
+    updateTotalSize() {
+        this.statistics.totalSize = Array.from(this.sizeTracker.values()).reduce((sum, size) => sum + size, 0);
+    }
+
+    updateAverageAccessTime(accessTime) {
+        const totalAccesses = this.statistics.hits + this.statistics.misses;
+        this.statistics.averageAccessTime = 
+            (this.statistics.averageAccessTime * (totalAccesses - 1) + accessTime) / totalAccesses;
+    }
+
+    recordAccess(key, hit, accessTime) {
+        this.accessHistory.push({
+            key,
+            hit,
+            accessTime,
+            timestamp: Date.now()
+        });
+    }
+
+    recordOperation(operation, duration) {
+        // Record operation for performance analysis
+        // This could be expanded for more detailed analytics
+    }
+
+    // Analytics and reporting
+    getStatistics() {
+        const hitRate = this.statistics.hits / (this.statistics.hits + this.statistics.misses) * 100;
+        const compressionEfficiency = this.calculateCompressionEfficiency();
+        const hotKeys = this.identifyHotKeys();
+        const sizeDist = this.calculateSizeDistribution();
+        
+        return {
+            ...this.statistics,
+            hitRate: hitRate.toFixed(2) + '%',
+            currentSize: this.data.size,
+            maxSize: this.maxSize,
+            memoryUtilization: (this.statistics.totalSize / (1024 * 1024)).toFixed(2) + ' MB',
+            compressionEfficiency,
+            hotKeys,
+            sizeDistribution: sizeDist,
+            algorithm: this.algorithm,
+            averageItemSize: this.data.size > 0 ? (this.statistics.totalSize / this.data.size).toFixed(0) + ' bytes' : '0 bytes'
+        };
+    }
+
+    calculateCompressionEfficiency() {
+        if (!this.compressionEnabled || this.statistics.compressions === 0) {
+            return { enabled: false, efficiency: 0 };
+        }
+        
+        let totalOriginalSize = 0;
+        let totalCompressedSize = 0;
+        
+        this.data.forEach(item => {
+            if (item.compressed) {
+                totalOriginalSize += item.size * item.compressionRatio;
+                totalCompressedSize += item.size;
+            }
+        });
+        
+        const efficiency = totalOriginalSize > 0 ? 
+            ((totalOriginalSize - totalCompressedSize) / totalOriginalSize * 100) : 0;
+        
+        return {
+            enabled: true,
+            efficiency: efficiency.toFixed(1) + '%',
+            compressedItems: this.statistics.compressions,
+            spaceSaved: ((totalOriginalSize - totalCompressedSize) / 1024).toFixed(1) + ' KB'
+        };
+    }
+
+    identifyHotKeys(limit = 10) {
+        const keyFrequencies = Array.from(this.accessFrequency.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, limit);
+        
+        return keyFrequencies.map(([key, frequency]) => ({
+            key,
+            frequency,
+            percentage: (frequency / this.statistics.hits * 100).toFixed(1) + '%'
+        }));
+    }
+
+    calculateSizeDistribution() {
+        const distribution = { small: 0, medium: 0, large: 0, huge: 0 };
+        
+        this.data.forEach(item => {
+            if (item.size < 1024) distribution.small++;
+            else if (item.size < 10 * 1024) distribution.medium++;
+            else if (item.size < 100 * 1024) distribution.large++;
+            else distribution.huge++;
+        });
+        
+        return distribution;
+    }
+
+    // Cleanup and maintenance
+    cleanup() {
+        const now = Date.now();
+        const keysToDelete = [];
+        
+        this.data.forEach((item, key) => {
+            if (now > item.expiry) {
+                keysToDelete.push(key);
+            }
+        });
+        
+        keysToDelete.forEach(key => this.delete(key));
+        
+        return keysToDelete.length;
+    }
+
+    optimize() {
+        // Perform cache optimization
+        const cleanedItems = this.cleanup();
+        const rebalanced = this.rebalanceCache();
+        
+        return {
+            cleanedItems,
+            rebalanced,
+            newHitRate: this.getStatistics().hitRate,
+            optimization: 'completed'
+        };
+    }
+
+    rebalanceCache() {
+        // Implement cache rebalancing logic
+        // This could involve reorganizing data based on access patterns
+        return true;
+    }
+}
+
 // Batch processing for multiple automation tasks
 class AutomationBatch {
     constructor(options = {}) {
@@ -3612,3 +6224,1141 @@ window.updateAutomationStatus = function(status, description) {
     // Call original function
     originalUpdateAutomationStatus(status, description);
 };
+
+// 🧠 ADVANCED PATTERN RECOGNITION AND MACHINE LEARNING
+
+// 🔍 Complex Pattern Anomaly Detector
+class PatternAnomalyDetector {
+    constructor() {
+        this.patterns = new Map();
+        this.sequenceLength = 5;
+        this.anomalyThreshold = 0.3;
+        this.patternFrequency = new Map();
+        this.sequentialAnalyzer = new SequentialPatternAnalyzer();
+        this.temporalAnalyzer = new TemporalPatternAnalyzer();
+    }
+
+    detectAnomaly(currentMetrics, historicalData) {
+        if (historicalData.length < this.sequenceLength * 2) {
+            return { isAnomaly: false, confidence: 0, type: 'pattern', reason: 'Insufficient data for pattern analysis' };
+        }
+
+        const recentSequence = historicalData.slice(-this.sequenceLength);
+        const sequencePattern = this.extractSequencePattern(recentSequence);
+        const temporalPattern = this.temporalAnalyzer.extractTemporalPattern(recentSequence);
+        
+        const sequentialAnomaly = this.sequentialAnalyzer.detectSequentialAnomaly(sequencePattern, this.patterns);
+        const temporalAnomaly = this.temporalAnalyzer.detectTemporalAnomaly(temporalPattern, currentMetrics);
+        
+        const overallAnomaly = this.combineAnomalyResults([sequentialAnomaly, temporalAnomaly]);
+        
+        // Learn from current pattern
+        this.learnPattern(sequencePattern, temporalPattern);
+        
+        return {
+            isAnomaly: overallAnomaly.isAnomaly,
+            confidence: overallAnomaly.confidence,
+            type: 'pattern',
+            details: {
+                sequential: sequentialAnomaly,
+                temporal: temporalAnomaly,
+                learnedPatterns: this.patterns.size
+            },
+            reason: overallAnomaly.reason
+        };
+    }
+
+    extractSequencePattern(sequence) {
+        const pattern = {
+            durationTrend: this.calculateTrend(sequence.map(s => s.duration)),
+            memoryTrend: this.calculateTrend(sequence.map(s => s.memoryDelta?.used || 0)),
+            operationTypes: sequence.map(s => s.operationId?.split('_')[0] || 'unknown'),
+            intervalPattern: this.calculateIntervals(sequence),
+            complexityScore: this.calculateSequenceComplexity(sequence)
+        };
+
+        return this.hashPattern(pattern);
+    }
+
+    calculateTrend(values) {
+        if (values.length < 2) return 'stable';
+        
+        let increasing = 0;
+        let decreasing = 0;
+        
+        for (let i = 1; i < values.length; i++) {
+            if (values[i] > values[i-1]) increasing++;
+            else if (values[i] < values[i-1]) decreasing++;
+        }
+        
+        const total = values.length - 1;
+        if (increasing / total > 0.7) return 'increasing';
+        if (decreasing / total > 0.7) return 'decreasing';
+        if (Math.abs(increasing - decreasing) / total < 0.3) return 'oscillating';
+        return 'stable';
+    }
+
+    calculateIntervals(sequence) {
+        const intervals = [];
+        for (let i = 1; i < sequence.length; i++) {
+            intervals.push(sequence[i].timestamp - sequence[i-1].timestamp);
+        }
+        
+        const avgInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+        const variance = intervals.reduce((sum, interval) => sum + Math.pow(interval - avgInterval, 2), 0) / intervals.length;
+        
+        return {
+            average: avgInterval,
+            variance: variance,
+            regularity: variance < avgInterval * 0.1 ? 'regular' : 'irregular'
+        };
+    }
+
+    calculateSequenceComplexity(sequence) {
+        let complexity = 0;
+        
+        // Operation diversity
+        const operationTypes = new Set(sequence.map(s => s.operationId?.split('_')[0]));
+        complexity += operationTypes.size * 10;
+        
+        // Duration variation
+        const durations = sequence.map(s => s.duration);
+        const durationStdDev = this.calculateStandardDeviation(durations);
+        complexity += durationStdDev / 100;
+        
+        // Memory usage variation
+        const memoryUsages = sequence.map(s => s.memoryDelta?.used || 0);
+        const memoryStdDev = this.calculateStandardDeviation(memoryUsages);
+        complexity += memoryStdDev / (1024 * 1024); // Convert to MB
+        
+        return complexity;
+    }
+
+    calculateStandardDeviation(values) {
+        const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+        const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+        return Math.sqrt(variance);
+    }
+
+    hashPattern(pattern) {
+        // Create a hash of the pattern for comparison
+        const patternString = JSON.stringify(pattern, Object.keys(pattern).sort());
+        return this.simpleHash(patternString);
+    }
+
+    simpleHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return hash;
+    }
+
+    learnPattern(sequencePattern, temporalPattern) {
+        const patternKey = `${sequencePattern}_${temporalPattern.signature}`;
+        
+        if (this.patterns.has(patternKey)) {
+            const existing = this.patterns.get(patternKey);
+            existing.frequency++;
+            existing.lastSeen = Date.now();
+            existing.confidence = Math.min(1.0, existing.confidence + 0.1);
+        } else {
+            this.patterns.set(patternKey, {
+                frequency: 1,
+                firstSeen: Date.now(),
+                lastSeen: Date.now(),
+                confidence: 0.1,
+                sequencePattern,
+                temporalPattern
+            });
+        }
+
+        // Cleanup old patterns
+        if (this.patterns.size > 1000) {
+            this.cleanupOldPatterns();
+        }
+    }
+
+    cleanupOldPatterns() {
+        const cutoffTime = Date.now() - (24 * 60 * 60 * 1000); // 24 hours
+        const toDelete = [];
+
+        this.patterns.forEach((pattern, key) => {
+            if (pattern.lastSeen < cutoffTime && pattern.frequency < 3) {
+                toDelete.push(key);
+            }
+        });
+
+        toDelete.forEach(key => this.patterns.delete(key));
+    }
+
+    combineAnomalyResults(results) {
+        const anomalousResults = results.filter(r => r.isAnomaly);
+        
+        if (anomalousResults.length === 0) {
+            return {
+                isAnomaly: false,
+                confidence: Math.max(...results.map(r => r.confidence)),
+                reason: 'All pattern checks passed'
+            };
+        }
+
+        const avgConfidence = anomalousResults.reduce((sum, r) => sum + r.confidence, 0) / anomalousResults.length;
+        const maxConfidence = Math.max(...anomalousResults.map(r => r.confidence));
+        const combinedConfidence = (avgConfidence + maxConfidence) / 2;
+
+        return {
+            isAnomaly: combinedConfidence > this.anomalyThreshold,
+            confidence: combinedConfidence,
+            reason: `Pattern anomaly detected: ${anomalousResults.map(r => r.reason).join(', ')}`
+        };
+    }
+}
+
+// 📈 Sequential Pattern Analyzer
+class SequentialPatternAnalyzer {
+    constructor() {
+        this.knownSequences = new Map();
+        this.transitionMatrix = new Map();
+        this.minSequenceLength = 3;
+    }
+
+    detectSequentialAnomaly(patternHash, allPatterns) {
+        // Check if this exact pattern has been seen before
+        const exactMatch = this.findExactMatch(patternHash, allPatterns);
+        if (exactMatch) {
+            return {
+                isAnomaly: false,
+                confidence: 0.1,
+                reason: 'Known pattern sequence',
+                matchType: 'exact'
+            };
+        }
+
+        // Check for similar patterns
+        const similarMatch = this.findSimilarPattern(patternHash, allPatterns);
+        if (similarMatch) {
+            const confidence = 1 - similarMatch.similarity;
+            return {
+                isAnomaly: confidence > 0.5,
+                confidence,
+                reason: `Similar pattern found with ${(similarMatch.similarity * 100).toFixed(1)}% similarity`,
+                matchType: 'similar',
+                similarity: similarMatch.similarity
+            };
+        }
+
+        return {
+            isAnomaly: true,
+            confidence: 0.8,
+            reason: 'Completely new pattern sequence',
+            matchType: 'none'
+        };
+    }
+
+    findExactMatch(patternHash, allPatterns) {
+        for (const [key, pattern] of allPatterns) {
+            if (pattern.sequencePattern === patternHash) {
+                return pattern;
+            }
+        }
+        return null;
+    }
+
+    findSimilarPattern(patternHash, allPatterns) {
+        let bestMatch = null;
+        let highestSimilarity = 0;
+
+        for (const [key, pattern] of allPatterns) {
+            const similarity = this.calculatePatternSimilarity(patternHash, pattern.sequencePattern);
+            if (similarity > highestSimilarity && similarity > 0.3) {
+                highestSimilarity = similarity;
+                bestMatch = { pattern, similarity };
+            }
+        }
+
+        return bestMatch;
+    }
+
+    calculatePatternSimilarity(hash1, hash2) {
+        // Simplified similarity calculation
+        // In a real implementation, you'd use more sophisticated algorithms
+        const str1 = hash1.toString();
+        const str2 = hash2.toString();
+        
+        if (str1 === str2) return 1.0;
+        
+        const maxLength = Math.max(str1.length, str2.length);
+        let matches = 0;
+        
+        for (let i = 0; i < Math.min(str1.length, str2.length); i++) {
+            if (str1[i] === str2[i]) matches++;
+        }
+        
+        return matches / maxLength;
+    }
+
+    updateTransitionMatrix(fromState, toState) {
+        const key = `${fromState}->${toState}`;
+        this.transitionMatrix.set(key, (this.transitionMatrix.get(key) || 0) + 1);
+    }
+
+    getTransitionProbability(fromState, toState) {
+        const transitionKey = `${fromState}->${toState}`;
+        const transitionCount = this.transitionMatrix.get(transitionKey) || 0;
+        
+        let totalFromState = 0;
+        this.transitionMatrix.forEach((count, key) => {
+            if (key.startsWith(`${fromState}->`)) {
+                totalFromState += count;
+            }
+        });
+        
+        return totalFromState > 0 ? transitionCount / totalFromState : 0;
+    }
+}
+
+// ⏰ Temporal Pattern Analyzer
+class TemporalPatternAnalyzer {
+    constructor() {
+        this.timePatterns = new Map();
+        this.seasonalPatterns = new Map();
+        this.hourlyPatterns = new Array(24).fill(0);
+        this.dailyPatterns = new Array(7).fill(0);
+    }
+
+    extractTemporalPattern(sequence) {
+        const timestamps = sequence.map(s => s.timestamp);
+        const durations = sequence.map(s => s.duration);
+        
+        const pattern = {
+            timeOfDay: this.analyzeTimeOfDay(timestamps),
+            dayOfWeek: this.analyzeDayOfWeek(timestamps),
+            interval: this.analyzeIntervalPattern(timestamps),
+            burstiness: this.calculateBurstiness(timestamps),
+            durationPattern: this.analyzeDurationPattern(durations),
+            signature: this.createTemporalSignature(timestamps, durations)
+        };
+
+        return pattern;
+    }
+
+    analyzeTimeOfDay(timestamps) {
+        const hours = timestamps.map(ts => new Date(ts).getHours());
+        const hourCounts = new Array(24).fill(0);
+        
+        hours.forEach(hour => hourCounts[hour]++);
+        
+        const peakHour = hourCounts.indexOf(Math.max(...hourCounts));
+        const distribution = hourCounts.map(count => count / hours.length);
+        
+        return {
+            peakHour,
+            distribution,
+            pattern: this.classifyHourlyPattern(distribution)
+        };
+    }
+
+    analyzeDayOfWeek(timestamps) {
+        const days = timestamps.map(ts => new Date(ts).getDay());
+        const dayCounts = new Array(7).fill(0);
+        
+        days.forEach(day => dayCounts[day]++);
+        
+        const peakDay = dayCounts.indexOf(Math.max(...dayCounts));
+        const distribution = dayCounts.map(count => count / days.length);
+        
+        return {
+            peakDay,
+            distribution,
+            pattern: this.classifyDailyPattern(distribution)
+        };
+    }
+
+    analyzeIntervalPattern(timestamps) {
+        if (timestamps.length < 2) return { pattern: 'insufficient_data' };
+        
+        const intervals = [];
+        for (let i = 1; i < timestamps.length; i++) {
+            intervals.push(timestamps[i] - timestamps[i-1]);
+        }
+        
+        const avgInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+        const variance = intervals.reduce((sum, interval) => sum + Math.pow(interval - avgInterval, 2), 0) / intervals.length;
+        const stdDev = Math.sqrt(variance);
+        
+        return {
+            average: avgInterval,
+            variance,
+            stdDev,
+            pattern: this.classifyIntervalPattern(avgInterval, stdDev)
+        };
+    }
+
+    calculateBurstiness(timestamps) {
+        if (timestamps.length < 3) return 0;
+        
+        const intervals = [];
+        for (let i = 1; i < timestamps.length; i++) {
+            intervals.push(timestamps[i] - timestamps[i-1]);
+        }
+        
+        const mean = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+        const variance = intervals.reduce((sum, interval) => sum + Math.pow(interval - mean, 2), 0) / intervals.length;
+        const stdDev = Math.sqrt(variance);
+        
+        // Burstiness coefficient: (σ - μ) / (σ + μ)
+        return stdDev > 0 ? (stdDev - mean) / (stdDev + mean) : 0;
+    }
+
+    analyzeDurationPattern(durations) {
+        if (durations.length === 0) return { pattern: 'no_data' };
+        
+        const sorted = [...durations].sort((a, b) => a - b);
+        const median = sorted[Math.floor(sorted.length / 2)];
+        const mean = durations.reduce((sum, duration) => sum + duration, 0) / durations.length;
+        const variance = durations.reduce((sum, duration) => sum + Math.pow(duration - mean, 2), 0) / durations.length;
+        
+        return {
+            mean,
+            median,
+            variance,
+            min: sorted[0],
+            max: sorted[sorted.length - 1],
+            pattern: this.classifyDurationPattern(mean, variance, median)
+        };
+    }
+
+    createTemporalSignature(timestamps, durations) {
+        const timePattern = this.analyzeTimeOfDay(timestamps);
+        const intervalPattern = this.analyzeIntervalPattern(timestamps);
+        const durationPattern = this.analyzeDurationPattern(durations);
+        
+        // Create a unique signature based on temporal characteristics
+        const signature = `${timePattern.pattern}_${intervalPattern.pattern}_${durationPattern.pattern}`;
+        return this.simpleHash(signature);
+    }
+
+    simpleHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return hash;
+    }
+
+    classifyHourlyPattern(distribution) {
+        const maxValue = Math.max(...distribution);
+        const peakHours = distribution.filter(val => val > maxValue * 0.8).length;
+        
+        if (peakHours <= 2) return 'concentrated';
+        if (peakHours <= 8) return 'business_hours';
+        if (peakHours <= 16) return 'extended_hours';
+        return 'distributed';
+    }
+
+    classifyDailyPattern(distribution) {
+        const weekdaySum = distribution.slice(1, 6).reduce((sum, val) => sum + val, 0);
+        const weekendSum = distribution[0] + distribution[6];
+        
+        if (weekdaySum > weekendSum * 2) return 'weekday_heavy';
+        if (weekendSum > weekdaySum * 2) return 'weekend_heavy';
+        return 'balanced';
+    }
+
+    classifyIntervalPattern(avgInterval, stdDev) {
+        const coefficient = stdDev / avgInterval;
+        
+        if (coefficient < 0.1) return 'very_regular';
+        if (coefficient < 0.3) return 'regular';
+        if (coefficient < 0.7) return 'somewhat_irregular';
+        return 'very_irregular';
+    }
+
+    classifyDurationPattern(mean, variance, median) {
+        const coefficient = Math.sqrt(variance) / mean;
+        const skewness = mean > median ? 'right_skewed' : mean < median ? 'left_skewed' : 'symmetric';
+        
+        let consistency;
+        if (coefficient < 0.2) consistency = 'very_consistent';
+        else if (coefficient < 0.5) consistency = 'consistent';
+        else if (coefficient < 1.0) consistency = 'variable';
+        else consistency = 'highly_variable';
+        
+        return `${consistency}_${skewness}`;
+    }
+
+    detectTemporalAnomaly(temporalPattern, currentMetrics) {
+        const currentTime = new Date(currentMetrics.timestamp || Date.now());
+        const currentHour = currentTime.getHours();
+        const currentDay = currentTime.getDay();
+        
+        // Check if current timing fits the pattern
+        const hourlyFit = this.checkHourlyFit(currentHour, temporalPattern.timeOfDay);
+        const dailyFit = this.checkDailyFit(currentDay, temporalPattern.dayOfWeek);
+        const durationFit = this.checkDurationFit(currentMetrics.duration, temporalPattern.durationPattern);
+        
+        const anomalies = [];
+        if (!hourlyFit.normal) anomalies.push(`unusual hour: ${hourlyFit.reason}`);
+        if (!dailyFit.normal) anomalies.push(`unusual day: ${dailyFit.reason}`);
+        if (!durationFit.normal) anomalies.push(`unusual duration: ${durationFit.reason}`);
+        
+        const isAnomaly = anomalies.length > 0;
+        const confidence = isAnomaly ? anomalies.length / 3 : 0;
+        
+        return {
+            isAnomaly,
+            confidence,
+            reason: isAnomaly ? anomalies.join(', ') : 'Temporal pattern matches expectations',
+            details: { hourlyFit, dailyFit, durationFit }
+        };
+    }
+
+    checkHourlyFit(currentHour, timePattern) {
+        const expectedProbability = timePattern.distribution[currentHour];
+        const threshold = 0.02; // 2% minimum expected probability
+        
+        return {
+            normal: expectedProbability >= threshold,
+            probability: expectedProbability,
+            reason: expectedProbability < threshold ? 
+                `Hour ${currentHour} has low probability (${(expectedProbability * 100).toFixed(1)}%)` : 
+                'Normal timing'
+        };
+    }
+
+    checkDailyFit(currentDay, dayPattern) {
+        const expectedProbability = dayPattern.distribution[currentDay];
+        const threshold = 0.05; // 5% minimum expected probability
+        
+        return {
+            normal: expectedProbability >= threshold,
+            probability: expectedProbability,
+            reason: expectedProbability < threshold ? 
+                `Day ${currentDay} has low probability (${(expectedProbability * 100).toFixed(1)}%)` : 
+                'Normal day'
+        };
+    }
+
+    checkDurationFit(currentDuration, durationPattern) {
+        const mean = durationPattern.mean;
+        const stdDev = Math.sqrt(durationPattern.variance);
+        const zScore = Math.abs((currentDuration - mean) / stdDev);
+        
+        return {
+            normal: zScore <= 2, // Within 2 standard deviations
+            zScore,
+            reason: zScore > 2 ? 
+                `Duration z-score ${zScore.toFixed(2)} exceeds normal range` : 
+                'Duration within normal range'
+        };
+    }
+}
+
+// 🎯 Adaptive Threshold System
+class AdaptiveThreshold {
+    constructor() {
+        this.thresholds = new Map();
+        this.adaptationRate = 0.1;
+        this.sensitivityFactor = 1.0;
+        this.historyWindow = 1000;
+        this.thresholdHistory = new CircularBuffer(this.historyWindow);
+    }
+
+    checkThresholdAnomaly(currentMetrics, historicalData) {
+        const metricKeys = ['duration', 'memoryUsage', 'errorRate'];
+        const anomalies = [];
+        
+        metricKeys.forEach(key => {
+            const currentValue = this.extractMetricValue(currentMetrics, key);
+            const threshold = this.getAdaptiveThreshold(key, historicalData);
+            
+            if (this.isAnomalous(currentValue, threshold)) {
+                anomalies.push({
+                    metric: key,
+                    value: currentValue,
+                    threshold: threshold.value,
+                    severity: this.calculateSeverity(currentValue, threshold),
+                    reason: `${key} value ${currentValue} exceeds adaptive threshold ${threshold.value.toFixed(2)}`
+                });
+            }
+            
+            // Update threshold with current value
+            this.updateThreshold(key, currentValue);
+        });
+        
+        const isAnomaly = anomalies.length > 0;
+        const confidence = isAnomaly ? 
+            anomalies.reduce((sum, a) => sum + a.severity, 0) / anomalies.length : 0;
+        
+        return {
+            isAnomaly,
+            confidence: Math.min(1, confidence),
+            type: 'threshold',
+            anomalies,
+            reason: isAnomaly ? 
+                `Threshold anomalies: ${anomalies.map(a => a.metric).join(', ')}` : 
+                'All metrics within adaptive thresholds'
+        };
+    }
+
+    extractMetricValue(metrics, key) {
+        switch (key) {
+            case 'duration':
+                return metrics.duration || 0;
+            case 'memoryUsage':
+                return metrics.memoryDelta?.used || 0;
+            case 'errorRate':
+                return metrics.error ? 1 : 0;
+            default:
+                return 0;
+        }
+    }
+
+    getAdaptiveThreshold(metricKey, historicalData) {
+        if (!this.thresholds.has(metricKey)) {
+            this.initializeThreshold(metricKey, historicalData);
+        }
+        
+        return this.thresholds.get(metricKey);
+    }
+
+    initializeThreshold(metricKey, historicalData) {
+        const values = historicalData.map(data => this.extractMetricValue(data, metricKey));
+        
+        if (values.length === 0) {
+            this.thresholds.set(metricKey, { value: 0, confidence: 0 });
+            return;
+        }
+        
+        const sorted = [...values].sort((a, b) => a - b);
+        const percentile95 = sorted[Math.floor(sorted.length * 0.95)];
+        const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+        const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+        const stdDev = Math.sqrt(variance);
+        
+        // Set initial threshold at 95th percentile or mean + 2*stdDev, whichever is higher
+        const statisticalThreshold = mean + (2 * stdDev);
+        const initialThreshold = Math.max(percentile95, statisticalThreshold);
+        
+        this.thresholds.set(metricKey, {
+            value: initialThreshold,
+            mean,
+            stdDev,
+            confidence: Math.min(1, values.length / 100), // Confidence based on sample size
+            lastUpdated: Date.now(),
+            updateCount: 0
+        });
+    }
+
+    updateThreshold(metricKey, newValue) {
+        const threshold = this.thresholds.get(metricKey);
+        if (!threshold) return;
+        
+        // Exponential moving average for adaptation
+        const alpha = this.adaptationRate;
+        threshold.mean = threshold.mean * (1 - alpha) + newValue * alpha;
+        
+        // Update variance using Welford's online algorithm
+        const delta = newValue - threshold.mean;
+        threshold.variance = threshold.variance * (1 - alpha) + delta * delta * alpha;
+        threshold.stdDev = Math.sqrt(threshold.variance);
+        
+        // Adapt threshold based on current statistics
+        const newThresholdValue = threshold.mean + (this.sensitivityFactor * threshold.stdDev);
+        threshold.value = threshold.value * (1 - alpha) + newThresholdValue * alpha;
+        
+        threshold.lastUpdated = Date.now();
+        threshold.updateCount++;
+        threshold.confidence = Math.min(1, threshold.updateCount / 50);
+        
+        // Record threshold change
+        this.thresholdHistory.push({
+            metric: metricKey,
+            oldValue: threshold.value,
+            newValue: newThresholdValue,
+            trigger: newValue,
+            timestamp: Date.now()
+        });
+    }
+
+    isAnomalous(value, threshold) {
+        return value > threshold.value && threshold.confidence > 0.3;
+    }
+
+    calculateSeverity(value, threshold) {
+        if (!this.isAnomalous(value, threshold)) return 0;
+        
+        const excessRatio = (value - threshold.value) / threshold.value;
+        return Math.min(1, excessRatio * threshold.confidence);
+    }
+
+    adjustSensitivity(factor) {
+        this.sensitivityFactor = Math.max(0.1, Math.min(5.0, factor));
+        
+        // Recalculate all thresholds with new sensitivity
+        this.thresholds.forEach((threshold, key) => {
+            threshold.value = threshold.mean + (this.sensitivityFactor * threshold.stdDev);
+        });
+    }
+
+    getThresholdAnalytics() {
+        const analytics = {
+            totalThresholds: this.thresholds.size,
+            sensitivityFactor: this.sensitivityFactor,
+            adaptationRate: this.adaptationRate,
+            thresholds: {},
+            recentChanges: this.thresholdHistory.getLast(10)
+        };
+        
+        this.thresholds.forEach((threshold, key) => {
+            analytics.thresholds[key] = {
+                value: threshold.value.toFixed(2),
+                mean: threshold.mean.toFixed(2),
+                stdDev: threshold.stdDev.toFixed(2),
+                confidence: (threshold.confidence * 100).toFixed(1) + '%',
+                updateCount: threshold.updateCount,
+                age: Date.now() - threshold.lastUpdated
+            };
+        });
+        
+        return analytics;
+    }
+}
+
+// 🔮 Advanced State Predictor
+class StatePredictor {
+    constructor() {
+        this.transitionHistory = new CircularBuffer(5000);
+        this.transitionMatrix = new Map();
+        this.contextualPredictions = new Map();
+        this.predictionAccuracy = new Map();
+        this.markovChain = new MarkovChain(3); // 3rd order Markov chain
+    }
+
+    recordTransition(fromState, toState, context) {
+        const transition = {
+            from: fromState,
+            to: toState,
+            context,
+            timestamp: Date.now(),
+            contextHash: this.hashContext(context)
+        };
+        
+        this.transitionHistory.push(transition);
+        this.updateTransitionMatrix(fromState, toState, context);
+        this.markovChain.addTransition(fromState, toState);
+        
+        // Update prediction accuracy if we had a previous prediction
+        this.updatePredictionAccuracy(fromState, toState, context);
+    }
+
+    updateTransitionMatrix(fromState, toState, context) {
+        const contextKey = this.createContextKey(context);
+        const transitionKey = `${fromState}->${toState}`;
+        const fullKey = `${contextKey}:${transitionKey}`;
+        
+        this.transitionMatrix.set(fullKey, (this.transitionMatrix.get(fullKey) || 0) + 1);
+        
+        // Also update general transitions without context
+        this.transitionMatrix.set(transitionKey, (this.transitionMatrix.get(transitionKey) || 0) + 1);
+    }
+
+    predictNextState(currentState, context = {}) {
+        const contextualPrediction = this.predictWithContext(currentState, context);
+        const markovPrediction = this.markovChain.predict(currentState);
+        const statisticalPrediction = this.predictWithStatistics(currentState);
+        
+        // Combine predictions with weighted scoring
+        const combinedPrediction = this.combinePredictions([
+            { prediction: contextualPrediction, weight: 0.4 },
+            { prediction: markovPrediction, weight: 0.4 },
+            { prediction: statisticalPrediction, weight: 0.2 }
+        ]);
+        
+        // Store prediction for accuracy tracking
+        this.storePrediction(currentState, combinedPrediction, context);
+        
+        return combinedPrediction;
+    }
+
+    predictWithContext(currentState, context) {
+        const contextKey = this.createContextKey(context);
+        const possibleTransitions = this.getPossibleTransitions(currentState, contextKey);
+        
+        if (possibleTransitions.length === 0) {
+            return this.getDefaultPrediction(currentState);
+        }
+        
+        const bestTransition = possibleTransitions.reduce((best, current) => 
+            current.probability > best.probability ? current : best
+        );
+        
+        return {
+            state: bestTransition.toState,
+            confidence: bestTransition.probability,
+            reasoning: `Context-based prediction with ${(bestTransition.probability * 100).toFixed(1)}% confidence`,
+            method: 'contextual'
+        };
+    }
+
+    predictWithStatistics(currentState) {
+        const allTransitions = Array.from(this.transitionMatrix.entries())
+            .filter(([key, count]) => key.includes(`${currentState}->`) && !key.includes(':'))
+            .map(([key, count]) => ({
+                toState: key.split('->')[1],
+                count,
+                probability: this.calculateTransitionProbability(currentState, key.split('->')[1])
+            }));
+        
+        if (allTransitions.length === 0) {
+            return this.getDefaultPrediction(currentState);
+        }
+        
+        const bestTransition = allTransitions.reduce((best, current) => 
+            current.probability > best.probability ? current : best
+        );
+        
+        return {
+            state: bestTransition.toState,
+            confidence: bestTransition.probability,
+            reasoning: `Statistical prediction based on ${bestTransition.count} historical transitions`,
+            method: 'statistical'
+        };
+    }
+
+    getPossibleTransitions(fromState, contextKey) {
+        const transitions = [];
+        
+        this.transitionMatrix.forEach((count, key) => {
+            if (key.startsWith(`${contextKey}:${fromState}->`)) {
+                const toState = key.split('->')[1];
+                const probability = this.calculateContextualProbability(fromState, toState, contextKey);
+                transitions.push({ toState, count, probability });
+            }
+        });
+        
+        return transitions.sort((a, b) => b.probability - a.probability);
+    }
+
+    calculateTransitionProbability(fromState, toState) {
+        const transitionKey = `${fromState}->${toState}`;
+        const transitionCount = this.transitionMatrix.get(transitionKey) || 0;
+        
+        let totalFromState = 0;
+        this.transitionMatrix.forEach((count, key) => {
+            if (key.includes(`${fromState}->`) && !key.includes(':')) {
+                totalFromState += count;
+            }
+        });
+        
+        return totalFromState > 0 ? transitionCount / totalFromState : 0;
+    }
+
+    calculateContextualProbability(fromState, toState, contextKey) {
+        const fullKey = `${contextKey}:${fromState}->${toState}`;
+        const contextualCount = this.transitionMatrix.get(fullKey) || 0;
+        
+        let totalContextualFromState = 0;
+        this.transitionMatrix.forEach((count, key) => {
+            if (key.startsWith(`${contextKey}:${fromState}->`)) {
+                totalContextualFromState += count;
+            }
+        });
+        
+        return totalContextualFromState > 0 ? contextualCount / totalContextualFromState : 0;
+    }
+
+    combinePredictions(weightedPredictions) {
+        const validPredictions = weightedPredictions.filter(wp => wp.prediction.state);
+        
+        if (validPredictions.length === 0) {
+            return { state: 'READY', confidence: 0.1, reasoning: 'No valid predictions available', method: 'default' };
+        }
+        
+        // Calculate weighted average confidence for each predicted state
+        const stateScores = new Map();
+        
+        validPredictions.forEach(({ prediction, weight }) => {
+            const currentScore = stateScores.get(prediction.state) || { totalWeight: 0, weightedConfidence: 0 };
+            currentScore.totalWeight += weight;
+            currentScore.weightedConfidence += prediction.confidence * weight;
+            stateScores.set(prediction.state, currentScore);
+        });
+        
+        // Find the state with the highest weighted confidence
+        let bestState = null;
+        let bestScore = 0;
+        
+        stateScores.forEach((score, state) => {
+            const normalizedConfidence = score.weightedConfidence / score.totalWeight;
+            if (normalizedConfidence > bestScore) {
+                bestScore = normalizedConfidence;
+                bestState = state;
+            }
+        });
+        
+        const contributingMethods = validPredictions.map(wp => wp.prediction.method).join(', ');
+        
+        return {
+            state: bestState,
+            confidence: bestScore,
+            reasoning: `Combined prediction from ${contributingMethods}`,
+            method: 'combined',
+            contributors: validPredictions.length
+        };
+    }
+
+    getDefaultPrediction(currentState) {
+        // Default predictions based on current state
+        const defaults = {
+            'INITIALIZING': 'LOADING',
+            'LOADING': 'READY',
+            'READY': 'PROCESSING',
+            'PROCESSING': 'READY',
+            'BATCH_PROCESSING': 'READY',
+            'MASSIVE_PARALLEL': 'READY',
+            'ERROR': 'READY',
+            'EMERGENCY_STOP': 'READY'
+        };
+        
+        return {
+            state: defaults[currentState] || 'READY',
+            confidence: 0.5,
+            reasoning: 'Default state transition',
+            method: 'default'
+        };
+    }
+
+    createContextKey(context) {
+        // Create a simplified context key for pattern matching
+        const keyParts = [];
+        
+        if (context.operationType) keyParts.push(`op:${context.operationType}`);
+        if (context.complexity) keyParts.push(`cx:${Math.floor(context.complexity / 10) * 10}`);
+        if (context.timeOfDay) keyParts.push(`tod:${Math.floor(context.timeOfDay / 6)}`); // 4 periods
+        if (context.systemLoad) keyParts.push(`load:${context.systemLoad > 0.8 ? 'high' : context.systemLoad > 0.5 ? 'med' : 'low'}`);
+        
+        return keyParts.join('|') || 'default';
+    }
+
+    hashContext(context) {
+        const contextString = JSON.stringify(context, Object.keys(context).sort());
+        return this.simpleHash(contextString);
+    }
+
+    simpleHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return hash;
+    }
+
+    storePrediction(currentState, prediction, context) {
+        const predictionKey = `${currentState}_${this.hashContext(context)}`;
+        this.contextualPredictions.set(predictionKey, {
+            prediction,
+            timestamp: Date.now(),
+            validated: false
+        });
+    }
+
+    updatePredictionAccuracy(actualFromState, actualToState, context) {
+        const predictionKey = `${actualFromState}_${this.hashContext(context)}`;
+        const storedPrediction = this.contextualPredictions.get(predictionKey);
+        
+        if (storedPrediction && !storedPrediction.validated) {
+            storedPrediction.validated = true;
+            const wasAccurate = storedPrediction.prediction.state === actualToState;
+            
+            const accuracyKey = storedPrediction.prediction.method;
+            const currentAccuracy = this.predictionAccuracy.get(accuracyKey) || { correct: 0, total: 0 };
+            
+            currentAccuracy.total++;
+            if (wasAccurate) currentAccuracy.correct++;
+            
+            this.predictionAccuracy.set(accuracyKey, currentAccuracy);
+        }
+    }
+
+    getPredictions() {
+        const methodAccuracy = {};
+        
+        this.predictionAccuracy.forEach((accuracy, method) => {
+            methodAccuracy[method] = {
+                accuracy: accuracy.total > 0 ? (accuracy.correct / accuracy.total * 100).toFixed(1) + '%' : 'N/A',
+                sampleSize: accuracy.total
+            };
+        });
+        
+        return {
+            recentTransitions: this.transitionHistory.getLast(10),
+            methodAccuracy,
+            totalTransitions: this.transitionHistory.getCurrentSize(),
+            uniqueTransitions: this.transitionMatrix.size,
+            markovChainOrder: this.markovChain.order
+        };
+    }
+}
+
+// 🔗 Markov Chain for State Prediction
+class MarkovChain {
+    constructor(order = 2) {
+        this.order = order;
+        this.states = new Set();
+        this.transitions = new Map();
+        this.stateSequences = new CircularBuffer(1000);
+    }
+
+    addTransition(fromState, toState) {
+        this.states.add(fromState);
+        this.states.add(toState);
+        
+        // Record the transition
+        this.stateSequences.push(fromState);
+        this.stateSequences.push(toState);
+        
+        this.updateTransitions();
+    }
+
+    updateTransitions() {
+        const sequences = this.stateSequences.getAll();
+        if (sequences.length < this.order + 1) return;
+        
+        this.transitions.clear();
+        
+        for (let i = 0; i <= sequences.length - this.order - 1; i++) {
+            const stateSequence = sequences.slice(i, i + this.order);
+            const nextState = sequences[i + this.order];
+            
+            const sequenceKey = stateSequence.join('->');
+            
+            if (!this.transitions.has(sequenceKey)) {
+                this.transitions.set(sequenceKey, new Map());
+            }
+            
+            const nextStateMap = this.transitions.get(sequenceKey);
+            nextStateMap.set(nextState, (nextStateMap.get(nextState) || 0) + 1);
+        }
+    }
+
+    predict(currentState) {
+        const recentSequences = this.stateSequences.getLast(this.order);
+        
+        if (recentSequences.length < this.order) {
+            return this.getSimplePrediction(currentState);
+        }
+        
+        const sequenceKey = recentSequences.join('->');
+        const possibleNextStates = this.transitions.get(sequenceKey);
+        
+        if (!possibleNextStates || possibleNextStates.size === 0) {
+            return this.getSimplePrediction(currentState);
+        }
+        
+        // Find the most probable next state
+        let bestState = null;
+        let bestCount = 0;
+        let totalCount = 0;
+        
+        possibleNextStates.forEach((count, state) => {
+            totalCount += count;
+            if (count > bestCount) {
+                bestCount = count;
+                bestState = state;
+            }
+        });
+        
+        const confidence = totalCount > 0 ? bestCount / totalCount : 0;
+        
+        return {
+            state: bestState,
+            confidence,
+            reasoning: `Markov chain (order ${this.order}) prediction based on ${bestCount}/${totalCount} transitions`,
+            method: 'markov'
+        };
+    }
+
+    getSimplePrediction(currentState) {
+        // Fall back to simple first-order prediction
+        const simpleKey = currentState;
+        const sequences = this.stateSequences.getAll();
+        const nextStates = new Map();
+        
+        for (let i = 0; i < sequences.length - 1; i++) {
+            if (sequences[i] === currentState) {
+                const nextState = sequences[i + 1];
+                nextStates.set(nextState, (nextStates.get(nextState) || 0) + 1);
+            }
+        }
+        
+        if (nextStates.size === 0) {
+            return { state: null, confidence: 0, reasoning: 'No historical data for prediction', method: 'markov' };
+        }
+        
+        let bestState = null;
+        let bestCount = 0;
+        let totalCount = 0;
+        
+        nextStates.forEach((count, state) => {
+            totalCount += count;
+            if (count > bestCount) {
+                bestCount = count;
+                bestState = state;
+            }
+        });
+        
+        return {
+            state: bestState,
+            confidence: totalCount > 0 ? bestCount / totalCount : 0,
+            reasoning: `Simple Markov prediction based on ${bestCount}/${totalCount} transitions`,
+            method: 'markov'
+        };
+    }
+
+    getStatistics() {
+        return {
+            order: this.order,
+            uniqueStates: this.states.size,
+            totalTransitions: this.transitions.size,
+            sequenceLength: this.stateSequences.getCurrentSize(),
+            states: Array.from(this.states),
+            mostCommonTransitions: this.getMostCommonTransitions(5)
+        };
+    }
+
+    getMostCommonTransitions(limit = 5) {
+        const allTransitions = [];
+        
+        this.transitions.forEach((nextStates, sequence) => {
+            nextStates.forEach((count, nextState) => {
+                allTransitions.push({
+                    sequence: sequence + '->' + nextState,
+                    count,
+                    probability: this.calculateProbability(sequence, nextState)
+                });
+            });
+        });
+        
+        return allTransitions
+            .sort((a, b) => b.count - a.count)
+            .slice(0, limit);
+    }
+
+    calculateProbability(sequence, nextState) {
+        const nextStates = this.transitions.get(sequence);
+        if (!nextStates) return 0;
+        
+        const count = nextStates.get(nextState) || 0;
+        const totalCount = Array.from(nextStates.values()).reduce((sum, c) => sum + c, 0);
+        
+        return totalCount > 0 ? count / totalCount : 0;
+    }
+}
