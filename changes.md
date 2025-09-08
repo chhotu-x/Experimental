@@ -277,6 +277,21 @@ CMD ["npm", "start"]
 - **Rate Limiting**: Prevent abuse and DDoS attacks
 - **Security Headers**: Comprehensive HTTP security headers
 
+### **NEW: Inbuilt Automation Engine**
+- **Action Recording**: Record clicks, form inputs, and scroll actions for later playback
+- **Auto-Fill Forms**: Automatically fill forms with configured name, email, phone, and message data
+- **Auto-Scroll**: Configurable automatic scrolling with speed, distance, and infinite scroll options
+- **Content Extraction**: Extract and export structured data (headings, paragraphs, links, images, forms) as JSON
+- **Custom Scripts**: Execute custom JavaScript automation with helper functions (wait, click, fillForm, scrollTo)
+- **Automation Templates**: Pre-built scripts for common tasks:
+  - Form Auto-Filler: Automatically fill forms with predefined data
+  - Content Monitor: Monitor webpage changes and detect updates
+  - Page Navigator: Automatically navigate through multiple pages
+  - Data Scraper: Extract and collect structured data from websites
+- **Schedule Tasks**: Set up recurring automation with configurable intervals (30s to 1h)
+- **Real-time Monitoring**: Live status updates with action counting and runtime tracking
+- **Ultra Controls**: Advanced automation panel with comprehensive configuration options
+
 ---
 
 ## 🔧 Configuration Options

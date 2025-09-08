@@ -185,12 +185,84 @@
                     </div>
                     <div class="col-auto">
                         <div class="btn-group" role="group">
+                            <button class="btn btn-outline-info btn-sm" id="toggleAutomation" title="Toggle Automation Panel">
+                                <i class="fas fa-robot"></i>
+                            </button>
                             <button class="btn btn-outline-warning btn-sm" id="toggleFullscreen" title="Toggle Fullscreen">
                                 <i class="fas fa-expand"></i>
                             </button>
                             <button class="btn btn-outline-danger btn-sm" id="closeEmbedded" title="Close">
                                 <i class="fas fa-times"></i>
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Automation Controls Panel -->
+            <div id="automationPanel" class="bg-primary text-white py-2 px-3 border-bottom d-none">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="fw-bold">
+                            <i class="fas fa-robot me-2"></i>Automation Controls
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-light" id="recordActions" title="Record Actions">
+                                <i class="fas fa-record-vinyl"></i> Record
+                            </button>
+                            <button class="btn btn-outline-light" id="playbackActions" title="Playback Recorded Actions" disabled>
+                                <i class="fas fa-play"></i> Play
+                            </button>
+                            <button class="btn btn-outline-light" id="autoFillForms" title="Auto-Fill Forms">
+                                <i class="fas fa-edit"></i> Auto-Fill
+                            </button>
+                            <button class="btn btn-outline-light" id="autoScroll" title="Auto-Scroll">
+                                <i class="fas fa-arrows-alt-v"></i> Scroll
+                            </button>
+                            <button class="btn btn-outline-light" id="extractContent" title="Extract Content">
+                                <i class="fas fa-download"></i> Extract
+                            </button>
+                            <button class="btn btn-outline-light" id="scheduleTask" title="Schedule Automation Task">
+                                <i class="fas fa-clock"></i> Schedule
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" id="automationTemplates" title="Automation Templates">
+                                <i class="fas fa-list"></i> Templates
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="#" data-template="form-filler">Form Auto-Filler</a></li>
+                                <li><a class="dropdown-item" href="#" data-template="content-monitor">Content Monitor</a></li>
+                                <li><a class="dropdown-item" href="#" data-template="page-navigator">Page Navigator</a></li>
+                                <li><a class="dropdown-item" href="#" data-template="data-scraper">Data Scraper</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" data-template="custom">Custom Script</a></li>
+                            </ul>
+                            <button class="btn btn-outline-danger" id="stopAutomation" title="Stop All Automation" disabled>
+                                <i class="fas fa-stop"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Automation Status Bar -->
+                <div id="automationStatus" class="mt-2 d-none">
+                    <div class="row">
+                        <div class="col">
+                            <small class="d-flex align-items-center">
+                                <span class="badge bg-success me-2" id="automationIndicator">READY</span>
+                                <span id="automationDescription">Automation system ready</span>
+                            </small>
+                        </div>
+                        <div class="col-auto">
+                            <small class="text-muted">
+                                Actions: <span id="actionCount">0</span> | 
+                                Runtime: <span id="automationRuntime">00:00</span>
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -483,4 +555,152 @@
         </div>
     </div>
 </section>
+
+<!-- Automation Configuration Modal -->
+<div class="modal fade" id="automationConfigModal" tabindex="-1" aria-labelledby="automationConfigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="automationConfigModalLabel">
+                    <i class="fas fa-robot me-2"></i>Automation Configuration
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Auto-Fill Configuration</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="autoFillName" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="autoFillName" placeholder="John Doe">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="autoFillEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="autoFillEmail" placeholder="john@example.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="autoFillPhone" class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" id="autoFillPhone" placeholder="+1234567890">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="autoFillMessage" class="form-label">Default Message</label>
+                                    <textarea class="form-control" id="autoFillMessage" rows="3" placeholder="Enter default message..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-arrows-alt-v me-2"></i>Auto-Scroll Settings</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="scrollSpeed" class="form-label">Scroll Speed (ms)</label>
+                                    <input type="range" class="form-range" id="scrollSpeed" min="500" max="5000" value="2000">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">Fast (500ms)</small>
+                                        <small class="text-muted">Slow (5000ms)</small>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="scrollDistance" class="form-label">Scroll Distance (px)</label>
+                                    <input type="number" class="form-control" id="scrollDistance" value="300" min="100" max="1000">
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="infiniteScroll">
+                                    <label class="form-check-label" for="infiniteScroll">
+                                        Infinite Scroll
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="pauseOnHover">
+                                    <label class="form-check-label" for="pauseOnHover">
+                                        Pause on Hover
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Schedule Settings</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="scheduleInterval" class="form-label">Repeat Interval</label>
+                                    <select class="form-select" id="scheduleInterval">
+                                        <option value="none">No Repeat</option>
+                                        <option value="30s">Every 30 seconds</option>
+                                        <option value="1m">Every minute</option>
+                                        <option value="5m">Every 5 minutes</option>
+                                        <option value="15m">Every 15 minutes</option>
+                                        <option value="30m">Every 30 minutes</option>
+                                        <option value="1h">Every hour</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="maxExecutions" class="form-label">Max Executions</label>
+                                    <input type="number" class="form-control" id="maxExecutions" value="10" min="1" max="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Recording Area -->
+                <div class="card mt-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="fas fa-list me-2"></i>Recorded Actions</h6>
+                        <button class="btn btn-sm btn-outline-danger" id="clearActions">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="recordedActionsList">
+                            <div class="text-muted text-center py-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No actions recorded yet. Click "Record" to start capturing actions.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Custom Script Editor -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-code me-2"></i>Custom Automation Script</h6>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control font-monospace" id="customScript" rows="6" placeholder="// Enter custom JavaScript automation code
+// Available functions: click(selector), fillForm(data), scrollTo(position), wait(ms)
+// Example:
+// await wait(1000);
+// await fillForm({name: 'John', email: 'john@test.com'});
+// await click('.submit-btn');"></textarea>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-primary" id="validateScript">
+                                <i class="fas fa-check"></i> Validate
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" id="executeScript">
+                                <i class="fas fa-play"></i> Execute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveAutomationConfig">
+                    <i class="fas fa-save me-1"></i>Save Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 ` }) %>
