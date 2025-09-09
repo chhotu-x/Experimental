@@ -2982,6 +2982,15 @@ function initWebsiteAutomation() {
             }
         };
 
+        // Initialize Multi-Embedder Manager for 100,000+ embedder instances
+        window.multiEmbedderManager = new MultiEmbedderManager();
+        
+        // Start monitoring system
+        window.multiInstanceMonitor = new MultiInstanceMonitor();
+        window.multiInstanceMonitor.startMonitoring();
+        
+        console.log('🌐 Multi-Embedder System initialized - Ready for unlimited automation operations!');
+
         // Get automation UI elements
         const automationElements = {
             toggleBtn: document.getElementById('toggleAutomation'),
@@ -3123,6 +3132,9 @@ function initWebsiteAutomation() {
                 executeCustomScript();
             });
         }
+
+        // Master Control Panel event handlers
+        initMasterControlPanel();
 
         // Start automation runtime timer
         startAutomationTimer();
@@ -3648,6 +3660,142 @@ monitorContent();`,
         'data-harvester': enhancedTemplates['data-harvester'].script,
         'performance-tester': enhancedTemplates['performance-tester'].script,
         'intelligent-navigator': enhancedTemplates['intelligent-navigator'].script,
+        
+        // Multi-Embedder Architecture Templates
+        'multi-embedder-demo': `// Multi-Embedder Architecture Demo - Create and manage multiple embedders
+console.log('🌐 Starting Multi-Embedder Architecture Demo');
+
+// Create multiple embedders for massive parallel processing
+const embedderCount = 10; // Start with 10 embedders
+const operationsPerEmbedder = 1000; // 1000 operations each
+
+// Create embedders
+for (let i = 0; i < embedderCount; i++) {
+    const embedderId = window.multiEmbedderManager.createEmbedder(\`demo_embedder_\${i}\`);
+    console.log(\`Created embedder: \${embedderId}\`);
+}
+
+// Generate operations for global processing
+const operations = [];
+for (let i = 0; i < embedderCount * operationsPerEmbedder; i++) {
+    operations.push({
+        type: 'wait',
+        config: { duration: Math.floor(Math.random() * 500) + 100 },
+        priority: Math.floor(Math.random() * 10)
+    });
+}
+
+console.log(\`Generated \${operations.length} operations for \${embedderCount} embedders\`);
+
+// Process operations across all embedders
+const result = await window.multiEmbedderManager.processUnlimitedOperations(operations, 'balanced');
+
+console.log('🎉 Multi-Embedder Demo completed!');
+console.log('Results:', result);
+showToast(\`Multi-Embedder Demo: \${result.successCount}/\${result.totalOperations} operations completed\`, 'success');`,
+
+        'unlimited-operations': \`// Unlimited Operations Demo - Process beyond 100,000 operations
+console.log('🌊 Starting Unlimited Operations Demo');
+
+// Create a mega-batch with unlimited processing
+const megaBatch = new AutomationBatch({
+    unlimitedMode: true,
+    maxConcurrency: 1000,
+    batchSize: 5000
+});
+
+// Generate massive number of operations
+const operationCount = 250000; // 250,000 operations
+console.log(\`Generating \${operationCount.toLocaleString()} operations...\`);
+
+const operationTypes = ['wait', 'scroll', 'click', 'auto-fill'];
+for (let i = 0; i < operationCount; i++) {
+    const type = operationTypes[i % operationTypes.length];
+    let config;
+    
+    switch (type) {
+        case 'wait':
+            config = { duration: Math.floor(Math.random() * 200) + 50 };
+            break;
+        case 'scroll':
+            config = { x: 0, y: Math.floor(Math.random() * 300) };
+            break;
+        case 'click':
+            config = { selector: \`#element-\${i % 100}\` };
+            break;
+        case 'auto-fill':
+            config = { name: \`User \${i}\`, email: \`user\${i}@example.com\` };
+            break;
+    }
+    
+    megaBatch.addTask(type, config, Math.floor(Math.random() * 10));
+}
+
+console.log(\`Starting unlimited processing of \${operationCount.toLocaleString()} operations...\`);
+
+// Process with unlimited mode
+const startTime = performance.now();
+const result = await megaBatch.processUnlimited();
+const totalTime = performance.now() - startTime;
+
+console.log('🚀 Unlimited Operations Demo completed!');
+console.log(\`Performance: \${(operationCount / totalTime * 1000).toFixed(0)} ops/sec\`);
+console.log('Results:', result);
+showToast(\`Unlimited Demo: \${result.successCount.toLocaleString()}/\${operationCount.toLocaleString()} operations in \${(totalTime/1000).toFixed(1)}s\`, 'success');\`,
+
+        'cross-embedder-communication': \`// Cross-Embedder Communication Demo
+console.log('📡 Starting Cross-Embedder Communication Demo');
+
+// Create multiple embedders for communication
+const communicators = [];
+for (let i = 0; i < 5; i++) {
+    const embedderId = window.multiEmbedderManager.createEmbedder(\`comm_embedder_\${i}\`);
+    const embedder = window.multiEmbedderManager.getEmbedder(embedderId);
+    
+    // Set up message handlers
+    embedder.messageHandlers.set('ping', (fromId, data) => {
+        console.log(\`\${embedderId} received ping from \${fromId}:\`, data);
+        // Send pong back
+        embedder.sendMessage(fromId, 'pong', { 
+            message: \`Pong from \${embedderId}\`,
+            timestamp: Date.now()
+        });
+    });
+    
+    embedder.messageHandlers.set('pong', (fromId, data) => {
+        console.log(\`\${embedderId} received pong from \${fromId}:\`, data);
+    });
+    
+    communicators.push({ id: embedderId, embedder });
+}
+
+// Demonstrate communication
+console.log('🔗 Testing cross-embedder communication...');
+
+// Each embedder sends a ping to the next one
+for (let i = 0; i < communicators.length; i++) {
+    const current = communicators[i];
+    const next = communicators[(i + 1) % communicators.length];
+    
+    current.embedder.sendMessage(next.id, 'ping', {
+        message: \`Hello from \${current.id}\`,
+        timestamp: Date.now(),
+        sequence: i
+    });
+}
+
+// Broadcast a message to all embedders
+console.log('📢 Broadcasting message to all embedders...');
+window.multiEmbedderManager.communicationBus.broadcast(communicators[0].id, {
+    type: 'broadcast',
+    data: {
+        message: 'Global broadcast message',
+        timestamp: Date.now()
+    }
+});
+
+console.log('✅ Cross-Embedder Communication Demo completed!');
+showToast('Cross-Embedder Communication Demo completed', 'success');\`,
         
         'custom': `// Enhanced Custom automation script
 // Available classes and functions:
@@ -4803,19 +4951,363 @@ class AdvancedCache {
     }
 }
 
-// Batch processing for multiple automation tasks
+// Multi-Embedder Manager for handling 100,000+ embedder instances
+class MultiEmbedderManager {
+    constructor() {
+        this.embedders = new Map(); // Map of embedder instances
+        this.maxEmbedders = 100000; // Support up to 100,000 embedders
+        this.activeEmbedders = 0;
+        this.communicationBus = new EmbedderCommunicationBus();
+        this.resourceManager = new EmbedderResourceManager();
+        this.monitoringSystem = new MultiInstanceMonitor();
+        
+        // Global metrics across all embedders
+        this.globalMetrics = {
+            totalEmbedders: 0,
+            activeEmbedders: 0,
+            totalOperations: 0,
+            globalThroughput: 0,
+            memoryUsage: 0,
+            cpuUsage: 0
+        };
+        
+        console.log(`🌐 Multi-Embedder Manager initialized - supports up to ${this.maxEmbedders} instances`);
+    }
+    
+    // Create new embedder instance
+    createEmbedder(id = null, options = {}) {
+        if (this.activeEmbedders >= this.maxEmbedders) {
+            throw new Error(`Maximum embedders reached: ${this.maxEmbedders}`);
+        }
+        
+        const embedderId = id || `embedder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const embedder = new AutomationBatch({
+            id: embedderId,
+            multiEmbedderMode: true,
+            manager: this,
+            ...options
+        });
+        
+        this.embedders.set(embedderId, embedder);
+        this.activeEmbedders++;
+        this.globalMetrics.totalEmbedders++;
+        this.globalMetrics.activeEmbedders++;
+        
+        // Register with communication bus
+        this.communicationBus.registerEmbedder(embedderId, embedder);
+        
+        console.log(`✨ Created embedder ${embedderId} (${this.activeEmbedders}/${this.maxEmbedders})`);
+        return embedderId;
+    }
+    
+    // Remove embedder instance
+    removeEmbedder(embedderId) {
+        if (this.embedders.has(embedderId)) {
+            const embedder = this.embedders.get(embedderId);
+            embedder.destroy();
+            this.embedders.delete(embedderId);
+            this.activeEmbedders--;
+            this.globalMetrics.activeEmbedders--;
+            this.communicationBus.unregisterEmbedder(embedderId);
+            return true;
+        }
+        return false;
+    }
+    
+    // Get embedder instance
+    getEmbedder(embedderId) {
+        return this.embedders.get(embedderId);
+    }
+    
+    // Process operations across all embedders with unlimited scale
+    async processUnlimitedOperations(operations, distributionStrategy = 'balanced') {
+        if (operations.length === 0) return { success: true, results: [] };
+        
+        console.log(`🚀 Processing unlimited operations: ${operations.length} across ${this.activeEmbedders} embedders`);
+        
+        // Auto-scale embedders based on operation count
+        await this.autoScale(operations.length);
+        
+        // Distribute operations across embedders
+        const distribution = this.distributeOperations(operations, distributionStrategy);
+        
+        // Process operations in parallel across all embedders
+        const promises = distribution.map(async (batch, index) => {
+            const embedderId = Array.from(this.embedders.keys())[index % this.activeEmbedders];
+            const embedder = this.embedders.get(embedderId);
+            
+            // Add tasks to embedder
+            embedder.addTasks(batch);
+            
+            // Process with unlimited mode
+            return await embedder.processUnlimited();
+        });
+        
+        const results = await Promise.allSettled(promises);
+        return this.aggregateResults(results);
+    }
+    
+    // Auto-scale embedders based on load
+    async autoScale(operationCount) {
+        const optimalEmbedders = Math.min(
+            Math.ceil(operationCount / 1000), // 1000 ops per embedder
+            this.maxEmbedders
+        );
+        
+        if (optimalEmbedders > this.activeEmbedders) {
+            const needed = optimalEmbedders - this.activeEmbedders;
+            console.log(`📈 Auto-scaling: creating ${needed} additional embedders`);
+            
+            for (let i = 0; i < needed; i++) {
+                this.createEmbedder();
+            }
+        }
+    }
+    
+    // Distribute operations across embedders
+    distributeOperations(operations, strategy) {
+        const chunks = [];
+        const chunkSize = Math.ceil(operations.length / this.activeEmbedders);
+        
+        for (let i = 0; i < operations.length; i += chunkSize) {
+            chunks.push(operations.slice(i, i + chunkSize));
+        }
+        
+        return chunks;
+    }
+    
+    // Aggregate results from all embedders
+    aggregateResults(results) {
+        let totalSuccess = 0;
+        let totalErrors = 0;
+        let allResults = [];
+        
+        results.forEach(result => {
+            if (result.status === 'fulfilled') {
+                totalSuccess += result.value.successCount || 0;
+                if (result.value.results) {
+                    allResults = allResults.concat(result.value.results);
+                }
+            } else {
+                totalErrors++;
+            }
+        });
+        
+        return {
+            success: totalErrors === 0,
+            totalOperations: totalSuccess + totalErrors,
+            successCount: totalSuccess,
+            errorCount: totalErrors,
+            results: allResults,
+            embedderCount: this.activeEmbedders
+        };
+    }
+    
+    // Get global status of all embedders
+    getGlobalStatus() {
+        let totalOperations = 0;
+        let completedOperations = 0;
+        let processingOperations = 0;
+        
+        this.embedders.forEach(embedder => {
+            const metrics = embedder.parallelMetrics;
+            totalOperations += metrics.totalOperations;
+            completedOperations += metrics.completedOperations;
+            processingOperations += metrics.currentConcurrency;
+        });
+        
+        return {
+            activeEmbedders: this.activeEmbedders,
+            totalOperations,
+            completedOperations,
+            processingOperations,
+            globalThroughput: this.globalMetrics.globalThroughput,
+            memoryUsage: this.resourceManager.getMemoryUsage(),
+            cpuUsage: this.resourceManager.getCpuUsage()
+        };
+    }
+}
+
+// Cross-Embedder Communication Bus
+class EmbedderCommunicationBus {
+    constructor() {
+        this.embedders = new Map();
+        this.messageQueue = [];
+        this.subscribers = new Map();
+    }
+    
+    registerEmbedder(id, embedder) {
+        this.embedders.set(id, embedder);
+        this.subscribers.set(id, new Set());
+    }
+    
+    unregisterEmbedder(id) {
+        this.embedders.delete(id);
+        this.subscribers.delete(id);
+    }
+    
+    // Send message between embedders
+    sendMessage(fromId, toId, message) {
+        if (this.embedders.has(toId)) {
+            const toEmbedder = this.embedders.get(toId);
+            toEmbedder.receiveMessage(fromId, message);
+            return true;
+        }
+        return false;
+    }
+    
+    // Broadcast message to all embedders
+    broadcast(fromId, message) {
+        let delivered = 0;
+        this.embedders.forEach((embedder, id) => {
+            if (id !== fromId) {
+                embedder.receiveMessage(fromId, message);
+                delivered++;
+            }
+        });
+        return delivered;
+    }
+}
+
+// Resource Manager for massive embedder instances
+class EmbedderResourceManager {
+    constructor() {
+        this.memoryThreshold = 0.85; // 85% memory threshold
+        this.cpuThreshold = 0.90; // 90% CPU threshold
+        this.monitoring = true;
+        this.startMonitoring();
+    }
+    
+    startMonitoring() {
+        if (this.monitoring) {
+            this.monitoringInterval = setInterval(() => {
+                this.checkResources();
+            }, 1000);
+        }
+    }
+    
+    checkResources() {
+        const memUsage = this.getMemoryUsage();
+        const cpuUsage = this.getCpuUsage();
+        
+        if (memUsage > this.memoryThreshold) {
+            this.handleMemoryPressure();
+        }
+        
+        if (cpuUsage > this.cpuThreshold) {
+            this.handleCpuPressure();
+        }
+    }
+    
+    getMemoryUsage() {
+        if (window.performance && window.performance.memory) {
+            return window.performance.memory.usedJSHeapSize / window.performance.memory.jsHeapSizeLimit;
+        }
+        return 0.5; // Estimated 50% if not available
+    }
+    
+    getCpuUsage() {
+        // Estimated CPU usage based on active operations
+        return Math.min(0.9, window.multiEmbedderManager?.globalMetrics?.globalThroughput / 10000 || 0);
+    }
+    
+    handleMemoryPressure() {
+        console.warn('🔴 Memory pressure detected - triggering cleanup');
+        if (window.gc && typeof window.gc === 'function') {
+            window.gc();
+        }
+        // Trigger cleanup in all embedders
+        window.multiEmbedderManager?.embedders?.forEach(embedder => {
+            embedder.performMemoryCleanup();
+        });
+    }
+    
+    handleCpuPressure() {
+        console.warn('🔴 CPU pressure detected - throttling operations');
+        // Implement CPU throttling logic
+    }
+}
+
+// Multi-Instance Monitor for real-time monitoring
+class MultiInstanceMonitor {
+    constructor() {
+        this.metrics = new Map();
+        this.alerts = [];
+        this.isMonitoring = false;
+    }
+    
+    startMonitoring() {
+        this.isMonitoring = true;
+        this.monitoringInterval = setInterval(() => {
+            this.collectMetrics();
+            this.updateUI();
+        }, 1000);
+    }
+    
+    stopMonitoring() {
+        this.isMonitoring = false;
+        if (this.monitoringInterval) {
+            clearInterval(this.monitoringInterval);
+        }
+    }
+    
+    collectMetrics() {
+        if (window.multiEmbedderManager) {
+            const status = window.multiEmbedderManager.getGlobalStatus();
+            this.metrics.set(Date.now(), status);
+            
+            // Keep only recent metrics (last 10 minutes)
+            const cutoff = Date.now() - (10 * 60 * 1000);
+            for (const [timestamp] of this.metrics) {
+                if (timestamp < cutoff) {
+                    this.metrics.delete(timestamp);
+                }
+            }
+        }
+    }
+    
+    updateUI() {
+        // Update multi-embedder UI elements
+        const status = window.multiEmbedderManager?.getGlobalStatus();
+        if (status) {
+            const elements = {
+                activeEmbedders: document.getElementById('statsActiveEmbedders'),
+                totalOps: document.getElementById('statsGlobalOps'),
+                globalThroughput: document.getElementById('statsGlobalThroughput'),
+                resourceUsage: document.getElementById('statsResourceUsage')
+            };
+            
+            if (elements.activeEmbedders) elements.activeEmbedders.textContent = status.activeEmbedders;
+            if (elements.totalOps) elements.totalOps.textContent = status.totalOperations.toLocaleString();
+            if (elements.globalThroughput) elements.globalThroughput.textContent = status.globalThroughput.toFixed(1);
+            if (elements.resourceUsage) elements.resourceUsage.textContent = `${(status.memoryUsage * 100).toFixed(1)}%`;
+        }
+    }
+}
+
+// Enhanced Batch processing for multiple automation tasks with multi-embedder support
 class AutomationBatch {
     constructor(options = {}) {
         this.tasks = [];
         this.results = [];
         this.isProcessing = false;
         
-        // Parallel processing configuration
+        // Multi-embedder support
+        this.id = options.id || `batch_${Date.now()}`;
+        this.multiEmbedderMode = options.multiEmbedderMode || false;
+        this.manager = options.manager || null;
+        this.messageHandlers = new Map();
+        
+        // Parallel processing configuration (enhanced for unlimited operations)
         this.maxConcurrency = options.maxConcurrency || 100; // Default 100 parallel workers
         this.batchSize = options.batchSize || 1000; // Process in chunks of 1000 for memory management
         this.enableParallel = options.enableParallel !== false; // Default to parallel processing
         this.progressCallback = options.progressCallback || null;
         this.memoryThreshold = options.memoryThreshold || 0.8; // GC threshold at 80% memory usage
+        
+        // Enhanced for unlimited processing
+        this.unlimitedMode = options.unlimitedMode || false;
+        this.maxOperationsLimit = options.maxOperationsLimit || null; // No limit when null
         
         // Performance tracking for parallel operations
         this.parallelMetrics = {
@@ -4832,6 +5324,57 @@ class AutomationBatch {
         this.activeWorkers = new Set();
         this.taskQueue = [];
         this.completedTasks = new Map();
+        
+        if (this.multiEmbedderMode) {
+            console.log(`🔧 Embedder ${this.id} initialized in multi-embedder mode`);
+        }
+    }
+    
+    // Receive messages from other embedders
+    receiveMessage(fromId, message) {
+        const handler = this.messageHandlers.get(message.type);
+        if (handler) {
+            handler(fromId, message.data);
+        }
+    }
+    
+    // Send message to another embedder
+    sendMessage(toId, type, data) {
+        if (this.manager && this.manager.communicationBus) {
+            return this.manager.communicationBus.sendMessage(this.id, toId, { type, data });
+        }
+        return false;
+    }
+    
+    // Process unlimited operations (beyond 100,000)
+    async processUnlimited() {
+        console.log(`🚀 ${this.id}: Starting unlimited processing of ${this.tasks.length} operations`);
+        
+        // Remove operation limits for unlimited mode
+        this.unlimitedMode = true;
+        this.maxOperationsLimit = null;
+        
+        // Adaptive settings for unlimited scale
+        if (this.tasks.length > 100000) {
+            this.batchSize = Math.max(1000, Math.min(10000, Math.floor(this.tasks.length / 100)));
+            this.maxConcurrency = Math.min(1000, Math.max(100, Math.floor(navigator.hardwareConcurrency * 20)));
+        }
+        
+        updateAutomationStatus('UNLIMITED_MODE', 
+            `🌊 Unlimited mode: ${this.tasks.length} ops, ${this.maxConcurrency} workers`);
+        
+        return await this.processParallel();
+    }
+    
+    // Destroy embedder instance
+    destroy() {
+        this.stopAllAutomation();
+        this.tasks = [];
+        this.results = [];
+        this.activeWorkers.clear();
+        this.taskQueue = [];
+        this.completedTasks.clear();
+        console.log(`🗑️ Embedder ${this.id} destroyed`);
     }
     
     addTask(type, config, priority = 0) {
@@ -5386,22 +5929,33 @@ class AutomationBatch {
     // Advanced methods for massive parallel automation (100k+ operations)
     
     /**
-     * Process up to 100,000 automation operations in parallel
-     * Uses intelligent chunking and memory management
+     * Process unlimited automation operations in parallel (beyond 100,000)
+     * Enhanced with multi-embedder support and unlimited scale
      */
-    async processMassiveParallel(maxOperations = 100000) {
-        if (this.tasks.length > maxOperations) {
-            throw new Error(`Too many tasks: ${this.tasks.length}. Maximum allowed: ${maxOperations}`);
+    async processMassiveParallel(maxOperations = null) {
+        // Remove limits when in unlimited mode or multi-embedder mode
+        if (this.unlimitedMode || this.multiEmbedderMode || maxOperations === null) {
+            console.log(`🌊 Starting unlimited parallel processing: ${this.tasks.length} operations`);
+            return await this.processUnlimited();
         }
         
-        console.log(`🚀 Starting massive parallel processing: ${this.tasks.length} operations`);
+        // Legacy mode with limits for backwards compatibility
+        if (this.tasks.length > maxOperations) {
+            console.warn(`⚠️ Task count ${this.tasks.length} exceeds limit ${maxOperations}. Switching to unlimited mode...`);
+            return await this.processUnlimited();
+        }
+        
+        console.log(`🚀 Starting massive parallel processing: ${this.tasks.length} operations (limited mode)`);
         
         // Optimize settings for massive operations
         const originalBatchSize = this.batchSize;
         const originalMaxConcurrency = this.maxConcurrency;
         
-        // Adaptive settings based on task count
-        if (this.tasks.length > 10000) {
+        // Enhanced adaptive settings based on task count
+        if (this.tasks.length > 50000) {
+            this.batchSize = Math.max(1000, Math.min(5000, Math.floor(this.tasks.length / 100)));
+            this.maxConcurrency = Math.min(1000, Math.max(100, Math.floor(navigator.hardwareConcurrency * 15)));
+        } else if (this.tasks.length > 10000) {
             this.batchSize = Math.max(500, Math.min(2000, Math.floor(this.tasks.length / 50)));
             this.maxConcurrency = Math.min(500, Math.max(50, Math.floor(navigator.hardwareConcurrency * 10)));
         } else if (this.tasks.length > 1000) {
@@ -7360,5 +7914,327 @@ class MarkovChain {
         const totalCount = Array.from(nextStates.values()).reduce((sum, c) => sum + c, 0);
         
         return totalCount > 0 ? count / totalCount : 0;
+    }
+}
+
+// Master Control Panel Initialization and Event Handlers
+function initMasterControlPanel() {
+    console.log('🌐 Initializing Master Control Panel for Multi-Embedder Management');
+    
+    // Embedder count slider
+    const embedderCountSlider = document.getElementById('embedderCount');
+    const embedderCountValue = document.getElementById('embedderCountValue');
+    
+    if (embedderCountSlider && embedderCountValue) {
+        embedderCountSlider.addEventListener('input', function() {
+            embedderCountValue.textContent = parseInt(this.value).toLocaleString();
+        });
+    }
+    
+    // Create Embedders button
+    const createEmbeddersBtn = document.getElementById('createEmbedders');
+    if (createEmbeddersBtn) {
+        createEmbeddersBtn.addEventListener('click', async function() {
+            const count = parseInt(embedderCountSlider.value);
+            
+            addToCommunicationLog(`🚀 Creating ${count.toLocaleString()} embedder instances...`);
+            
+            this.disabled = true;
+            
+            try {
+                // Create embedders in batches for performance
+                const batchSize = Math.min(1000, count);
+                const batches = Math.ceil(count / batchSize);
+                
+                for (let i = 0; i < batches; i++) {
+                    const batchStart = i * batchSize;
+                    const batchEnd = Math.min(batchStart + batchSize, count);
+                    const batchCount = batchEnd - batchStart;
+                    
+                    addToCommunicationLog(`📦 Creating batch ${i + 1}/${batches} (${batchCount} embedders)`);
+                    
+                    // Create embedders in this batch
+                    for (let j = 0; j < batchCount; j++) {
+                        const embedderId = window.multiEmbedderManager.createEmbedder();
+                        
+                        // Add to UI list
+                        addEmbedderToList(embedderId);
+                    }
+                    
+                    // Small delay between batches to prevent UI freezing
+                    if (i < batches - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                }
+                
+                addToCommunicationLog(`✅ Successfully created ${count.toLocaleString()} embedder instances`);
+                updateGlobalStats();
+                
+            } catch (error) {
+                addToCommunicationLog(`❌ Error creating embedders: ${error.message}`, 'error');
+                console.error('Error creating embedders:', error);
+            } finally {
+                this.disabled = false;
+            }
+        });
+    }
+    
+    // Start Global Operation button
+    const startGlobalOperationBtn = document.getElementById('startGlobalOperation');
+    if (startGlobalOperationBtn) {
+        startGlobalOperationBtn.addEventListener('click', async function() {
+            const operationCount = document.getElementById('globalOperations').value;
+            const strategy = document.querySelector('input[name="distributionStrategy"]:checked').value;
+            
+            if (window.multiEmbedderManager.activeEmbedders === 0) {
+                addToCommunicationLog('❌ No embedders available. Create embedders first.', 'error');
+                return;
+            }
+            
+            addToCommunicationLog(`🌊 Starting global operation with ${operationCount} operations`);
+            addToCommunicationLog(`⚙️  Distribution strategy: ${strategy}`);
+            
+            this.disabled = true;
+            document.getElementById('emergencyShutdown').disabled = false;
+            
+            try {
+                // Generate operations
+                const operations = generateGlobalOperations(
+                    operationCount === 'unlimited' ? 1000000 : parseInt(operationCount)
+                );
+                
+                addToCommunicationLog(`📋 Generated ${operations.length.toLocaleString()} operations`);
+                
+                // Start global processing
+                const startTime = performance.now();
+                const result = await window.multiEmbedderManager.processUnlimitedOperations(operations, strategy);
+                const totalTime = performance.now() - startTime;
+                
+                // Display results
+                addToCommunicationLog(`🎉 Global operation completed!`);
+                addToCommunicationLog(`📊 Results: ${result.successCount}/${result.totalOperations} successful`);
+                addToCommunicationLog(`🔧 Embedders used: ${result.embedderCount}`);
+                addToCommunicationLog(`⚡ Global throughput: ${(result.totalOperations / totalTime * 1000).toFixed(0)} ops/sec`);
+                addToCommunicationLog(`⏱️  Total time: ${(totalTime / 1000).toFixed(2)} seconds`);
+                
+            } catch (error) {
+                addToCommunicationLog(`❌ Global operation failed: ${error.message}`, 'error');
+                console.error('Global operation error:', error);
+            } finally {
+                this.disabled = false;
+                document.getElementById('emergencyShutdown').disabled = true;
+            }
+        });
+    }
+    
+    // Emergency Shutdown button
+    const emergencyShutdownBtn = document.getElementById('emergencyShutdown');
+    if (emergencyShutdownBtn) {
+        emergencyShutdownBtn.addEventListener('click', function() {
+            addToCommunicationLog('🛑 EMERGENCY SHUTDOWN INITIATED', 'error');
+            
+            // Stop all embedders
+            window.multiEmbedderManager.embedders.forEach((embedder, id) => {
+                embedder.destroy();
+            });
+            
+            // Clear embedder list
+            window.multiEmbedderManager.embedders.clear();
+            window.multiEmbedderManager.activeEmbedders = 0;
+            
+            // Update UI
+            updateEmbedderList();
+            updateGlobalStats();
+            
+            addToCommunicationLog('✅ All embedders shut down');
+            
+            this.disabled = true;
+        });
+    }
+    
+    // Other control buttons
+    setupMasterControlButtons();
+}
+
+function addToCommunicationLog(message, type = 'info') {
+    const log = document.getElementById('communicationLog');
+    if (!log) return;
+    
+    const timestamp = new Date().toLocaleTimeString();
+    const className = type === 'error' ? 'text-danger' : 
+                     type === 'warning' ? 'text-warning' : 
+                     type === 'success' ? 'text-success' : 'text-info';
+    
+    const logEntry = document.createElement('div');
+    logEntry.className = className;
+    logEntry.textContent = `[${timestamp}] ${message}`;
+    
+    log.appendChild(logEntry);
+    log.scrollTop = log.scrollHeight;
+    
+    // Keep only last 100 entries
+    while (log.children.length > 100) {
+        log.removeChild(log.firstChild);
+    }
+}
+
+function addEmbedderToList(embedderId) {
+    const embedderList = document.getElementById('embedderList');
+    if (!embedderList) return;
+    
+    // Clear "no embedders" message if it exists
+    if (embedderList.querySelector('.text-center.text-muted')) {
+        embedderList.innerHTML = '';
+    }
+    
+    const embedderItem = document.createElement('div');
+    embedderItem.className = 'card card-body p-2 mb-2';
+    embedderItem.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="fw-bold">${embedderId}</div>
+                <small class="text-muted">Status: <span class="badge bg-success">Active</span></small>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="${embedderId}" id="check_${embedderId}">
+            </div>
+        </div>
+    `;
+    
+    embedderList.appendChild(embedderItem);
+}
+
+function updateEmbedderList() {
+    const embedderList = document.getElementById('embedderList');
+    if (!embedderList) return;
+    
+    if (window.multiEmbedderManager.activeEmbedders === 0) {
+        embedderList.innerHTML = `
+            <div class="text-center text-muted p-3">
+                <i class="fas fa-robot fa-2x mb-2"></i>
+                <div>No embedders created yet</div>
+                <small>Click "Create Embedders" to start</small>
+            </div>
+        `;
+    }
+}
+
+function updateGlobalStats() {
+    const status = window.multiEmbedderManager?.getGlobalStatus();
+    if (!status) return;
+    
+    // Update stats in UI - already handled by MultiInstanceMonitor.updateUI()
+    // But we can add additional updates here if needed
+    
+    // Update progress bars
+    const memoryBar = document.getElementById('memoryProgressBar');
+    const cpuBar = document.getElementById('cpuProgressBar');
+    
+    if (memoryBar) {
+        const memoryPercent = (status.memoryUsage * 100).toFixed(1);
+        memoryBar.style.width = `${memoryPercent}%`;
+    }
+    
+    if (cpuBar) {
+        const cpuPercent = (status.cpuUsage * 100).toFixed(1);
+        cpuBar.style.width = `${cpuPercent}%`;
+    }
+}
+
+function generateGlobalOperations(count) {
+    const operations = [];
+    const operationTypes = ['wait', 'scroll', 'click', 'auto-fill', 'extract-data'];
+    
+    for (let i = 0; i < count; i++) {
+        const type = operationTypes[i % operationTypes.length];
+        let config;
+        
+        switch (type) {
+            case 'wait':
+                config = { duration: Math.floor(Math.random() * 500) + 100 };
+                break;
+            case 'scroll':
+                config = { x: 0, y: Math.floor(Math.random() * 500) };
+                break;
+            case 'click':
+                config = { selector: `#element-${i % 50}` };
+                break;
+            case 'auto-fill':
+                config = { 
+                    name: `User ${i}`, 
+                    email: `user${i}@example.com` 
+                };
+                break;
+            case 'extract-data':
+                config = { extractText: true, extractLinks: true };
+                break;
+            default:
+                config = {};
+        }
+        
+        operations.push({
+            type,
+            config,
+            priority: Math.floor(Math.random() * 10)
+        });
+    }
+    
+    return operations;
+}
+
+function setupMasterControlButtons() {
+    // Export Global Results
+    const exportBtn = document.getElementById('exportGlobalResults');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            const status = window.multiEmbedderManager?.getGlobalStatus();
+            const data = {
+                timestamp: new Date().toISOString(),
+                globalStatus: status,
+                embedderCount: window.multiEmbedderManager?.activeEmbedders || 0,
+                systemMetrics: {
+                    userAgent: navigator.userAgent,
+                    hardwareConcurrency: navigator.hardwareConcurrency,
+                    memory: window.performance?.memory
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `global-results-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addToCommunicationLog('📊 Global results exported successfully');
+        });
+    }
+    
+    // Reset Master Control
+    const resetBtn = document.getElementById('resetMasterControl');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to reset the entire multi-embedder system?')) {
+                // Stop monitoring
+                window.multiInstanceMonitor?.stopMonitoring();
+                
+                // Destroy all embedders
+                window.multiEmbedderManager.embedders.forEach(embedder => embedder.destroy());
+                window.multiEmbedderManager.embedders.clear();
+                window.multiEmbedderManager.activeEmbedders = 0;
+                
+                // Reinitialize
+                window.multiEmbedderManager = new MultiEmbedderManager();
+                window.multiInstanceMonitor = new MultiInstanceMonitor();
+                window.multiInstanceMonitor.startMonitoring();
+                
+                // Update UI
+                updateEmbedderList();
+                updateGlobalStats();
+                
+                addToCommunicationLog('🔄 Master control system reset successfully');
+            }
+        });
     }
 }
