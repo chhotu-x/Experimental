@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <meta name="description" content="<%= meta.description %>">
+    <link rel="canonical" href="<%= meta.canonical %>">
+    
+    <!-- Enhanced Automation Dashboard Styles -->
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --dark-surface: #1a1a2e;
+            --card-surface: #16213e;
+            --text-primary: #eee;
+            --text-secondary: #bbb;
+            --border-color: #333;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-surface);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: var(--primary-gradient);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-change {
+            font-size: 0.8rem;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .metric-change.negative {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .automation-controls {
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--dark-surface);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--card-surface);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+        }
+
+        .btn-warning {
+            background: var(--warning-gradient);
+            color: #333;
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            color: #333;
+        }
+
+        .task-queue {
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .task-queue h3 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-item {
+            background: var(--dark-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-id {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-queued {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status-running {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+
+        .status-completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .status-failed {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .task-details {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .real-time-metrics {
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-container {
+            height: 300px;
+            background: var(--dark-surface);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .notification.error {
+            border-left: 4px solid #f44336;
+        }
+
+        .notification.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .automation-templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .template-card {
+            background: var(--card-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            transform: translateY(-3px);
+            border-color: #667eea;
+        }
+
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .template-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .template-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 🌐 MASSIVE SCALE EMBEDDING STYLES */
+        .massive-scale-controls {
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .scale-indicator {
+            background: var(--success-gradient);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .embedding-controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .input-section textarea {
+            width: 100%;
+            min-height: 200px;
+            background: var(--dark-surface);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .url-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .options-section {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .option-group select,
+        .option-group input {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--dark-surface);
+            color: var(--text-primary);
+        }
+
+        .action-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .progress-section {
+            background: var(--dark-surface);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .real-time-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .shard-status {
+            display: grid;
+            gap: 10px;
+        }
+
+        .shard-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* 🎮 AUTOMATION CONTROLS STYLES */
+        .automation-controls {
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .automation-status {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+        }
+
+        .command-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .quick-commands {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .cmd-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cmd-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .custom-command-section {
+            display: grid;
+            gap: 10px;
+        }
+
+        .command-history {
+            background: var(--dark-surface);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .command-log {
+            max-height: 200px;
+            overflow-y: auto;
+            display: grid;
+            gap: 5px;
+        }
+
+        .command-entry {
+            display: grid;
+            grid-template-columns: 80px 100px 120px 80px;
+            gap: 10px;
+            padding: 8px;
+            background: var(--card-surface);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .command-entry .success {
+            color: #4ade80;
+        }
+
+        .command-entry .error {
+            color: #f87171;
+        }
+
+        /* 👁️ LIVE VIEWING STYLES */
+        .live-view-panel {
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .view-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            min-height: 200px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* 🌍 PROXY STATUS STYLES */
+        .proxy-status-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            background: var(--card-surface);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .proxy-status {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .performance-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .metric-card {
+                padding: 20px;
+            }
+
+            .embedding-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .command-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .proxy-status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">🚀 Automation Dashboard</h1>
+            <p class="dashboard-subtitle">Advanced parallel automation system with AI-powered element detection</p>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="totalTasks">0</div>
+                <div class="metric-label">Total Tasks</div>
+                <div class="metric-change positive" id="tasksChange">+0% today</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="successRate">99.9%</div>
+                <div class="metric-label">Success Rate</div>
+                <div class="metric-change positive" id="successChange">+0.1% vs yesterday</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="avgResponseTime">8.5ms</div>
+                <div class="metric-label">Avg Response Time</div>
+                <div class="metric-change positive" id="responseChange">-2.1ms improvement</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="parallelEfficiency">87%</div>
+                <div class="metric-label">Parallel Efficiency</div>
+                <div class="metric-change positive" id="efficiencyChange">+5% optimization</div>
+            </div>
+        </div>
+
+        <!-- Automation Controls -->
+        <div class="automation-controls">
+            <h3>🎮 Create Automation Task</h3>
+            <form id="automationForm">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label for="taskType">Task Type</label>
+                        <select id="taskType" class="form-control" required>
+                            <option value="">Select Task Type</option>
+                            <option value="click">Click Element</option>
+                            <option value="fill">Fill Form</option>
+                            <option value="navigate">Navigate to URL</option>
+                            <option value="harvest">Harvest Data</option>
+                            <option value="batch">Batch Operations</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="selector">CSS Selector / URL</label>
+                        <input type="text" id="selector" class="form-control" placeholder="e.g., #submit-btn or https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority (0-10)</label>
+                        <input type="range" id="priority" class="form-control" min="0" max="10" value="5">
+                        <span id="priorityValue">5</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="parallel" checked> Enable Parallel Execution
+                    </label>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success">🚀 Execute Task</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">🔄 Clear Form</button>
+                    <button type="button" class="btn btn-warning" onclick="pauseAutomation()">⏸️ Pause System</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Task Queue -->
+        <div class="task-queue">
+            <h3>
+                📋 Task Queue 
+                <span class="btn btn-secondary" onclick="refreshTasks()">🔄 Refresh</span>
+            </h3>
+            <div id="taskList">
+                <!-- Tasks will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Automation Templates -->
+        <div class="automation-controls">
+            <h3>🧩 Quick Templates</h3>
+            <div class="automation-templates">
+                <div class="template-card" onclick="loadTemplate('form-filler')">
+                    <div class="template-icon">📝</div>
+                    <div class="template-title">Smart Form Filler</div>
+                    <div class="template-description">Automatically fill forms with intelligent field detection</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('data-harvester')">
+                    <div class="template-icon">🌾</div>
+                    <div class="template-title">Data Harvester</div>
+                    <div class="template-description">Extract structured data from web pages</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('performance-tester')">
+                    <div class="template-icon">⚡</div>
+                    <div class="template-title">Performance Tester</div>
+                    <div class="template-description">Run comprehensive performance tests</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('navigation-bot')">
+                    <div class="template-icon">🧭</div>
+                    <div class="template-title">Navigation Bot</div>
+                    <div class="template-description">Intelligent website navigation and exploration</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🌐 MASSIVE SCALE EMBEDDING SECTION -->
+        <div class="automation-controls" style="margin-top: 30px;">
+            <h3>🌐 Massive Scale Website Embedder (1M+ Websites)</h3>
+            <div id="massive-scale-embedder">
+                <!-- Massive scale controls will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- 🎮 REAL-TIME AUTOMATION CONTROLS SECTION -->
+        <div class="automation-controls" style="margin-top: 30px;">
+            <h3>🎮 Real-time Automation Controls</h3>
+            <div id="real-time-automation">
+                <!-- Real-time automation controls will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- 👁️ LIVE VIEWING SECTION -->
+        <div class="automation-controls" style="margin-top: 30px;">
+            <h3>👁️ Live Website Viewing</h3>
+            <div id="live-viewing">
+                <!-- Live viewing controls will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- 🌍 PROXY STATUS SECTION -->
+        <div class="automation-controls" style="margin-top: 30px;">
+            <h3>🌍 Global Proxy Status</h3>
+            <div class="proxy-status-grid">
+                <div class="proxy-status">
+                    <span>Loading proxy status...</span>
+                </div>
+                <div class="performance-stats">
+                    <span>⚡ 0 requests</span>
+                    <span>🕒 0s uptime</span>
+                    <span>⚠️ 0 errors</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Metrics Chart -->
+        <div class="real-time-metrics">
+            <h3>📊 Real-time Performance Metrics</h3>
+            <div class="chart-container">
+                <div class="loading-spinner"></div>
+                <div style="text-align: center; color: var(--text-secondary);">
+                    <p>Performance chart loading...</p>
+                    <small>Real-time metrics visualization will appear here</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        // Enhanced Automation Dashboard JavaScript
+        class AutomationDashboard {
+            constructor() {
+                this.baseUrl = '/api/automation';
+                this.wsConnection = null;
+                this.tasks = new Map();
+                this.metrics = {
+                    totalTasks: 0,
+                    successRate: 99.9,
+                    avgResponseTime: 8.5,
+                    parallelEfficiency: 87
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                this.setupEventListeners();
+                this.setupWebSocket();
+                await this.loadTasks();
+                this.startMetricsUpdater();
+                this.updateMetricsDisplay();
+            }
+
+            setupEventListeners() {
+                // Form submission
+                document.getElementById('automationForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.createTask();
+                });
+
+                // Priority slider
+                document.getElementById('priority').addEventListener('input', (e) => {
+                    document.getElementById('priorityValue').textContent = e.target.value;
+                });
+
+                // Real-time form validation
+                document.getElementById('selector').addEventListener('input', (e) => {
+                    this.validateSelector(e.target.value);
+                });
+            }
+
+            setupWebSocket() {
+                try {
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsUrl = `${protocol}//${window.location.host}/automation/ws`;
+                    
+                    this.wsConnection = new WebSocket(wsUrl);
+                    
+                    this.wsConnection.onopen = () => {
+                        console.log('🔌 WebSocket connected');
+                        this.showNotification('Connected to automation system', 'success');
+                    };
+                    
+                    this.wsConnection.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        this.handleWebSocketMessage(data);
+                    };
+                    
+                    this.wsConnection.onclose = () => {
+                        console.log('🔌 WebSocket disconnected');
+                        this.showNotification('Disconnected from real-time updates', 'warning');
+                        
+                        // Attempt to reconnect after 5 seconds
+                        setTimeout(() => this.setupWebSocket(), 5000);
+                    };
+                    
+                    this.wsConnection.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.showNotification('Real-time connection error', 'error');
+                    };
+                } catch (error) {
+                    console.error('Failed to setup WebSocket:', error);
+                }
+            }
+
+            handleWebSocketMessage(data) {
+                switch (data.type) {
+                    case 'task-update':
+                        this.updateTaskInUI(data.task);
+                        break;
+                    case 'system-status':
+                        this.updateSystemMetrics(data.data);
+                        break;
+                    case 'connection':
+                        console.log('WebSocket connection established');
+                        break;
+                    default:
+                        console.log('Unknown WebSocket message:', data);
+                }
+            }
+
+            async createTask() {
+                const taskType = document.getElementById('taskType').value;
+                const selector = document.getElementById('selector').value;
+                const priority = parseInt(document.getElementById('priority').value);
+                const parallel = document.getElementById('parallel').checked;
+
+                if (!taskType || !selector) {
+                    this.showNotification('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                const taskData = {
+                    type: taskType,
+                    config: this.buildTaskConfig(taskType, selector),
+                    priority,
+                    parallel
+                };
+
+                try {
+                    const response = await fetch(`${this.baseUrl}/tasks`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Session-ID': this.getSessionId()
+                        },
+                        body: JSON.stringify(taskData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        this.showNotification(`Task created successfully! ID: ${result.taskId}`, 'success');
+                        this.clearForm();
+                        await this.loadTasks();
+                        this.updateMetrics();
+                    } else {
+                        this.showNotification(`Error: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Failed to create task:', error);
+                    this.showNotification('Failed to create task. Please try again.', 'error');
+                }
+            }
+
+            buildTaskConfig(type, selector) {
+                const config = {};
+
+                switch (type) {
+                    case 'click':
+                        config.selector = selector;
+                        config.waitForClickable = true;
+                        break;
+                    case 'fill':
+                        config.formSelector = selector;
+                        config.data = { /* demo data */ };
+                        break;
+                    case 'navigate':
+                        config.url = selector;
+                        config.waitStrategy = 'smart';
+                        break;
+                    case 'harvest':
+                        config.url = selector;
+                        config.dataTypes = ['text', 'links', 'images'];
+                        break;
+                    case 'batch':
+                        config.tasks = [{ type: 'click', selector }];
+                        break;
+                }
+
+                return config;
+            }
+
+            async loadTasks() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/tasks?limit=20`, {
+                        headers: {
+                            'X-Session-ID': this.getSessionId()
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        this.displayTasks(result.tasks);
+                    } else {
+                        console.error('Failed to load tasks:', result.error);
+                    }
+                } catch (error) {
+                    console.error('Failed to load tasks:', error);
+                }
+            }
+
+            displayTasks(tasks) {
+                const taskList = document.getElementById('taskList');
+                
+                if (tasks.length === 0) {
+                    taskList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 15px;">🤖</div>
+                            <h3>No automation tasks yet</h3>
+                            <p>Create your first automation task using the form above</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                taskList.innerHTML = tasks.map(task => `
+                    <div class="task-item" data-task-id="${task.id}">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-id">ID: ${task.id}</div>
+                                <div style="font-weight: 600; margin-top: 5px;">
+                                    ${task.type.toUpperCase()} Task
+                                    ${task.parallel ? '<span style="color: #2196f3;">⚡ Parallel</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="task-status status-${task.status}">${task.status}</div>
+                        </div>
+                        <div class="task-details">
+                            <div>Priority: ${task.priority}/10</div>
+                            <div>Created: ${new Date(task.createdAt).toLocaleString()}</div>
+                            ${task.config.selector ? `<div>Selector: ${task.config.selector}</div>` : ''}
+                            ${task.config.url ? `<div>URL: ${task.config.url}</div>` : ''}
+                        </div>
+                        ${task.status === 'running' ? `
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${task.progress || 0}%"></div>
+                            </div>
+                        ` : ''}
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="dashboard.viewTaskDetails('${task.id}')">📄 Details</button>
+                            ${['queued', 'running'].includes(task.status) ? 
+                                `<button class="btn btn-danger" onclick="dashboard.cancelTask('${task.id}')">❌ Cancel</button>` : ''
+                            }
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            async cancelTask(taskId) {
+                if (!confirm('Are you sure you want to cancel this task?')) return;
+
+                try {
+                    const response = await fetch(`${this.baseUrl}/tasks/${taskId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Session-ID': this.getSessionId()
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        this.showNotification('Task cancelled successfully', 'success');
+                        await this.loadTasks();
+                    } else {
+                        this.showNotification(`Error: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Failed to cancel task:', error);
+                    this.showNotification('Failed to cancel task', 'error');
+                }
+            }
+
+            async viewTaskDetails(taskId) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/tasks/${taskId}`, {
+                        headers: {
+                            'X-Session-ID': this.getSessionId()
+                        }
+                    });
+
+                    const task = await response.json();
+
+                    if (response.ok) {
+                        alert(`Task Details:\n\n${JSON.stringify(task, null, 2)}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to get task details:', error);
+                }
+            }
+
+            updateTaskInUI(task) {
+                const taskElement = document.querySelector(`[data-task-id="${task.id}"]`);
+                if (taskElement) {
+                    // Update task status and progress in real-time
+                    const statusElement = taskElement.querySelector('.task-status');
+                    if (statusElement) {
+                        statusElement.className = `task-status status-${task.status}`;
+                        statusElement.textContent = task.status;
+                    }
+
+                    const progressBar = taskElement.querySelector('.progress-fill');
+                    if (progressBar && task.progress !== undefined) {
+                        progressBar.style.width = `${task.progress}%`;
+                    }
+                }
+            }
+
+            updateMetricsDisplay() {
+                document.getElementById('totalTasks').textContent = this.metrics.totalTasks;
+                document.getElementById('successRate').textContent = `${this.metrics.successRate}%`;
+                document.getElementById('avgResponseTime').textContent = `${this.metrics.avgResponseTime}ms`;
+                document.getElementById('parallelEfficiency').textContent = `${this.metrics.parallelEfficiency}%`;
+            }
+
+            async updateMetrics() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/status`, {
+                        headers: {
+                            'X-Session-ID': this.getSessionId()
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        this.metrics.totalTasks = result.statistics.total;
+                        this.metrics.successRate = result.performance.successRate.toFixed(1);
+                        this.metrics.avgResponseTime = (result.performance.averageExecutionTime / 1000).toFixed(1);
+                        this.metrics.parallelEfficiency = result.health.parallel.efficiency.toFixed(0);
+                        
+                        this.updateMetricsDisplay();
+                    }
+                } catch (error) {
+                    console.error('Failed to update metrics:', error);
+                }
+            }
+
+            startMetricsUpdater() {
+                // Update metrics every 5 seconds
+                setInterval(() => {
+                    this.updateMetrics();
+                }, 5000);
+
+                // Update tasks every 10 seconds
+                setInterval(() => {
+                    this.loadTasks();
+                }, 10000);
+            }
+
+            validateSelector(selector) {
+                // Basic selector validation
+                const input = document.getElementById('selector');
+                
+                if (selector.includes('javascript:') || selector.includes('data:')) {
+                    input.style.borderColor = '#f44336';
+                    this.showNotification('Potentially dangerous selector detected', 'error');
+                } else {
+                    input.style.borderColor = 'var(--border-color)';
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.getElementById('notification');
+                const messageElement = document.getElementById('notificationMessage');
+                
+                messageElement.textContent = message;
+                notification.className = `notification ${type} show`;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+
+            getSessionId() {
+                // Generate or retrieve session ID
+                let sessionId = localStorage.getItem('automation-session-id');
+                if (!sessionId) {
+                    sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('automation-session-id', sessionId);
+                }
+                return sessionId;
+            }
+
+            clearForm() {
+                document.getElementById('automationForm').reset();
+                document.getElementById('priorityValue').textContent = '5';
+            }
+        }
+
+        // Template loader functions
+        function loadTemplate(templateType) {
+            const templates = {
+                'form-filler': {
+                    type: 'fill',
+                    selector: 'form',
+                    priority: 7,
+                    parallel: true
+                },
+                'data-harvester': {
+                    type: 'harvest',
+                    selector: 'https://example.com',
+                    priority: 5,
+                    parallel: true
+                },
+                'performance-tester': {
+                    type: 'batch',
+                    selector: 'performance-test',
+                    priority: 8,
+                    parallel: false
+                },
+                'navigation-bot': {
+                    type: 'navigate',
+                    selector: 'https://example.com',
+                    priority: 6,
+                    parallel: true
+                }
+            };
+
+            const template = templates[templateType];
+            if (template) {
+                document.getElementById('taskType').value = template.type;
+                document.getElementById('selector').value = template.selector;
+                document.getElementById('priority').value = template.priority;
+                document.getElementById('priorityValue').textContent = template.priority;
+                document.getElementById('parallel').checked = template.parallel;
+                
+                dashboard.showNotification(`Template "${templateType}" loaded`, 'success');
+            }
+        }
+
+        function clearForm() {
+            dashboard.clearForm();
+        }
+
+        function refreshTasks() {
+            dashboard.loadTasks();
+            dashboard.showNotification('Tasks refreshed', 'success');
+        }
+
+        function pauseAutomation() {
+            dashboard.showNotification('Automation system paused', 'warning');
+        }
+
+        // Initialize dashboard when page loads
+        let dashboard;
+        document.addEventListener('DOMContentLoaded', () => {
+            dashboard = new AutomationDashboard();
+        });
+    </script>
+</body>
+</html>

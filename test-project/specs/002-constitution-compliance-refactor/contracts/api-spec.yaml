@@ -1,0 +1,415 @@
+openapi: 3.0.3
+info:
+  title: Constitution Compliance Refactor API
+  description: API contracts for library interfaces and HTTP endpoints
+  version: 2.0.0
+  contact:
+    name: Development Team
+    email: dev@example.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  # Web Server HTTP Endpoints
+  /:
+    get:
+      summary: Get homepage
+      description: Render main homepage with featured content
+      operationId: getHomepage
+      responses:
+        '200':
+          description: Homepage rendered successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                description: Rendered HTML content
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /about:
+    get:
+      summary: Get about page
+      description: Render about page with company information
+      operationId: getAboutPage
+      responses:
+        '200':
+          description: About page rendered successfully
+          content:
+            text/html:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /services:
+    get:
+      summary: Get services page
+      description: Render services page with available offerings
+      operationId: getServicesPage
+      responses:
+        '200':
+          description: Services page rendered successfully
+          content:
+            text/html:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /contact:
+    get:
+      summary: Get contact page
+      description: Render contact page with form
+      operationId: getContactPage
+      responses:
+        '200':
+          description: Contact page rendered successfully
+          content:
+            text/html:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      summary: Submit contact form
+      description: Process contact form submission
+      operationId: submitContactForm
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                email:
+                  type: string
+                  format: email
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+              required:
+                - name
+                - email
+                - message
+      responses:
+        '200':
+          description: Contact form submitted successfully
+          content:
+            text/html:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /blog:
+    get:
+      summary: Get blog listing
+      description: Render blog posts listing page
+      operationId: getBlogListing
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: tag
+          in: query
+          description: Filter posts by tag
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Blog listing rendered successfully
+          content:
+            text/html:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /blog/{id}:
+    get:
+      summary: Get blog post
+      description: Render individual blog post
+      operationId: getBlogPost
+      parameters:
+        - name: id
+          in: path
+          description: Blog post ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Blog post rendered successfully
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  # Health and Monitoring Endpoints
+  /health:
+    get:
+      summary: Health check
+      description: Get system health status
+      operationId: getHealthStatus
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: System is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /metrics:
+    get:
+      summary: Get metrics
+      description: Get system performance metrics
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        components:
+          type: object
+          properties:
+            webServer:
+              $ref: '#/components/schemas/ComponentHealth'
+            contentManager:
+              $ref: '#/components/schemas/ComponentHealth'
+            middlewareStack:
+              $ref: '#/components/schemas/ComponentHealth'
+            monitoringCollector:
+              $ref: '#/components/schemas/ComponentHealth'
+            configurationManager:
+              $ref: '#/components/schemas/ComponentHealth'
+      required:
+        - status
+        - timestamp
+        - version
+        - components
+
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+        lastCheck:
+          type: string
+          format: date-time
+        message:
+          type: string
+        metrics:
+          type: object
+      required:
+        - status
+        - lastCheck
+
+    Metrics:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        requests:
+          type: object
+          properties:
+            total:
+              type: integer
+              minimum: 0
+            success:
+              type: integer
+              minimum: 0
+            error:
+              type: integer
+              minimum: 0
+            responseTime:
+              type: object
+              properties:
+                p50:
+                  type: number
+                  minimum: 0
+                p95:
+                  type: number
+                  minimum: 0
+                p99:
+                  type: number
+                  minimum: 0
+                max:
+                  type: number
+                  minimum: 0
+              required:
+                - p50
+                - p95
+                - p99
+                - max
+          required:
+            - total
+            - success
+            - error
+            - responseTime
+        system:
+          type: object
+          properties:
+            memory:
+              type: number
+              minimum: 0
+              description: Memory usage in MB
+            cpu:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: CPU usage percentage
+            uptime:
+              type: number
+              minimum: 0
+              description: System uptime in seconds
+          required:
+            - memory
+            - cpu
+            - uptime
+      required:
+        - timestamp
+        - requests
+        - system
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        correlationId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - error
+        - message
+        - correlationId
+        - timestamp
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        text/html:
+          schema:
+            type: string
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ValidationError:
+      description: Request validation failed
+      content:
+        text/html:
+          schema:
+            type: string
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        text/html:
+          schema:
+            type: string
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        X-RateLimit-Limit:
+          description: Request limit per window
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          description: Remaining requests in window
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          description: Window reset time
+          schema:
+            type: integer
+
+    ServerError:
+      description: Internal server error
+      content:
+        text/html:
+          schema:
+            type: string
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  parameters:
+    CorrelationId:
+      name: X-Correlation-ID
+      in: header
+      description: Request correlation ID for tracing
+      required: false
+      schema:
+        type: string
+        format: uuid
+
+security: []
+
+tags:
+  - name: Pages
+    description: Website page rendering endpoints
+  - name: Blog
+    description: Blog content endpoints
+  - name: Monitoring
+    description: Health and metrics endpoints
