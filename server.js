@@ -11,8 +11,23 @@ try {
     compression = () => (req, res, next) => next();
 }
 
+// Import enhanced embedder and automation features
+const ProxyPoolManager = require('./middleware/proxy-pool-simple');
+const ParallelEmbeddingEngine = require('./middleware/parallel-embedding-simple');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize parallel embedding system
+const proxyPool = new ProxyPoolManager({
+    maxProxies: 10000,
+    timeout: 10000
+});
+
+const embeddingEngine = new ParallelEmbeddingEngine(proxyPool, {
+    maxConcurrentEmbeddings: 10000,
+    batchSize: 100
+});
 
 // Set EJS as the view engine
 app.set('view engine', 'ejs');
@@ -64,6 +79,196 @@ const withMeta = (overrides = {}) => ({
     }
 });
 
+// Initialize systems
+async function initializeSystems() {
+    try {
+        await proxyPool.initialize();
+        await embeddingEngine.start();
+        console.log('🚀 All systems initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize systems:', error);
+    }
+}
+
+// Initialize systems on startup
+initializeSystems();
+
+// Enhanced API endpoints for massive scale embedding and automation
+
+// Batch embedding endpoint - embed multiple websites in parallel
+app.post('/api/embed/batch', async (req, res) => {
+    try {
+        const { urls, options = {} } = req.body;
+        
+        if (!urls || !Array.isArray(urls) || urls.length === 0) {
+            return res.status(400).json({ 
+                error: 'URLs array is required',
+                example: { urls: ['https://example.com', 'https://github.com'] }
+            });
+        }
+
+        if (urls.length > 10000) {
+            return res.status(400).json({ 
+                error: 'Maximum 10,000 URLs per batch request' 
+            });
+        }
+
+        console.log(`📦 Processing batch embedding for ${urls.length} URLs...`);
+        
+        const result = await embeddingEngine.embedBatch(urls, options);
+        
+        res.json({
+            success: true,
+            message: `Successfully processed batch of ${urls.length} websites`,
+            batchId: result.batchId,
+            summary: {
+                total: result.total,
+                completed: result.completed,
+                failed: result.failed,
+                processingTime: result.processingTime
+            },
+            results: result.results
+        });
+        
+    } catch (error) {
+        console.error('Batch embedding error:', error);
+        res.status(500).json({ 
+            error: 'Failed to process batch embedding',
+            details: error.message 
+        });
+    }
+});
+
+// Single website embedding endpoint
+app.post('/api/embed/single', async (req, res) => {
+    try {
+        const { url, options = {} } = req.body;
+        
+        if (!url) {
+            return res.status(400).json({ 
+                error: 'URL is required',
+                example: { url: 'https://example.com' }
+            });
+        }
+
+        console.log(`🌐 Processing single website embedding: ${url}`);
+        
+        const result = await embeddingEngine.embedWebsite(url, options);
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                embeddingId: result.embeddingId,
+                content: result.content,
+                processingTime: result.processingTime
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                error: result.error,
+                embeddingId: result.embeddingId
+            });
+        }
+        
+    } catch (error) {
+        console.error('Single embedding error:', error);
+        res.status(500).json({ 
+            error: 'Failed to process embedding',
+            details: error.message 
+        });
+    }
+});
+
+// Get batch status
+app.get('/api/embed/batch/:batchId/status', (req, res) => {
+    try {
+        const { batchId } = req.params;
+        const batchStatus = embeddingEngine.getBatchStatus(batchId);
+        
+        if (!batchStatus) {
+            return res.status(404).json({ error: 'Batch not found' });
+        }
+        
+        res.json({
+            batchId,
+            status: batchStatus.status,
+            progress: {
+                total: batchStatus.total,
+                completed: batchStatus.completed,
+                failed: batchStatus.failed,
+                percentage: Math.round((batchStatus.completed / batchStatus.total) * 100)
+            },
+            processingTime: batchStatus.processingTime,
+            startTime: batchStatus.startTime
+        });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get system stats
+app.get('/api/stats', (req, res) => {
+    try {
+        const embeddingStats = embeddingEngine.getStats();
+        const proxyStats = proxyPool.getStats();
+        
+        res.json({
+            timestamp: new Date().toISOString(),
+            embedding: embeddingStats,
+            proxy: proxyStats,
+            system: {
+                uptime: process.uptime(),
+                memory: process.memoryUsage(),
+                cpu: process.cpuUsage()
+            }
+        });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Create massive automation config for 1M+ websites
+app.post('/api/automation/massive', async (req, res) => {
+    try {
+        const { baseUrl, count = 1000, options = {} } = req.body;
+        
+        if (!baseUrl) {
+            return res.status(400).json({ 
+                error: 'Base URL is required',
+                example: { baseUrl: 'https://example.com', count: 1000000 }
+            });
+        }
+
+        if (count > 1000000) {
+            return res.status(400).json({ 
+                error: 'Maximum 1,000,000 URLs per automation config' 
+            });
+        }
+
+        console.log(`🎛️ Creating massive automation config for ${count} URLs from ${baseUrl}...`);
+        
+        const config = await embeddingEngine.createMassiveAutomationConfig(baseUrl, count, options);
+        
+        res.json({
+            success: true,
+            message: `Automation config created for ${count} websites`,
+            config: config.config,
+            preview: config.urls,
+            totalGenerated: config.totalGenerated,
+            estimatedProcessingTime: config.estimatedProcessingTime
+        });
+        
+    } catch (error) {
+        console.error('Massive automation config error:', error);
+        res.status(500).json({ 
+            error: 'Failed to create automation config',
+            details: error.message 
+        });
+    }
+});
+
 // Routes
 app.get('/', (req, res) => {
     res.render('index', {
@@ -112,11 +317,11 @@ app.get('/contact', (req, res) => {
 });
 
 app.get('/embed', (req, res) => {
-    res.render('embed', {
-        title: 'Website Embedder - 42Web.io',
+    res.render('embed-enhanced', {
+        title: 'Advanced Website Embedder - 42Web.io',
         currentPage: 'embed',
         ...withMeta({
-            description: 'Embed any website with full navigation capabilities.',
+            description: 'Embed 1M+ websites with parallel processing and grand automation controls.',
             canonical: req.protocol + '://' + req.get('host') + '/embed'
         })
     });
