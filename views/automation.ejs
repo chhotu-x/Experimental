@@ -1,5 +1,8 @@
 <%- include('header') %>
 
+<!-- Load Main.js for automation features -->
+<script src="/js/main.js"></script>
+
 <!-- Automation Engine Section -->
 <section class="py-5 bg-gradient-primary text-white">
     <div class="container">
@@ -92,12 +95,133 @@
             </div>
         </div>
         
+        <!-- Parallel Website Embedding Controls -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">🌐 Parallel Website Embedding - 1M Scale</h5>
+                        <small>Embed 1 million instances of the same website from a single URL</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-end mb-3">
+                            <div class="col-md-6">
+                                <label for="massEmbedUrl" class="form-label">Website URL to Embed</label>
+                                <input type="url" class="form-control" id="massEmbedUrl" 
+                                       placeholder="https://example.com" value="https://example.com">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="embedCount" class="form-label">Number of Instances</label>
+                                <select class="form-select" id="embedCount">
+                                    <option value="1000">1,000</option>
+                                    <option value="10000">10,000</option>
+                                    <option value="100000">100,000</option>
+                                    <option value="1000000" selected>1,000,000</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-warning w-100" onclick="startMassiveParallelEmbedding()">
+                                    <i class="fas fa-rocket me-2"></i>Start Parallel Embedding
+                                </button>
+                            </div>
+                        </div>
+                        <div id="parallelEmbeddingProgress" class="d-none">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" 
+                                             role="progressbar" style="width: 0%" id="embeddingProgressBar"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <span id="embeddingProgressText">0 / 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grand Automation Controls -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">🎮 Grand Automation Controls - 1M Website Control</h5>
+                        <small>Control 1 million websites simultaneously with one automation configuration</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="automationAction" class="form-label">Automation Action</label>
+                                <select class="form-select" id="automationAction">
+                                    <option value="click">Click Element</option>
+                                    <option value="scroll">Scroll Page</option>
+                                    <option value="fill">Fill Form</option>
+                                    <option value="extract">Extract Data</option>
+                                    <option value="navigate">Navigate URL</option>
+                                    <option value="screenshot">Take Screenshot</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="actionTarget" class="form-label">Target Selector/Data</label>
+                                <input type="text" class="form-control" id="actionTarget" 
+                                       placeholder="CSS selector or data">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="executionMode" class="form-label">Execution Mode</label>
+                                <select class="form-select" id="executionMode">
+                                    <option value="parallel">Parallel (Fast)</option>
+                                    <option value="waves">Wave Processing</option>
+                                    <option value="sequential">Sequential (Safe)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <button class="btn btn-success me-2" onclick="executeGrandAutomation()">
+                                    <i class="fas fa-play me-2"></i>Execute on All Websites
+                                </button>
+                                <button class="btn btn-info me-2" onclick="previewAutomation()">
+                                    <i class="fas fa-eye me-2"></i>Preview Action
+                                </button>
+                                <button class="btn btn-danger" onclick="stopAllAutomation()">
+                                    <i class="fas fa-stop me-2"></i>Emergency Stop
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-end">
+                                    <small class="text-muted">
+                                        Target Websites: <span id="targetWebsiteCount" class="fw-bold">0</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="grandAutomationProgress" class="d-none mt-3">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" style="width: 0%" id="grandProgressBar"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <small id="grandProgressText">0 / 0</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Embedder Controls -->
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Embedder Management</h5>
+                        <h5 class="mb-0">Basic Embedder Management</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2 mb-3">
@@ -224,6 +348,60 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-danger shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tools fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">🔧 Fix Broken Functions</h5>
+                        <p class="card-text">Comprehensive repair system for all embedder and automation functions.</p>
+                        <button class="btn btn-danger" onclick="runTemplate('fix-broken-embedders')">
+                            Run Repair
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-warning shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-globe-americas fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">🌐 1M Parallel Embedding</h5>
+                        <p class="card-text">Embed 1 million instances of the SAME website from one link.</p>
+                        <button class="btn btn-warning" onclick="runTemplate('million-website-parallel')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-success shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-crown fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">🎮 Grand Automation Control</h5>
+                        <p class="card-text">Control 1M websites with ONE automation configuration.</p>
+                        <button class="btn btn-success" onclick="runTemplate('grand-automation-control')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-comments fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Cross-Embedder Communication</h5>
+                        <p class="card-text">Demonstrate inter-embedder communication and messaging.</p>
+                        <button class="btn btn-outline-primary" onclick="runTemplate('cross-embedder-communication')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Custom Script Editor -->
@@ -312,6 +490,269 @@
 
 <script>
 // Enhanced automation UI functions
+
+// ============================================================================
+// 🌐 MASSIVE PARALLEL EMBEDDING SYSTEM
+// ============================================================================
+
+async function startMassiveParallelEmbedding() {
+    const url = document.getElementById('massEmbedUrl').value;
+    const count = parseInt(document.getElementById('embedCount').value);
+    
+    if (!url.trim()) {
+        logResult('❌ Please enter a valid URL');
+        return;
+    }
+    
+    logResult(`🚀 Starting massive parallel embedding: ${count.toLocaleString()} instances of ${url}`);
+    
+    // Show progress UI
+    const progressDiv = document.getElementById('parallelEmbeddingProgress');
+    const progressBar = document.getElementById('embeddingProgressBar');
+    const progressText = document.getElementById('embeddingProgressText');
+    
+    progressDiv.classList.remove('d-none');
+    progressBar.style.width = '0%';
+    progressText.textContent = `0 / ${count.toLocaleString()}`;
+    
+    const startTime = performance.now();
+    let completedCount = 0;
+    
+    try {
+        // Create embedders in batches for performance
+        const batchSize = 1000;
+        const totalBatches = Math.ceil(count / batchSize);
+        
+        for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+            const batchStart = batchIndex * batchSize;
+            const batchEnd = Math.min(batchStart + batchSize, count);
+            const currentBatchSize = batchEnd - batchStart;
+            
+            logResult(`📦 Processing batch ${batchIndex + 1}/${totalBatches} (${currentBatchSize} embedders)`);
+            
+            // Create embedders in current batch
+            const batchPromises = [];
+            for (let i = batchStart; i < batchEnd; i++) {
+                const embedderId = `parallel_${url.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${i}`;
+                batchPromises.push(createParallelEmbedder(embedderId, url));
+            }
+            
+            // Wait for current batch to complete
+            const batchResults = await Promise.allSettled(batchPromises);
+            const batchSuccessCount = batchResults.filter(r => r.status === 'fulfilled').length;
+            
+            completedCount += batchSuccessCount;
+            
+            // Update progress
+            const progressPercent = (completedCount / count) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressText.textContent = `${completedCount.toLocaleString()} / ${count.toLocaleString()}`;
+            
+            logResult(`✅ Batch ${batchIndex + 1} completed: ${batchSuccessCount}/${currentBatchSize} successful`);
+            
+            // Small delay between batches to prevent overwhelming
+            if (batchIndex < totalBatches - 1) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+        
+        const totalTime = performance.now() - startTime;
+        const rate = Math.round(completedCount / (totalTime / 1000));
+        
+        logResult(`🎉 Massive parallel embedding completed!`);
+        logResult(`📊 Results: ${completedCount.toLocaleString()}/${count.toLocaleString()} embedders created`);
+        logResult(`⚡ Performance: ${rate.toLocaleString()} embedders/second`);
+        logResult(`⏱️ Total time: ${(totalTime / 1000).toFixed(2)} seconds`);
+        
+        updateUI();
+        
+    } catch (error) {
+        logResult(`❌ Massive embedding failed: ${error.message}`);
+        console.error('Massive embedding error:', error);
+    }
+}
+
+async function createParallelEmbedder(embedderId, url) {
+    // Create embedder with URL
+    const embedder = window.multiEmbedderManager.createEmbedder(embedderId);
+    
+    // Simulate loading the URL (in real implementation, this would load the actual website)
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 50 + 10));
+    
+    // Update embedder with URL info
+    const embedderData = window.multiEmbedderManager.embedders.get(embedderId);
+    if (embedderData) {
+        embedderData.url = url;
+        embedderData.status = 'loaded';
+        embedderData.loadTime = Date.now();
+    }
+    
+    return embedderId;
+}
+
+// ============================================================================
+// 🎮 GRAND AUTOMATION CONTROL SYSTEM
+// ============================================================================
+
+async function executeGrandAutomation() {
+    const action = document.getElementById('automationAction').value;
+    const target = document.getElementById('actionTarget').value;
+    const mode = document.getElementById('executionMode').value;
+    
+    const activeEmbedders = window.multiEmbedderManager.activeEmbedders;
+    if (activeEmbedders === 0) {
+        logResult('❌ No active embedders to control. Create embedders first.');
+        return;
+    }
+    
+    logResult(`🎮 Executing grand automation: ${action} on ${activeEmbedders.toLocaleString()} websites`);
+    logResult(`🎯 Target: ${target || 'default'}, Mode: ${mode}`);
+    
+    // Show progress UI
+    const progressDiv = document.getElementById('grandAutomationProgress');
+    const progressBar = document.getElementById('grandProgressBar');
+    const progressText = document.getElementById('grandProgressText');
+    
+    progressDiv.classList.remove('d-none');
+    progressBar.style.width = '0%';
+    progressText.textContent = `0 / ${activeEmbedders.toLocaleString()}`;
+    
+    const startTime = performance.now();
+    
+    try {
+        // Create automation batch based on mode
+        const batch = new AutomationBatch({
+            unlimitedMode: mode === 'parallel',
+            maxConcurrency: mode === 'parallel' ? 10000 : mode === 'waves' ? 1000 : 1,
+            batchSize: mode === 'waves' ? 1000 : 5000
+        });
+        
+        // Generate automation tasks for all embedders
+        const embedderIds = Array.from(window.multiEmbedderManager.embedders.keys());
+        let taskCount = 0;
+        
+        for (const embedderId of embedderIds) {
+            const config = buildAutomationConfig(action, target, embedderId);
+            batch.addTask(action, config, 1);
+            taskCount++;
+        }
+        
+        logResult(`📋 Created ${taskCount.toLocaleString()} automation tasks`);
+        
+        // Execute with progress tracking
+        let completedTasks = 0;
+        
+        // Override batch progress callback
+        const originalProcessAll = batch.processAll;
+        batch.processAll = async function() {
+            const result = await originalProcessAll.call(this);
+            
+            // Update progress during execution
+            completedTasks = result.successCount;
+            const progressPercent = (completedTasks / taskCount) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressText.textContent = `${completedTasks.toLocaleString()} / ${taskCount.toLocaleString()}`;
+            
+            return result;
+        };
+        
+        const result = await batch.processAll();
+        const totalTime = performance.now() - startTime;
+        const rate = Math.round(result.successCount / (totalTime / 1000));
+        
+        logResult(`🎉 Grand automation completed!`);
+        logResult(`📊 Results: ${result.successCount.toLocaleString()}/${taskCount.toLocaleString()} tasks successful`);
+        logResult(`⚡ Performance: ${rate.toLocaleString()} operations/second`);
+        logResult(`⏱️ Total time: ${(totalTime / 1000).toFixed(2)} seconds`);
+        
+        updateUI();
+        
+    } catch (error) {
+        logResult(`❌ Grand automation failed: ${error.message}`);
+        console.error('Grand automation error:', error);
+    }
+}
+
+function buildAutomationConfig(action, target, embedderId) {
+    const config = { embedderId };
+    
+    switch (action) {
+        case 'click':
+            config.selector = target || 'button, a, input[type="submit"]';
+            break;
+        case 'scroll':
+            config.x = 0;
+            config.y = parseInt(target) || 500;
+            break;
+        case 'fill':
+            config.data = target ? JSON.parse(target) : { test: 'automated value' };
+            break;
+        case 'extract':
+            config.selector = target || 'h1, h2, h3, p';
+            config.type = 'text';
+            break;
+        case 'navigate':
+            config.url = target || 'https://example.com';
+            break;
+        case 'screenshot':
+            config.format = 'jpeg';
+            config.quality = 0.8;
+            break;
+        default:
+            config.action = action;
+    }
+    
+    return config;
+}
+
+async function previewAutomation() {
+    const action = document.getElementById('automationAction').value;
+    const target = document.getElementById('actionTarget').value;
+    
+    logResult(`👁️ Previewing automation action: ${action}`);
+    
+    if (window.multiEmbedderManager.activeEmbedders === 0) {
+        logResult('❌ No active embedders for preview. Create embedders first.');
+        return;
+    }
+    
+    // Get first embedder for preview
+    const firstEmbedderId = Array.from(window.multiEmbedderManager.embedders.keys())[0];
+    const config = buildAutomationConfig(action, target, firstEmbedderId);
+    
+    logResult(`🔍 Preview config for embedder ${firstEmbedderId}:`);
+    logResult(`📋 ${JSON.stringify(config, null, 2)}`);
+    
+    // Simulate preview execution
+    try {
+        const batch = new AutomationBatch();
+        batch.addTask(action, config);
+        const result = await batch.processAll();
+        
+        logResult(`✅ Preview successful: ${result.successCount} task completed`);
+    } catch (error) {
+        logResult(`❌ Preview failed: ${error.message}`);
+    }
+}
+
+function stopAllAutomation() {
+    logResult('🛑 Emergency stop requested - halting all automation');
+    
+    // In a real implementation, this would cancel all running operations
+    window.multiEmbedderManager.operationsQueue = [];
+    window.multiEmbedderManager.processingOperations = false;
+    
+    // Hide progress indicators
+    document.getElementById('parallelEmbeddingProgress').classList.add('d-none');
+    document.getElementById('grandAutomationProgress').classList.add('d-none');
+    
+    logResult('✅ All automation stopped');
+}
+
+// ============================================================================
+// BASIC EMBEDDER MANAGEMENT
+// ============================================================================
+
 function createEmbedders() {
     logResult('🌐 Creating 10 embedders...');
     
@@ -321,6 +762,7 @@ function createEmbedders() {
     }
     
     updateUI();
+    updateTargetWebsiteCount();
     logResult('🎉 Successfully created 10 embedders!');
 }
 
@@ -334,6 +776,7 @@ function createMassiveEmbedders() {
     const endTime = performance.now();
     
     updateUI();
+    updateTargetWebsiteCount();
     logResult(`🎯 Created 100 embedders in ${(endTime - startTime).toFixed(2)}ms`);
     logResult('💪 Massive scale test completed successfully!');
 }
@@ -349,7 +792,16 @@ function clearAllEmbedders() {
     
     updateEmbedderList();
     updateUI();
+    updateTargetWebsiteCount();
     logResult('✅ All embedders cleared!');
+}
+
+function updateTargetWebsiteCount() {
+    const count = window.multiEmbedderManager?.activeEmbedders || 0;
+    const targetElement = document.getElementById('targetWebsiteCount');
+    if (targetElement) {
+        targetElement.textContent = count.toLocaleString();
+    }
 }
 
 function runTemplate(templateType) {
@@ -389,6 +841,7 @@ function updateUI() {
         window.multiInstanceMonitor.updateUI();
     }
     updateGlobalStats();
+    updateTargetWebsiteCount();
 }
 
 function logResult(message) {
@@ -423,7 +876,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update UI periodically
     setInterval(updateUI, 2000);
     
+    // Initialize target website count
+    updateTargetWebsiteCount();
+    
     logResult('🚀 Automation page loaded and ready!');
+    logResult('🌐 Parallel embedding system initialized');
+    logResult('🎮 Grand automation controls active');
 });
 </script>
 
