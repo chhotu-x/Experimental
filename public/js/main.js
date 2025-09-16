@@ -1859,7 +1859,7 @@ console.log(\`  📈 System Health: \${((totalTests/maxTests)*100).toFixed(1)}%\
 
 showToast(\`🔧 System Repair Complete: \${diagnostics.repairedFunctions.length} functions fixed, \${totalTests}/\${maxTests} tests passed\`, 'success');`,
 
-        'million-website-parallel': \`// 🌐 1M Website Parallel Embedding - Embed same website 1M times from one link
+        'million-website-parallel': `// 🌐 1M Website Parallel Embedding - Embed same website 1M times from one link
 console.log('🌐 Starting 1 Million Website Parallel Embedding Demo');
 
 // Get target URL from user input or use default
