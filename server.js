@@ -14,6 +14,7 @@ try {
 // Import enhanced embedder and automation features
 const ProxyPoolManager = require('./middleware/proxy-pool-simple');
 const ParallelEmbeddingEngine = require('./middleware/parallel-embedding-simple');
+const GrandAutomationEngine = require('./middleware/grand-automation-engine');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,12 @@ const proxyPool = new ProxyPoolManager({
 const embeddingEngine = new ParallelEmbeddingEngine(proxyPool, {
     maxConcurrentEmbeddings: 10000,
     batchSize: 100
+});
+
+const automationEngine = new GrandAutomationEngine(embeddingEngine, {
+    maxConcurrentAutomations: 100000,
+    batchSize: 1000,
+    realTimeThreshold: 100
 });
 
 // Set EJS as the view engine
@@ -84,6 +91,7 @@ async function initializeSystems() {
     try {
         await proxyPool.initialize();
         await embeddingEngine.start();
+        await automationEngine.start();
         console.log('🚀 All systems initialized successfully');
     } catch (error) {
         console.error('Failed to initialize systems:', error);
@@ -266,6 +274,155 @@ app.post('/api/automation/massive', async (req, res) => {
             error: 'Failed to create automation config',
             details: error.message 
         });
+    }
+});
+
+// Create automation session
+app.post('/api/automation/sessions', async (req, res) => {
+    try {
+        const { config } = req.body;
+        
+        if (!config) {
+            return res.status(400).json({ 
+                error: 'Automation config is required',
+                example: { 
+                    config: { 
+                        baseUrl: 'https://example.com', 
+                        count: 1000, 
+                        pattern: 'sequential' 
+                    } 
+                }
+            });
+        }
+
+        console.log(`🤖 Creating automation session...`);
+        
+        const result = await automationEngine.createMassiveAutomationSession(config);
+        
+        res.json({
+            success: true,
+            message: 'Automation session created successfully',
+            sessionId: result.sessionId,
+            status: result.status,
+            websiteCount: result.websiteCount,
+            estimatedDuration: result.estimatedDuration
+        });
+        
+    } catch (error) {
+        console.error('Automation session creation error:', error);
+        res.status(500).json({ 
+            error: 'Failed to create automation session',
+            details: error.message 
+        });
+    }
+});
+
+// Start automation session
+app.post('/api/automation/sessions/:sessionId/start', async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const { options = {} } = req.body;
+        
+        console.log(`🚀 Starting automation session ${sessionId}...`);
+        
+        const result = await automationEngine.startAutomationSession(sessionId, options);
+        
+        res.json({
+            success: true,
+            message: 'Automation session started successfully',
+            sessionId: result.sessionId,
+            status: result.status
+        });
+        
+    } catch (error) {
+        console.error('Automation session start error:', error);
+        res.status(500).json({ 
+            error: 'Failed to start automation session',
+            details: error.message 
+        });
+    }
+});
+
+// Execute real-time command across all websites
+app.post('/api/automation/sessions/:sessionId/commands', async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const { command } = req.body;
+        
+        if (!command || !command.type) {
+            return res.status(400).json({ 
+                error: 'Command with type is required',
+                example: { 
+                    command: { 
+                        type: 'click', 
+                        selector: '#button' 
+                    } 
+                }
+            });
+        }
+
+        console.log(`⚡ Executing real-time command ${command.type} across session ${sessionId}...`);
+        
+        const result = await automationEngine.executeRealTimeCommand(sessionId, command);
+        
+        res.json({
+            success: true,
+            message: `Command executed across all websites in session`,
+            commandId: result.commandId,
+            status: result.status,
+            resultsCount: result.resultsCount,
+            failedCount: result.failedCount,
+            processingTime: result.processingTime
+        });
+        
+    } catch (error) {
+        console.error('Real-time command execution error:', error);
+        res.status(500).json({ 
+            error: 'Failed to execute real-time command',
+            details: error.message 
+        });
+    }
+});
+
+// Get automation session status
+app.get('/api/automation/sessions/:sessionId/status', (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const status = automationEngine.getSessionStatus(sessionId);
+        
+        if (!status) {
+            return res.status(404).json({ error: 'Automation session not found' });
+        }
+        
+        res.json({
+            success: true,
+            sessionId,
+            status: status.status,
+            websiteCount: status.websiteCount,
+            completedCount: status.completedCount,
+            failedCount: status.failedCount,
+            activeControls: status.activeControls,
+            commandHistory: status.commandHistory,
+            uptime: status.uptime
+        });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get automation engine stats
+app.get('/api/automation/stats', (req, res) => {
+    try {
+        const automationStats = automationEngine.getStats();
+        
+        res.json({
+            timestamp: new Date().toISOString(),
+            automation: automationStats
+        });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

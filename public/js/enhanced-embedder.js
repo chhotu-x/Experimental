@@ -506,9 +506,317 @@ function initEnhancedWebsiteEmbedder() {
 }
 
 // Global functions for automation controls
-function startMassiveAutomation(configId) {
-    alert(`Starting massive automation with config: ${configId}`);
-    // Implementation would start the actual automation process
+let currentAutomationSession = null;
+
+async function startMassiveAutomation(configId) {
+    try {
+        console.log(`🚀 Starting massive automation with config: ${configId}`);
+        
+        // Create automation session
+        const sessionResponse = await fetch('/api/automation/sessions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                config: {
+                    id: configId,
+                    baseUrl: document.getElementById('automationBaseUrl').value,
+                    count: parseInt(document.getElementById('automationCount').value),
+                    pattern: document.getElementById('automationPattern').value
+                }
+            })
+        });
+
+        const sessionResult = await sessionResponse.json();
+        
+        if (sessionResult.success) {
+            currentAutomationSession = sessionResult.sessionId;
+            
+            // Start the session
+            const startResponse = await fetch(`/api/automation/sessions/${currentAutomationSession}/start`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ options: {} })
+            });
+
+            const startResult = await startResponse.json();
+            
+            if (startResult.success) {
+                logPerformance(`✅ Automation session ${currentAutomationSession} started successfully`);
+                logPerformance(`🎛️ Now controlling ${sessionResult.websiteCount.toLocaleString()} websites in real-time`);
+                
+                // Show automation controls
+                showAutomationControls(currentAutomationSession);
+            } else {
+                throw new Error(startResult.error);
+            }
+        } else {
+            throw new Error(sessionResult.error);
+        }
+        
+    } catch (error) {
+        console.error('Failed to start automation:', error);
+        alert(`Failed to start automation: ${error.message}`);
+    }
+}
+
+function showAutomationControls(sessionId) {
+    const websiteContent = document.getElementById('websiteContent');
+    
+    const controlsHtml = `
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="mb-4">
+                        <i class="fas fa-robot text-success me-2"></i>
+                        Live Automation Control - Session ${sessionId}
+                    </h2>
+                    
+                    <div class="alert alert-success">
+                        <h4 class="alert-heading">
+                            <i class="fas fa-check-circle me-2"></i>Automation Session Active!
+                        </h4>
+                        <p class="mb-0">
+                            You now have real-time control over all embedded websites. 
+                            Execute commands below to control all instances simultaneously.
+                        </p>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-gamepad me-2"></i>Real-time Command Center
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <button class="btn btn-primary w-100" onclick="executeAutomationCommand('click', '#button')">
+                                                <i class="fas fa-mouse-pointer me-2"></i>Click All Buttons
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button class="btn btn-info w-100" onclick="executeAutomationCommand('scroll', 'down')">
+                                                <i class="fas fa-arrow-down me-2"></i>Scroll All Down
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button class="btn btn-success w-100" onclick="executeAutomationCommand('fill', '#input', 'automated_value')">
+                                                <i class="fas fa-edit me-2"></i>Fill All Forms
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button class="btn btn-warning w-100" onclick="executeAutomationCommand('capture', null)">
+                                                <i class="fas fa-camera me-2"></i>Capture All Data
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr>
+                                    
+                                    <h6>Custom Command</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <select class="form-select" id="customCommandType">
+                                                <option value="click">Click</option>
+                                                <option value="fill">Fill</option>
+                                                <option value="navigate">Navigate</option>
+                                                <option value="scroll">Scroll</option>
+                                                <option value="capture">Capture</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input type="text" class="form-control" id="customCommandSelector" placeholder="Selector or value">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-outline-primary w-100" onclick="executeCustomCommand()">
+                                                <i class="fas fa-bolt me-1"></i>Execute
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-bar me-2"></i>Session Status
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="sessionStats">
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2">Loading session status...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-history me-2"></i>Command History
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="commandHistory" style="max-height: 200px; overflow-y: auto;">
+                                        <small class="text-muted">No commands executed yet</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    websiteContent.innerHTML = controlsHtml;
+    websiteContent.style.display = 'block';
+    
+    // Start session monitoring
+    startSessionMonitoring(sessionId);
+}
+
+async function executeAutomationCommand(type, selector, value = null) {
+    if (!currentAutomationSession) {
+        alert('No active automation session');
+        return;
+    }
+    
+    try {
+        const command = { type, selector };
+        if (value) command.value = value;
+        if (type === 'scroll') command.direction = selector;
+        if (type === 'capture') command.options = {};
+        
+        logPerformance(`⚡ Executing ${type} command across all websites...`);
+        
+        const response = await fetch(`/api/automation/sessions/${currentAutomationSession}/commands`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            logPerformance(`✅ Command executed: ${result.resultsCount} successful, ${result.failedCount} failed (${result.processingTime}ms)`);
+            addToCommandHistory(type, result);
+        } else {
+            throw new Error(result.error);
+        }
+        
+    } catch (error) {
+        console.error('Command execution failed:', error);
+        logPerformance(`❌ Command failed: ${error.message}`);
+    }
+}
+
+function executeCustomCommand() {
+    const type = document.getElementById('customCommandType').value;
+    const selector = document.getElementById('customCommandSelector').value;
+    
+    if (!selector && type !== 'capture') {
+        alert('Please enter a selector or value');
+        return;
+    }
+    
+    executeAutomationCommand(type, selector);
+}
+
+function addToCommandHistory(type, result) {
+    const historyDiv = document.getElementById('commandHistory');
+    if (historyDiv) {
+        const timestamp = new Date().toLocaleTimeString();
+        const entry = document.createElement('div');
+        entry.className = 'border-bottom pb-1 mb-1';
+        entry.innerHTML = `
+            <small>
+                <strong>[${timestamp}]</strong> ${type.toUpperCase()}<br>
+                <span class="text-success">${result.resultsCount} OK</span> | 
+                <span class="text-danger">${result.failedCount} Failed</span> | 
+                <span class="text-muted">${result.processingTime}ms</span>
+            </small>
+        `;
+        
+        if (historyDiv.querySelector('.text-muted')) {
+            historyDiv.innerHTML = '';
+        }
+        
+        historyDiv.insertBefore(entry, historyDiv.firstChild);
+        
+        // Keep only last 10 entries
+        while (historyDiv.children.length > 10) {
+            historyDiv.removeChild(historyDiv.lastChild);
+        }
+    }
+}
+
+function startSessionMonitoring(sessionId) {
+    const updateSessionStats = async () => {
+        try {
+            const response = await fetch(`/api/automation/sessions/${sessionId}/status`);
+            const data = await response.json();
+            
+            if (data.success) {
+                const statsDiv = document.getElementById('sessionStats');
+                if (statsDiv) {
+                    statsDiv.innerHTML = `
+                        <div class="row g-2 text-center">
+                            <div class="col-6">
+                                <div class="bg-primary text-white p-2 rounded">
+                                    <div class="h5 mb-0">${data.websiteCount.toLocaleString()}</div>
+                                    <small>Total Websites</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-success text-white p-2 rounded">
+                                    <div class="h5 mb-0">${data.activeControls.toLocaleString()}</div>
+                                    <small>Active Controls</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-info text-white p-2 rounded">
+                                    <div class="h5 mb-0">${data.commandHistory}</div>
+                                    <small>Commands</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-warning text-white p-2 rounded">
+                                    <div class="h5 mb-0">${Math.floor(data.uptime / 1000)}s</div>
+                                    <small>Uptime</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="badge bg-${data.status === 'active' ? 'success' : 'secondary'} w-100">
+                                Status: ${data.status.toUpperCase()}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        } catch (error) {
+            console.error('Session monitoring error:', error);
+        }
+    };
+    
+    // Update immediately and then every 5 seconds
+    updateSessionStats();
+    setInterval(updateSessionStats, 5000);
 }
 
 function simulateAutomation(configId) {
