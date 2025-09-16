@@ -66,3 +66,15 @@ logs
 # Temporary files
 tmp/
 temp/
+
+# Performance validation results
+performance-validation-results.json
+
+# GitHub Actions artifacts
+test-results/
+coverage/
+performance-reports/
+security-reports/
+
+# Benchmark files
+/tmp/performance-benchmarks/

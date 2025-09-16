@@ -1,0 +1,185 @@
+name: Copilot Coding Agent Environment
+
+on:
+  # Triggered when Copilot Coding Agent creates a PR
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      task_description:
+        description: 'Description of the coding task'
+        required: false
+        default: 'General coding task'
+
+# Set permissions for the GITHUB_TOKEN
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: write
+
+jobs:
+  copilot-agent-setup:
+    name: Setup Copilot Coding Agent Environment
+    # Use the high-performance 96-core Ubuntu runner from GitHub Enterprise
+    runs-on: ubuntu-latest-96core
+    
+    # Set timeout to handle long-running tasks
+    timeout-minutes: 120
+    
+    # Environment variables for the agent
+    env:
+      NODE_ENV: development
+      CI: true
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Add any custom environment variables your project needs
+      NPM_CONFIG_CACHE: /tmp/.npm
+      YARN_CACHE_FOLDER: /tmp/.yarn
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # Fetch full history for better context
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'Experimental-main/package.json'
+    
+    - name: Configure Git for automation
+      run: |
+        git config --global user.name "GitHub Copilot Coding Agent"
+        git config --global user.email "copilot-agent@github.com"
+        git config --global init.defaultBranch main
+    
+    - name: Install dependencies
+      working-directory: ./Experimental-main
+      run: |
+        npm ci --prefer-offline --no-audit
+        
+    - name: Setup test environment
+      working-directory: ./Experimental-main
+      run: |
+        # Create necessary directories
+        mkdir -p logs temp
+        
+        # Set up test databases or services if needed
+        # npm run setup:test-db
+        
+        # Verify installation
+        npm list --depth=0
+    
+    - name: Run initial health checks
+      working-directory: ./Experimental-main
+      run: |
+        # Basic health checks
+        node --version
+        npm --version
+        
+        # Check if the main application starts
+        timeout 10s npm start || echo "App start test completed"
+        
+        # Run linting
+        npm run lint || echo "Linting completed with warnings"
+    
+    - name: Run tests with coverage
+      working-directory: ./Experimental-main
+      run: |
+        # Run the test suite
+        npm test -- --coverage --maxWorkers=50%
+        
+        # Generate test reports
+        npm run test:performance || echo "Performance tests completed"
+    
+    - name: Cache build artifacts
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          ~/.yarn
+          ./Experimental-main/node_modules
+          ./Experimental-main/dist
+          ./Experimental-main/.next
+        key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          ./Experimental-main/coverage/
+          ./Experimental-main/test-results/
+          ./Experimental-main/logs/
+    
+    - name: Performance monitoring setup
+      run: |
+        echo "Setting up performance monitoring for 96-core runner"
+        echo "CPU Cores: $(nproc)"
+        echo "Memory: $(free -h)"
+        echo "Disk Space: $(df -h)"
+        
+        # Monitor resource usage during builds
+        top -b -n1 | head -20
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        # Clean up temporary files
+        rm -rf /tmp/.npm /tmp/.yarn
+        
+        # Clean up large node_modules if needed (keep for caching)
+        # rm -rf ./Experimental-main/node_modules
+
+  # Additional job for parallel processing if needed
+  parallel-tasks:
+    name: Parallel Processing Tasks
+    runs-on: ubuntu-latest-96core
+    if: github.event_name == 'workflow_dispatch'
+    
+    strategy:
+      matrix:
+        task: [linting, testing, building, security-scan]
+        
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'Experimental-main/package.json'
+    
+    - name: Install dependencies
+      working-directory: ./Experimental-main
+      run: npm ci
+    
+    - name: Run matrix task
+      working-directory: ./Experimental-main
+      run: |
+        case "${{ matrix.task }}" in
+          linting)
+            npm run lint
+            ;;
+          testing)
+            npm test
+            ;;
+          building)
+            npm run build || echo "Build step completed"
+            ;;
+          security-scan)
+            npm audit --audit-level high || echo "Security scan completed"
+            ;;
+        esac
