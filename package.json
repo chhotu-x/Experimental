@@ -1,6 +1,6 @@
 {
   "name": "tech-website",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "A tech website implementation inspired by 42web.io",
   "main": "server.js",
   "scripts": {

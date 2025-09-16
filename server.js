@@ -275,7 +275,11 @@ app.post('/contact', (req, res) => {
     res.render('contact', {
         title: 'Contact - 42Web.io',
         currentPage: 'contact',
-        success: 'Thank you for your message! We\'ll get back to you soon.'
+        success: 'Thank you for your message! We\'ll get back to you soon.',
+        ...withMeta({
+            description: 'Contact 42Web.io to discuss your project. We respond within 24 hours on business days.',
+            canonical: req.protocol + '://' + req.get('host') + '/contact'
+        })
     });
 });
 
@@ -314,7 +318,11 @@ app.get('/blog/:slug', (req, res) => {
 // 404 handler
 app.use((req, res) => {
     res.status(404).render('404', {
-        title: '404 - Page Not Found'
+        title: '404 - Page Not Found',
+        currentPage: '404',
+        ...withMeta({
+            description: 'Page not found'
+        })
     });
 });
 
@@ -322,7 +330,11 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).render('error', {
-        title: 'Error - Something went wrong'
+        title: 'Error - Something went wrong',
+        currentPage: 'error',
+        ...withMeta({
+            description: 'An error occurred'
+        })
     });
 });
 
