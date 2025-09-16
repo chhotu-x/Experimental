@@ -1,0 +1,113 @@
+# Copilot Coding Agent Configuration
+# This file configures the environment for GitHub Copilot Coding Agent
+
+# Runner Configuration
+runner:
+  type: "ubuntu-latest-96core"
+  timeout: 120  # minutes
+  
+# Environment Settings
+environment:
+  node_version: "20"
+  npm_cache: "/tmp/.npm"
+  yarn_cache: "/tmp/.yarn"
+  
+  # Resource allocation for 96-core runner
+  max_workers: "50%"  # Use 50% of available cores for parallel tasks
+  memory_limit: "32g"  # Set memory limits appropriately
+  
+  # Environment variables
+  variables:
+    NODE_ENV: "development"
+    CI: "true"
+    NODE_OPTIONS: "--max-old-space-size=8192"
+    UV_THREADPOOL_SIZE: "96"
+
+# Project Structure
+project:
+  main_directory: "./"
+  package_manager: "npm"
+  entry_point: "server.js"
+  
+# Build Configuration
+build:
+  # Parallel processing settings
+  parallel_jobs: 48  # Half of 96 cores for build tasks
+  
+  # Cache settings
+  cache_paths:
+    - "~/.npm"
+    - "~/.yarn" 
+    - "./node_modules"
+    - "./public/dist"
+    - "./memory/cache"
+    
+# Test Configuration
+testing:
+  # Performance settings for large runner
+  max_workers: "50%"
+  coverage: false  # Set to true when test coverage is implemented
+  
+  # Test categories
+  suites:
+    - unit
+    - integration
+    - performance
+    - health-check
+
+# Performance Monitoring
+monitoring:
+  # Resource usage tracking
+  track_cpu: true
+  track_memory: true
+  track_disk: true
+  
+  # Performance thresholds
+  thresholds:
+    build_time_max: "10m"
+    test_time_max: "15m"
+    memory_usage_max: "80%"
+
+# Security Settings
+security:
+  # Dependency scanning
+  audit_level: "high"
+  
+  # Code scanning
+  enable_codeql: false  # Can be enabled later
+  
+# Artifact Management
+artifacts:
+  # What to save after runs
+  preserve:
+    - "logs/"
+    - "memory/"
+    - "public/dist/"
+  
+  # Retention policy
+  retention_days: 30
+
+# Cleanup Settings
+cleanup:
+  # Temporary files to remove
+  temp_paths:
+    - "/tmp/.npm"
+    - "/tmp/.yarn"
+    - "./logs/*.log"
+  
+  # What to keep for caching
+  preserve_cache: true
+
+# Application Configuration
+application:
+  # Server settings
+  server:
+    port: 3000
+    host: "localhost"
+    
+  # Features
+  features:
+    proxy: true
+    caching: true
+    compression: true
+    security_headers: true
