@@ -1,0 +1,129 @@
+# GitHub Copilot Coding Agent Configuration
+# Optimized for ubuntu-latest-96core runners
+
+# Agent Settings
+agent:
+  name: "96-Core Optimized Coding Agent"
+  version: "1.0.0"
+  description: "High-performance GitHub Copilot Coding Agent with 96-core optimization"
+  
+# Runner Configuration
+runner:
+  type: "ubuntu-latest-96core"
+  specs:
+    cpu_cores: 96
+    memory_gb: 32
+    parallel_allocation: 50  # Use 50% of cores for parallel tasks (48 cores)
+    
+# Performance Settings
+performance:
+  node_options:
+    max_old_space_size: 8192  # 8GB heap size
+    max_semi_space_size: 512
+    max_workers: 48
+  
+  npm_config:
+    maxsockets: 50
+    network_concurrency: 16
+    cache_dir: "/tmp/.npm"
+    prefer_offline: true
+    audit: false
+    fund: false
+    progress: false
+  
+  environment:
+    uv_threadpool_size: 96
+    jest_workers: "50%"
+    parallel_processes: 48
+
+# Build and Test Configuration
+build:
+  timeout_minutes: 120
+  cache_strategy:
+    - node_modules
+    - ".npm"
+    - ".yarn"
+    - "dist"
+    - "build"
+    - ".next"
+    - "coverage"
+  
+  parallel_tasks:
+    - linting
+    - testing
+    - building
+    - security_scanning
+    - documentation
+
+# Test Configuration
+testing:
+  frameworks:
+    - jest
+    - mocha
+    - cypress
+  parallel_execution: true
+  max_workers: "50%"
+  coverage: true
+  timeout: 30000
+  
+# Security and Compliance
+security:
+  audit_level: "high"
+  codeql_enabled: true
+  dependency_scanning: true
+  vulnerability_alerts: true
+  
+# Monitoring and Analytics
+monitoring:
+  resource_tracking: true
+  performance_metrics: true
+  build_time_analysis: true
+  memory_profiling: true
+  
+  thresholds:
+    max_build_time_minutes: 10
+    max_test_time_minutes: 15
+    max_memory_usage_percent: 80
+    min_cpu_utilization_percent: 30
+
+# Optimization Features
+optimization:
+  features:
+    - advanced_caching
+    - parallel_processing
+    - memory_optimization
+    - cpu_optimization
+    - network_optimization
+    - dependency_optimization
+  
+  strategies:
+    cache_first: true
+    incremental_builds: true
+    smart_parallelization: true
+    resource_pooling: true
+
+# Artifact Management
+artifacts:
+  retention_days: 7
+  compression: true
+  upload_patterns:
+    - "logs/**"
+    - "coverage/**"
+    - "test-results/**"
+    - "performance-reports/**"
+    - "security-reports/**"
+
+# Notification Settings
+notifications:
+  on_success: false
+  on_failure: true
+  performance_alerts: true
+  security_alerts: true
+
+# Integration Settings
+integrations:
+  github_enterprise: true
+  codeql: true
+  dependabot: true
+  security_advisories: true
+  performance_insights: true
