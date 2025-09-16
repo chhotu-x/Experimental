@@ -1,0 +1,430 @@
+<%- include('header') %>
+
+<!-- Automation Engine Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-5 fw-bold mb-3">🚀 Advanced Automation Engine</h1>
+                <p class="lead mb-4">
+                    Harness the power of massive-scale automation with AI-powered element detection, 
+                    parallel processing, and real-time control systems.
+                </p>
+                <div class="d-flex justify-content-center gap-3 mb-4">
+                    <div class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-robot me-1"></i>
+                        AI-Powered Detection
+                    </div>
+                    <div class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-parallel"></i>
+                        Parallel Processing
+                    </div>
+                    <div class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-chart-line me-1"></i>
+                        Real-time Analytics
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Multi-Embedder Dashboard -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-center mb-4">🌐 Multi-Embedder Dashboard</h2>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-robot fa-2x text-primary mb-2"></i>
+                                <h5 class="card-title">Active Embedders</h5>
+                                <h3 class="text-primary mb-0" id="activeEmbeddersCount">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-plus-circle fa-2x text-success mb-2"></i>
+                                <h5 class="card-title">Total Created</h5>
+                                <h3 class="text-success mb-0" id="totalCreatedCount">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-memory fa-2x text-warning mb-2"></i>
+                                <h5 class="card-title">Memory Usage</h5>
+                                <h3 class="text-warning mb-0" id="memoryUsagePercent">0%</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tachometer-alt fa-2x text-info mb-2"></i>
+                                <h5 class="card-title">Response Time</h5>
+                                <h3 class="text-info mb-0" id="averageResponseTime">0ms</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Bars -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h6>Memory Usage</h6>
+                <div class="progress">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="memoryProgressBar"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>CPU Usage</h6>
+                <div class="progress">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 0%" id="cpuProgressBar"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Embedder Controls -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Embedder Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2 mb-3">
+                            <button class="btn btn-primary" onclick="createEmbedders()">
+                                <i class="fas fa-plus me-2"></i>Create 10 Embedders
+                            </button>
+                            <button class="btn btn-success" onclick="createMassiveEmbedders()">
+                                <i class="fas fa-rocket me-2"></i>Create 100 Embedders
+                            </button>
+                            <button class="btn btn-danger" onclick="clearAllEmbedders()">
+                                <i class="fas fa-trash me-2"></i>Clear All Embedders
+                            </button>
+                        </div>
+                        
+                        <div id="embedderList">
+                            <div class="text-center text-muted p-3">
+                                <i class="fas fa-robot fa-2x mb-2"></i>
+                                <div>No embedders created yet</div>
+                                <small>Click "Create Embedders" to start</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">System Performance</h5>
+                    </div>
+                    <div class="card-body" id="performanceMonitor">
+                        <p class="text-muted">Performance monitoring will appear here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Automation Templates -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-center mb-4">🤖 Automation Templates</h2>
+            </div>
+        </div>
+        
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-fill-drip fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Smart Form Filler</h5>
+                        <p class="card-text">Intelligent form field detection and filling with advanced validation.</p>
+                        <button class="btn btn-outline-primary" onclick="runTemplate('smart-form-filler')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-database fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Data Harvester</h5>
+                        <p class="card-text">Advanced data extraction with structure analysis and parallel processing.</p>
+                        <button class="btn btn-outline-success" onclick="runTemplate('data-harvester')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-rocket fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">Performance Tester</h5>
+                        <p class="card-text">Comprehensive performance testing suite with real-time metrics.</p>
+                        <button class="btn btn-outline-danger" onclick="runTemplate('performance-tester')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-compass fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Intelligent Navigator</h5>
+                        <p class="card-text">Smart navigation with content analysis and adaptive strategies.</p>
+                        <button class="btn btn-outline-warning" onclick="runTemplate('intelligent-navigator')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-network-wired fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Multi-Embedder Demo</h5>
+                        <p class="card-text">Demonstrate multi-embedder architecture with parallel operations.</p>
+                        <button class="btn btn-outline-info" onclick="runTemplate('multi-embedder-demo')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-infinity fa-3x text-dark mb-3"></i>
+                        <h5 class="card-title">Unlimited Operations</h5>
+                        <p class="card-text">Process beyond 100,000 operations with unlimited mode.</p>
+                        <button class="btn btn-outline-dark" onclick="runTemplate('unlimited-operations')">
+                            Run Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Custom Script Editor -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Custom Automation Script</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadAutomationTemplate('custom')">
+                                Reset to Default
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="executeCustomScript()">
+                                <i class="fas fa-play me-1"></i>Execute Script
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control font-monospace" id="customScript" rows="15" 
+                                  placeholder="Write your custom automation script here..."></textarea>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <strong>Available APIs:</strong> 
+                                AutomationBatch(), window.automationEngine.waitingStrategies, 
+                                window.multiEmbedderManager, wait(ms)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Results Section -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Automation Results</h5>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearResults()">
+                            <i class="fas fa-trash me-1"></i>Clear
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="automationResults" class="bg-dark text-light p-3 rounded font-monospace" style="min-height: 200px; overflow-y: auto;">
+                            <div class="text-success">🚀 Advanced Automation Engine Ready</div>
+                            <div class="text-muted">Run any template or custom script to see results here...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.progress {
+    height: 8px;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+#automationResults {
+    max-height: 400px;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.font-monospace {
+    font-family: 'Courier New', Courier, monospace;
+}
+</style>
+
+<script>
+// Enhanced automation UI functions
+function createEmbedders() {
+    logResult('🌐 Creating 10 embedders...');
+    
+    for (let i = 0; i < 10; i++) {
+        const embedderId = window.multiEmbedderManager.createEmbedder(`ui_embedder_${Date.now()}_${i}`);
+        logResult(`✅ Created embedder: ${embedderId}`);
+    }
+    
+    updateUI();
+    logResult('🎉 Successfully created 10 embedders!');
+}
+
+function createMassiveEmbedders() {
+    logResult('🚀 Creating 100 embedders (massive scale test)...');
+    
+    const startTime = performance.now();
+    for (let i = 0; i < 100; i++) {
+        window.multiEmbedderManager.createEmbedder(`massive_embedder_${Date.now()}_${i}`);
+    }
+    const endTime = performance.now();
+    
+    updateUI();
+    logResult(`🎯 Created 100 embedders in ${(endTime - startTime).toFixed(2)}ms`);
+    logResult('💪 Massive scale test completed successfully!');
+}
+
+function clearAllEmbedders() {
+    logResult('🧹 Clearing all embedders...');
+    
+    // Reset the manager (simplified)
+    window.multiEmbedderManager.embedders.clear();
+    window.multiEmbedderManager.activeEmbedders = 0;
+    window.multiEmbedderManager.globalStats.totalDestroyed += window.multiEmbedderManager.globalStats.totalCreated;
+    window.multiEmbedderManager.globalStats.activeConnections = 0;
+    
+    updateEmbedderList();
+    updateUI();
+    logResult('✅ All embedders cleared!');
+}
+
+function runTemplate(templateType) {
+    logResult(`🤖 Running ${templateType} template...`);
+    
+    // Load and execute the template
+    loadAutomationTemplate(templateType);
+    setTimeout(() => {
+        executeCustomScript();
+    }, 500);
+}
+
+async function executeCustomScript() {
+    const script = document.getElementById('customScript').value;
+    if (!script.trim()) {
+        logResult('❌ No script to execute');
+        return;
+    }
+    
+    logResult('⚡ Executing custom automation script...');
+    
+    try {
+        // Execute the script in the global context
+        const result = await eval(`(async () => { ${script} })()`);
+        logResult('✅ Script executed successfully');
+        if (result !== undefined) {
+            logResult(`📊 Result: ${JSON.stringify(result)}`);
+        }
+    } catch (error) {
+        logResult(`❌ Script execution failed: ${error.message}`);
+        console.error('Script execution error:', error);
+    }
+}
+
+function updateUI() {
+    if (window.multiInstanceMonitor) {
+        window.multiInstanceMonitor.updateUI();
+    }
+    updateGlobalStats();
+}
+
+function logResult(message) {
+    const resultsDiv = document.getElementById('automationResults');
+    if (resultsDiv) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logLine = document.createElement('div');
+        logLine.innerHTML = `<span class="text-muted">[${timestamp}]</span> ${message}`;
+        resultsDiv.appendChild(logLine);
+        resultsDiv.scrollTop = resultsDiv.scrollHeight;
+    }
+    console.log(message);
+}
+
+function clearResults() {
+    const resultsDiv = document.getElementById('automationResults');
+    if (resultsDiv) {
+        resultsDiv.innerHTML = `
+            <div class="text-success">🚀 Advanced Automation Engine Ready</div>
+            <div class="text-muted">Run any template or custom script to see results here...</div>
+        `;
+    }
+}
+
+// Initialize the automation templates on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load default custom script
+    if (typeof loadAutomationTemplate === 'function') {
+        loadAutomationTemplate('custom');
+    }
+    
+    // Update UI periodically
+    setInterval(updateUI, 2000);
+    
+    logResult('🚀 Automation page loaded and ready!');
+});
+</script>
+
+<%- include('footer') %>

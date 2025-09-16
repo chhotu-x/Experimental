@@ -122,6 +122,17 @@ app.get('/embed', (req, res) => {
     });
 });
 
+app.get('/automation', (req, res) => {
+    res.render('automation', {
+        title: 'Advanced Automation Engine - 42Web.io',
+        currentPage: 'automation',
+        ...withMeta({
+            description: 'Advanced automation engine with AI-powered element detection, parallel processing, and real-time control systems.',
+            canonical: req.protocol + '://' + req.get('host') + '/automation'
+        })
+    });
+});
+
 // Proxy route for website embedding
 app.get('/proxy', async (req, res) => {
     const targetUrl = req.query.url;
