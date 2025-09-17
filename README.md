@@ -73,7 +73,7 @@ npm run test:copilot-setup
 ```
 ├── .github/
 │   ├── workflows/
-│   │   ├── copilot-coding-agent-96core.yml    # Main 96-core workflow
+│   │   ├── copilot-setup-steps.yml           # Main copilot workflow
 │   │   └── test-copilot-setup.yml             # Testing workflow
 │   ├── scripts/
 │   │   ├── setup-agent-env.sh                 # Environment setup
@@ -88,7 +88,7 @@ npm run test:copilot-setup
 
 ## 🚀 Copilot Agent Workflows
 
-### 1. Main Workflow (`copilot-coding-agent-96core.yml`)
+### 1. Main Workflow (`copilot-setup-steps.yml`)
 **Triggered by**: Pull requests, manual dispatch
 **Features**:
 - 96-core environment setup and optimization

@@ -210,7 +210,7 @@ class PerformanceValidator {
     checkWorkflowConfiguration() {
         console.log('📋 Checking workflow configuration...');
         
-        const workflowPath = '.github/workflows/copilot-coding-agent-96core.yml';
+        const workflowPath = '.github/workflows/copilot-setup-steps.yml';
         const configPath = '.github/copilot-agent.yml';
         const setupScriptPath = '.github/scripts/setup-agent-env.sh';
 

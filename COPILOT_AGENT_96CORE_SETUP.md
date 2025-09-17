@@ -31,7 +31,7 @@ This repository has been configured with GitHub Copilot Coding Agent optimized f
 ```
 .github/
 ├── workflows/
-│   └── copilot-coding-agent-96core.yml    # Main workflow for 96-core optimization
+│   └── copilot-setup-steps.yml               # Main workflow for copilot setup
 ├── scripts/
 │   └── setup-agent-env.sh                 # Environment setup script
 └── copilot-agent.yml                      # Agent configuration file
@@ -39,7 +39,7 @@ This repository has been configured with GitHub Copilot Coding Agent optimized f
 
 ## 🛠️ Configuration Files
 
-### 1. Main Workflow (`.github/workflows/copilot-coding-agent-96core.yml`)
+### 1. Main Workflow (`.github/workflows/copilot-setup-steps.yml`)
 - **Primary workflow** for GitHub Copilot Coding Agent
 - **Multiple jobs** for parallel processing:
   - `copilot-agent-main`: Main environment setup and testing
@@ -74,7 +74,7 @@ The Copilot Coding Agent workflow automatically triggers when:
 ### Manual Trigger
 ```bash
 # Via GitHub CLI
-gh workflow run copilot-coding-agent-96core.yml
+gh workflow run copilot-setup-steps.yml
 
 # Via GitHub Web UI
 Actions → GitHub Copilot Coding Agent - 96 Core Optimized → Run workflow
